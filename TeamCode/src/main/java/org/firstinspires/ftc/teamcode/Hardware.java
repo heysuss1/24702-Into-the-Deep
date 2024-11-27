@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -30,17 +32,21 @@ public class Hardware {
     public DcMotorEx armVertical;
     public DcMotorEx armExtension;
     public GoBildaPinpointDriver odo;
-
+    public RevColorSensorV3 colorSensor;
     public Servo leftServo;
     public Servo rightServo;
+    public Servo rotateServo;
 
-    public static double maxSpeed = 0.6;
+    public static double maxSpeed = 1;
     private static Hardware instance = null;
     public static Hardware getInstance() {
         if(instance == null){
             instance = new Hardware();
         }
         return instance;
+    }
+    public double getSpeed( ){
+        return maxSpeed;
     }
     public void init(HardwareMap hwMap){
         rf = hwMap.get(DcMotorEx.class, "rf");
@@ -67,6 +73,7 @@ public class Hardware {
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lb.setPower(0);
+        //2
 
         armVertical = hwMap.get(DcMotorEx.class, "armV");
         armVertical.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -79,10 +86,14 @@ public class Hardware {
         armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         armExtension.setPower(0);
+
         leftServo = hwMap.get(Servo.class, "leftServo");
         rightServo = hwMap.get(Servo.class, "rightServo");
+        rotateServo = hwMap.get(Servo.class, "rotateServo");
 
         odo = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
+
+        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
 
     }
 
@@ -103,6 +114,7 @@ public class Hardware {
             telemetry.addData("Arm Vertical Encoder", armVertical.getCurrentPosition());
             telemetry.update();
         }
+
         armVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armVertical.setPower(0);
     }

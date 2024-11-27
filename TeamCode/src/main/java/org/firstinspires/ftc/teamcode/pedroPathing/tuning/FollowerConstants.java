@@ -67,9 +67,9 @@ public class FollowerConstants {
 
     // Drive PIDF coefficients
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
-            0.008,
+            0.0055,
             0,
-            0.00004,
+            0.00006,
             0.6,
             0);
 
@@ -83,7 +83,7 @@ public class FollowerConstants {
 
 
     // Mass of robot in kilograms
-    public static double mass = 10;
+    public static double mass = 10.2;
 
     // Centripetal force to power scaling
     public static double centripetalScaling = 0.0005;

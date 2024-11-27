@@ -85,6 +85,7 @@ public class PinpointLocalizer extends Localizer {
         odo.resetPosAndIMU();
 
         setStartPose(setStartPose);
+
         totalHeading = 0;
         previousHeading = startPose.getHeading();
 
