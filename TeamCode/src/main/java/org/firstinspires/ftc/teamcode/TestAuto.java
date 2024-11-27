@@ -80,7 +80,7 @@ public class TestAuto extends OpMode {
         toBucket = newPath(12, 124, -45);
         toSample2 = newPath(27, 128.2, 0);
         toBucketFromSample2 = newPath(12.3, 124, -45);
-        toSample3 = newPath(29.3, 130, 35);
+        toSample3 = newPath(29, 128, 35);
         toBucketFromSample3 = newPath(12.3, 124, -45);
         toParking = newPath(56, 98.5, lastH);
 
