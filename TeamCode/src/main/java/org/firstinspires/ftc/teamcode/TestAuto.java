@@ -78,11 +78,11 @@ public class TestAuto extends OpMode {
         backUp = newPath(19.2, 78, lastH);
         toSample1 = newPath(28.5, 118.2, lastH);
         toBucket = newPath(12, 124, -45);
-        toSample2 = newPath(27, 128.2, 0);
-        toBucketFromSample2 = newPath(12.3, 124, -45);
-        toSample3 = newPath(29, 128, 35);
+        toSample2 = newPath(25, 128.2, 0);
+        toBucketFromSample2 = newPath(12, 124, -45);
+        toSample3 = newPath(29, 128, 37.5);
         toBucketFromSample3 = newPath(12.3, 124, -45);
-        toParking = newPath(56, 98.5, lastH);
+        toParking = newPath(56, 98.5, -90);
 
 
 
@@ -193,11 +193,11 @@ public class TestAuto extends OpMode {
     }
 
     public void closeClaw(){
-        robot.leftServo.setPosition(.69);
+        robot.leftServo.setPosition(.639);
         robot.rightServo.setPosition(.1);
     }
     public void openClaw(){
-        robot.leftServo.setPosition(0.559);
+        robot.leftServo.setPosition(0.508);
         robot.rightServo.setPosition(0.24);
     }
     public void armExtend(int ticks){
@@ -266,7 +266,7 @@ public class TestAuto extends OpMode {
 
                 break;
             case PUT_IN_BUCKET:
-//                closeClaw();
+                closeClaw();
                 if (state == State.GO_TO_SAMPLE2 && !follower.isBusy()){
                     armUp(4000);
                     armExtend(-2350);
@@ -293,7 +293,7 @@ public class TestAuto extends OpMode {
                 if (state == State.GO_TO_BASKET_FROM_SAMPLE_2){
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(-420);
-                    armExtend(-697);
+                    armExtend(-950);
                     rotateArmForwards();
 
                 }
@@ -314,7 +314,7 @@ public class TestAuto extends OpMode {
                 closeClaw();
                 if (state == State.GO_TO_SAMPLE3 && !follower.isBusy()){
                     rotateArmBackWards();
-                    armUp(4000);
+                    armUp(4100);
                     armExtend(-2350);
                     if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > 3000) {
                         if (armTimer.seconds() > 1) {
@@ -334,20 +334,24 @@ public class TestAuto extends OpMode {
                 if (state == State.GO_TO_BASKET_FROM_SAMPLE_3){
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(-420);
-                    armExtend(-900);
+                    armExtend(-800);
 
+                }
+
+                if (robot.armVertical.getCurrentPosition() < 200){
+                    armExtend(-1400);
                 }
                 if (armTimer.seconds() > 2.8){
                     setAction(ActionState.PUT_IN_BUCKET_3);
                 }
-                if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3){
-//                    if (armTimer.seconds() > 1){
-//                        armTimer.reset();
-//                    }
+                if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3 && !robot.armVertical.isBusy()){
+                    if (armTimer.seconds() > 1){
+                        armTimer.reset();
+                    }
                     closeClaw();
-//                    if (armTimer.seconds() > 0.3){
-//                        setAction(ActionState.PUT_IN_BUCKET_3);
-//                    }
+                    if (armTimer.seconds() > 0.3){
+                        setAction(ActionState.PUT_IN_BUCKET_3);
+                    }
                 }
 
             break;
@@ -372,6 +376,11 @@ public class TestAuto extends OpMode {
                 }
                 break;
             case PARK:
+                if (armTimer.seconds() > 2){
+                    rotateArmForwards();
+                    armUp(600);
+                    armExtend(-1000);
+                }
                 break;
             default:
                 stop();

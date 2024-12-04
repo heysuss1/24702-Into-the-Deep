@@ -44,6 +44,7 @@ public class TeleOP extends LinearOpMode {
         boolean clawForwards = false;
         boolean pressingRB = false;
         boolean pressingX2 = false;
+        boolean goToPosition = false;
         boolean extensionLimiterPressed = false;
         boolean tooFar = false;
         boolean isStalling = false;
@@ -73,6 +74,7 @@ public class TeleOP extends LinearOpMode {
             //gamepad 2 = driver 2
             if (gamepad2.y && !pressingY){
                 robot.rotateServo.setPosition(0.174);
+
                 pressingY = true;
             } else if (!gamepad2.y){
                 pressingY = false;
@@ -85,6 +87,8 @@ public class TeleOP extends LinearOpMode {
             }
             if (gamepad2.a && !pressingA){
                 robot.rotateServo.setPosition(0.726);
+//                robot.rotateServo.setPosition(0.437);
+
                 pressingA = true;
             } else{
                 pressingA = false;
@@ -102,15 +106,25 @@ public class TeleOP extends LinearOpMode {
                 pressingX = false;
             }
 
-//            if (gamepad2.x && !pressingX2){
-//                robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                robot.armVertical.;
-//                robot.armVertical.setPower(1);
+            if (gamepad2.x && !pressingX2){
+                robot.armVertical.setTargetPosition(0);
+                robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //                robot.rotateServo.setPosition(0.437);
-//                pressingX2 = true;
-//            } else if (!gamepad2.x){
-//                pressingX2 = false;
-//            }
+                goToPosition = true;
+
+                pressingX2 = true;
+            } else if (!gamepad2.x){
+                pressingX2 = false;
+            }
+
+            if (goToPosition){
+                robot.armVertical.setPower(1);
+                if (robot.armVertical.getCurrentPosition() > -5 && robot.armVertical.getCurrentPosition() < 5){
+                    goToPosition = false;
+                }
+            } else{
+                robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
             if (gamepad1.right_bumper && !pressingRB){
                 toObservationZone = newPath(frontOfObservationZone.getX(), frontOfSubmersible.getY(), 0);
                 follower.followPath(toObservationZone);
@@ -168,7 +182,9 @@ public class TeleOP extends LinearOpMode {
             else if(gamepad2.right_stick_y < -0.1){
                 robot.armVertical.setPower(1);
             } else{
-                robot.armVertical.setPower(0);
+                if (!goToPosition){
+                    robot.armVertical.setPower(0);
+                }
             }
             /*if(gamepad2.b && !pressingB){
                 telemetry.addData("Extention Position", robot.armExtension.getCurrentPosition());
@@ -182,13 +198,13 @@ public class TeleOP extends LinearOpMode {
             if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
                 if(!clawIsOpen){
                     //Open claw
-                    robot.leftServo.setPosition(0.559);
-                    robot.rightServo.setPosition(0.24);//may be wrong position
+                    robot.leftServo.setPosition(.639);
+                    robot.rightServo.setPosition(0.55);//may be wrong position
                     clawIsOpen = true;
                 } else {
                     //Close claw
-                    robot.leftServo.setPosition(.69);
-                    robot.rightServo.setPosition(.1);
+                    robot.leftServo.setPosition(.508);
+                    robot.rightServo.setPosition(.69);
                     clawIsOpen = false;
                 }
                 pressingLT = true;
@@ -243,6 +259,7 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("Robot Position", follower.getPose());
             telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
             telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
+            telemetry.addData("Conttrol Toggle", goToPosition);
             //            telemetry.addData("Arm Vertical Position", robot.armVertical.getCurrentPosition());
             telemetry.update();
         }
@@ -256,9 +273,9 @@ public class TeleOP extends LinearOpMode {
             return path;
 
         }
-    public void pickUpRobot(){
-        robot.armVertical.setTargetPosition(0);
-        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.armVertical.setPower(1);
-    }
+//    public void pickUpRobot(){
+//        robot.armVertical.setTargetPosition(0);
+//        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        robot.armVertical.setPower(1);
+//    }
 }
