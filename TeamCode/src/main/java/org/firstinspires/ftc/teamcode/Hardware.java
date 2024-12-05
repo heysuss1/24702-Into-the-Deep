@@ -93,7 +93,7 @@ public class Hardware {
 
         odo = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
-        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
+//        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
 
     }
 

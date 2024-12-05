@@ -95,7 +95,7 @@ public class TestAuto extends OpMode {
         robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.armVertical.setTargetPosition(1200);
         robot.armVertical.setPower(0.8);
-        robot.rotateServo.setPosition(.726);
+        robot.rotateServo.setPosition(.741);
         timer = new Timer();
         armTimer = new ElapsedTime();
         buildPaths();
@@ -193,12 +193,12 @@ public class TestAuto extends OpMode {
     }
 
     public void closeClaw(){
-        robot.leftServo.setPosition(.639);
-        robot.rightServo.setPosition(.1);
+        robot.leftServo.setPosition(.508);
+        robot.rightServo.setPosition(.69);
     }
     public void openClaw(){
-        robot.leftServo.setPosition(0.508);
-        robot.rightServo.setPosition(0.24);
+        robot.leftServo.setPosition(.639);
+        robot.rightServo.setPosition(0.55);
     }
     public void armExtend(int ticks){
         robot.armExtension.setPower(1);
@@ -212,10 +212,10 @@ public class TestAuto extends OpMode {
     }
 
     public void rotateArmBackWards(){
-        robot.rotateServo.setPosition(.174);
+        robot.rotateServo.setPosition(.153);
     }
     public void rotateArmForwards(){
-        robot.rotateServo.setPosition(.726);
+        robot.rotateServo.setPosition(.741);
     }
     public void autonomousActionUpdate(){
         switch (actionState){
@@ -333,18 +333,21 @@ public class TestAuto extends OpMode {
             case GRAB_SAMPLE3:
                 if (state == State.GO_TO_BASKET_FROM_SAMPLE_3){
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(-420);
+                    armUp(0);
                     armExtend(-800);
 
                 }
 
-                if (robot.armVertical.getCurrentPosition() < 200){
-                    armExtend(-1400);
+                if (robot.armVertical.getCurrentPosition() < 5){
+                    armExtend(-1550);
+                }
+                if (robot.armExtension.getCurrentPosition() < -1200){
+                    armUp(-420);
                 }
                 if (armTimer.seconds() > 2.8){
                     setAction(ActionState.PUT_IN_BUCKET_3);
                 }
-                if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3 && !robot.armVertical.isBusy()){
+                if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3 && !robot.armVertical.isBusy() && !robot.armExtension.isBusy()){
                     if (armTimer.seconds() > 1){
                         armTimer.reset();
                     }
@@ -378,7 +381,7 @@ public class TestAuto extends OpMode {
             case PARK:
                 if (armTimer.seconds() > 2){
                     rotateArmForwards();
-                    armUp(600);
+                    armUp(750);
                     armExtend(-1000);
                 }
                 break;
@@ -413,6 +416,7 @@ public class TestAuto extends OpMode {
         telemetry.addData("Current Path is", state);
         telemetry.addData("Is Busy",  follower.isBusy());
         telemetry.addData("Seconds", armTimer.seconds());
+        telemetry.addData("Claw Position", robot.leftServo.getPosition());
         telemetry.update();
         autonomousPathUpdate();
         autonomousActionUpdate();

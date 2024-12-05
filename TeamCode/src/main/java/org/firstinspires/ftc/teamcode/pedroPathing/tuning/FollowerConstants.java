@@ -125,7 +125,7 @@ public class FollowerConstants {
     // When the t-value of the closest point to the robot on the Path is greater than this value,
     // then the Path is considered at its end.
     // This can be custom set for each Path.
-    public static double pathEndTValueConstraint = 0.9;
+    public static double pathEndTValueConstraint = 0.991;
 
     // When the Path is considered at its end parametrically, then the Follower has this many
     // milliseconds to further correct by default.

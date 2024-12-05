@@ -73,20 +73,20 @@ public class TeleOP extends LinearOpMode {
             //only runs if the game button is he  ld down
             //gamepad 2 = driver 2
             if (gamepad2.y && !pressingY){
-                robot.rotateServo.setPosition(0.174);
+                robot.rotateServo.setPosition(.153);
 
                 pressingY = true;
             } else if (!gamepad2.y){
                 pressingY = false;
             }
             if (gamepad2.b && !pressingB && !gamepad2.start){
-                robot.rotateServo.setPosition(0.437);
+                robot.rotateServo.setPosition(.425);
                 pressingB = true;
             } else if (!gamepad2.b){
                 pressingB = false;
             }
             if (gamepad2.a && !pressingA){
-                robot.rotateServo.setPosition(0.726);
+                robot.rotateServo.setPosition(0.741);
 //                robot.rotateServo.setPosition(0.437);
 
                 pressingA = true;
@@ -162,13 +162,13 @@ public class TeleOP extends LinearOpMode {
                 tooFar = true;
             }
 
-            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
-                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                hasSensed = true;
-            } else if (!(robot.colorSensor.getDistance(DistanceUnit.INCH) < 5)){
-                hasSensed = false;
-            }
+//            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
+//                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//                hasSensed = true;
+//            } else if (!(robot.colorSensor.getDistance(DistanceUnit.INCH) < 5)){
+//                hasSensed = false;
+//            }
 //            if (robot.extensionLimiter.getState() && !extensionLimiterPressed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                extensionLimiterPressed = true;
@@ -257,8 +257,8 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("Hello", position);
             telemetry.addData("Forwards", clawForwards);
             telemetry.addData("Robot Position", follower.getPose());
-            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
+//            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
             telemetry.addData("Conttrol Toggle", goToPosition);
             //            telemetry.addData("Arm Vertical Position", robot.armVertical.getCurrentPosition());
             telemetry.update();
