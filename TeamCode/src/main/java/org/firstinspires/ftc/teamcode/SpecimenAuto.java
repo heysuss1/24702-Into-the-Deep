@@ -364,7 +364,7 @@ public class SpecimenAuto extends OpMode {
                 setActionState(ActionState.HANG_SPECIMEN_2);
             case HANG_SPECIMEN_2:
                 closeClaw();
-                if (pathState == PathState.TO_SPECIMEN_3 || pathState == PathState.PICK_UP_4TH_SPECIMEN && follower.getCurrentPath().isAtParametricEnd()){
+                if (pathState == PathState.TO_SPECIMEN_3  && follower.getCurrentPath().isAtParametricEnd()){
                     armExtend(-350);
                     armUp(2100);
 
