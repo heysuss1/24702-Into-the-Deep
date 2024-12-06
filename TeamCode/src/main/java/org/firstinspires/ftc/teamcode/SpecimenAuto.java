@@ -55,8 +55,11 @@ public class SpecimenAuto extends OpMode {
         TO_SPECIMEN_2,
         BACKWARDS_FROM_SUBMERSIBLE,
         TO_SUBMERSIBLE_2,
+        BACKWARDS_FROM_SUBMERSIBLE_3,
+
         STRAFE_TO_SUBMERSIBLE_3,
         TO_SPECIMEN_3,
+        PICK_UP_4TH_SPECIMEN,
         TO_SUBMERSIBLE_3,
     }
     PathState pathState = PathState.GO_TO_SUBMERSIBLE;
@@ -67,7 +70,7 @@ public class SpecimenAuto extends OpMode {
     double lastY = starting.getY();
     double lastH = starting.getHeading();
 
-    Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, goBackWards, goForwards, strafeOnce, toSubmersiblecool, backUp1, strafeTwice, strafeThrice, toSubmersible3rd;
+    Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, goBackWards, goForwards, strafeOnce, toSubmersiblecool, backUp1, strafeTwice, strafeThrice, toSubmersible3rd, backwardsFromSubmersible, strafeToSpecimen3, strafeToSubmersible, forwardsToSubmersible, backwardsFromSubmersible2, strafeToLastSample, strafeToSubmersible2, forwardsToSubmersible2;
     public void init(){
         follower = new Follower(hardwareMap);
         robot.init(hardwareMap);
@@ -97,6 +100,17 @@ public class SpecimenAuto extends OpMode {
         strafeTwice = newPath(6, 49, -179);
         strafeThrice = strafeOnce = newPath(6, 64, 0);
         toSubmersible3rd = newPath(31.6, 65, 0);
+        backwardsFromSubmersible = newPath(6, 64, 0);
+        strafeToSpecimen3 = newPath(6, 49, -179);
+        strafeToSubmersible = newPath(6, 66, 0);
+        forwardsToSubmersible = newPath(31.6, 66, 0);
+        backwardsFromSubmersible2 = newPath(6, 64, 0);
+        strafeToLastSample = newPath(6, 49, -179);
+        strafeToSubmersible2 = newPath(6, 66, 0 );
+        forwardsToSubmersible2 = newPath(31.6, 66, 0);
+
+
+
 
 
 
@@ -200,18 +214,30 @@ public class SpecimenAuto extends OpMode {
             case TO_SPECIMEN_2:
                 if (!follower.isBusy()){
                     follower.followPath(strafeTwice);
-                    setPathState(PathState.TO_SUBMERSIBLE_2);
+                    setPathState(PathState.STRAFE_TO_SUBMERSIBLE_3);
                 }
-            case TO_SUBMERSIBLE_2:
+            case STRAFE_TO_SUBMERSIBLE_3:
                 if (actionState == ActionState.HANG_SPECIMEN_2){
                     follower.followPath(strafeThrice);
-                    setPathState(PathState.TO_SUBMERSIBLE_3);
+                    setPathState(PathState.GO_FORWARD);
                 }
                 break;
-            case TO_SUBMERSIBLE_3:
+            case GO_FORWARD:
                 if (!follower.isBusy()){
                     follower.followPath(toSubmersible3rd);
                     setPathState(PathState.TO_SPECIMEN_3);
+                }
+                break;
+            case TO_SPECIMEN_3:
+                if (actionState == ActionState.PICK_UP_SPECIMEN_3){
+                    follower.followPath(backwardsFromSubmersible);
+                    setPathState(PathState.BACKWARDS_FROM_SUBMERSIBLE_3);
+                }
+                break;
+            case BACKWARDS_FROM_SUBMERSIBLE_3:
+                if (!follower.isBusy()){
+                    follower.followPath(strafeToSpecimen3);
+                    setPathState(PathState.PICK_UP_4TH_SPECIMEN);
                 }
                 break;
             default:
@@ -315,7 +341,7 @@ public class SpecimenAuto extends OpMode {
 //                armExtend(-100);
 //                armUp(0);
 //                openClaw();
-                if (pathState == PathState.TO_SUBMERSIBLE_2 && follower.getCurrentPath().isAtParametricEnd()){
+                if (pathState == PathState.GO_FORWARD && follower.getCurrentPath().isAtParametricEnd()){
                     armExtend(-263);
                     armUp(-50);
                     if (robot.armExtension.getCurrentPosition() < 500){
@@ -327,21 +353,42 @@ public class SpecimenAuto extends OpMode {
                             armTimer.resetTimer();
                         }
                         if(armTimer.getElapsedTimeSeconds() > 0.3){
-                            setActionState(ActionState.HANG_SPECIMEN_2);
+                            setActionState(ActionState.RAISE_ARM_2);
                         }
                     };
                 }
+            case RAISE_ARM_2:
+                closeClaw();
+                armExtend(-1200);
+                armUp(2300);
+                setActionState(ActionState.HANG_SPECIMEN_2);
             case HANG_SPECIMEN_2:
                 closeClaw();
-                if (pathState == PathState.TO_SPECIMEN_3 && follower.getCurrentPath().isAtParametricEnd()){
+                if (pathState == PathState.TO_SPECIMEN_3 || pathState == PathState.PICK_UP_4TH_SPECIMEN && follower.getCurrentPath().isAtParametricEnd()){
                     armExtend(-350);
                     armUp(2100);
-
 
                     if (robot.armExtension.getCurrentPosition() > -450 && robot.armVertical.getCurrentPosition() < 2150) {
                         openClaw();
                         setActionState(ActionState.PICK_UP_SPECIMEN_3);
                     }
+                }
+            case PICK_UP_SPECIMEN_3:
+                if (pathState == PathState.PICK_UP_4TH_SPECIMEN && follower.getCurrentPath().isAtParametricEnd()){
+                    armExtend(-263);
+                    armUp(-50);
+                    if (robot.armExtension.getCurrentPosition() < 500){
+                        rotateServoForward();
+                    }
+                    if (robot.armExtension.getCurrentPosition() < -200 && robot.armVertical.getCurrentPosition() < -5){
+                        closeClaw();
+                        if (armTimer.getElapsedTimeSeconds() > 1){
+                            armTimer.resetTimer();
+                        }
+                        if(armTimer.getElapsedTimeSeconds() > 0.3){
+                            setActionState(ActionState.RAISE_ARM_2);
+                        }
+                    };
                 }
             default:
                 stop();
