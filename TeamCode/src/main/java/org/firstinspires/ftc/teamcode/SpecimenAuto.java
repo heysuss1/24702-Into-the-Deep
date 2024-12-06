@@ -28,6 +28,9 @@ public class SpecimenAuto extends OpMode {
         RAISE_ARM_1,
         HANG_SPECIMEN_1,
         PICK_UP_SPECIMEN_2,
+        BACK_UP_ONCE,
+        STRAFE_TO_SPECIMEN_2,
+
         RAISE_ARM_2,
         HANG_SPECIMEN_2,
         PICK_UP_SPECIMEN_3,
@@ -50,7 +53,9 @@ public class SpecimenAuto extends OpMode {
         STRAFE_ONCE,
         GO_FORWARD,
         TO_SPECIMEN_2,
+        BACKWARDS_FROM_SUBMERSIBLE,
         TO_SUBMERSIBLE_2,
+        STRAFE_TO_SUBMERSIBLE_3,
         TO_SPECIMEN_3,
         TO_SUBMERSIBLE_3,
     }
@@ -62,7 +67,7 @@ public class SpecimenAuto extends OpMode {
     double lastY = starting.getY();
     double lastH = starting.getHeading();
 
-    Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, goBackWards, goForwards, strafeOnce, toSubmersiblecool;
+    Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, goBackWards, goForwards, strafeOnce, toSubmersiblecool, backUp1, strafeTwice, strafeThrice, toSubmersible3rd;
     public void init(){
         follower = new Follower(hardwareMap);
         robot.init(hardwareMap);
@@ -86,8 +91,13 @@ public class SpecimenAuto extends OpMode {
         pushSample2 = newPath(12, 14, lastH);
         goBackWards = newPath(30, 28, -179);
         goForwards = newPath(6, 49, -179);
-        strafeOnce = newPath(6, 64, -179);
+        strafeOnce = newPath(6, 64, 0);
         toSubmersiblecool = newPath(31.6, 64, 0);
+        backUp1 = newPath(6, 64, 0);
+        strafeTwice = newPath(6, 49, -179);
+        strafeThrice = strafeOnce = newPath(6, 64, 0);
+        toSubmersible3rd = newPath(31.6, 65, 0);
+
 
 
     }
@@ -178,13 +188,32 @@ public class SpecimenAuto extends OpMode {
             case TO_SUBMERSIBLE_1:
                 if (actionState == ActionState.HANG_SPECIMEN_1){
                     follower.followPath(toSubmersiblecool);
+                    setPathState(PathState.BACKWARDS_FROM_SUBMERSIBLE);
+                    rotateServoDown();
+                }
+                break;
+            case BACKWARDS_FROM_SUBMERSIBLE:
+                if(actionState == ActionState.PICK_UP_SPECIMEN_2){
+                    follower.followPath(backUp1);
                     setPathState(PathState.TO_SPECIMEN_2);
                 }
             case TO_SPECIMEN_2:
-//                if (!follower.isBusy()){
-//                    follower.followPath(toSubmersiblecool);
-//
-//                }
+                if (!follower.isBusy()){
+                    follower.followPath(strafeTwice);
+                    setPathState(PathState.TO_SUBMERSIBLE_2);
+                }
+            case TO_SUBMERSIBLE_2:
+                if (actionState == ActionState.HANG_SPECIMEN_2){
+                    follower.followPath(strafeThrice);
+                    setPathState(PathState.TO_SUBMERSIBLE_3);
+                }
+                break;
+            case TO_SUBMERSIBLE_3:
+                if (!follower.isBusy()){
+                    follower.followPath(toSubmersible3rd);
+                    setPathState(PathState.TO_SPECIMEN_3);
+                }
+                break;
             default:
                 stop();
 
@@ -194,7 +223,7 @@ public class SpecimenAuto extends OpMode {
     public void rotateServoForward(){
         robot.rotateServo.setPosition(.425);
     }
-
+    public void rotateServoDown() {robot.rotateServo.setPosition(.741);}
     public void openClaw(){
         robot.leftServo.setPosition(.639);
         robot.rightServo.setPosition(0.55);
@@ -270,24 +299,49 @@ public class SpecimenAuto extends OpMode {
                 setActionState(ActionState.HANG_SPECIMEN_1);
                 break;
             case HANG_SPECIMEN_1:
-                if (pathState == PathState.TO_SPECIMEN_2 && follower.getCurrentPath().isAtParametricEnd()){
+                closeClaw();
+                if (pathState == PathState.BACKWARDS_FROM_SUBMERSIBLE && follower.getCurrentPath().isAtParametricEnd()){
                     armExtend(-350);
                     armUp(2100);
-                    if (robot.armExtension.getCurrentPosition() > -351 && robot.armVertical.getCurrentPosition() < 2101) {
+
+
+                    if (robot.armExtension.getCurrentPosition() > -450 && robot.armVertical.getCurrentPosition() < 2150) {
+                        openClaw();
                         setActionState(ActionState.PICK_UP_SPECIMEN_2);
                     }
                 }
 
             case PICK_UP_SPECIMEN_2:
-                armExtend(-100);
-                armUp(0);
-                openClaw();
+//                armExtend(-100);
+//                armUp(0);
+//                openClaw();
                 if (pathState == PathState.TO_SUBMERSIBLE_2 && follower.getCurrentPath().isAtParametricEnd()){
-                    armExtend(-200);
-                    if (robot.armExtension.getCurrentPosition() < -200){
+                    armExtend(-263);
+                    armUp(-50);
+                    if (robot.armExtension.getCurrentPosition() < 500){
+                        rotateServoForward();
+                    }
+                    if (robot.armExtension.getCurrentPosition() < -200 && robot.armVertical.getCurrentPosition() < -5){
                         closeClaw();
-                        setActionState(ActionState.RAISE_ARM_1);
+                        if (armTimer.getElapsedTimeSeconds() > 1){
+                            armTimer.resetTimer();
+                        }
+                        if(armTimer.getElapsedTimeSeconds() > 0.3){
+                            setActionState(ActionState.HANG_SPECIMEN_2);
+                        }
                     };
+                }
+            case HANG_SPECIMEN_2:
+                closeClaw();
+                if (pathState == PathState.TO_SPECIMEN_3 && follower.getCurrentPath().isAtParametricEnd()){
+                    armExtend(-350);
+                    armUp(2100);
+
+
+                    if (robot.armExtension.getCurrentPosition() > -450 && robot.armVertical.getCurrentPosition() < 2150) {
+                        openClaw();
+                        setActionState(ActionState.PICK_UP_SPECIMEN_3);
+                    }
                 }
             default:
                 stop();

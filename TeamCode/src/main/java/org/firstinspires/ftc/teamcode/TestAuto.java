@@ -373,7 +373,6 @@ public class TestAuto extends OpMode {
                             if (armTimer.seconds() > 0.4) {
                                 setAction(ActionState.PARK);
                             }
-
                         }
                     }
                 }
