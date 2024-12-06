@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
@@ -8,7 +9,12 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 public class Auto {
     Hardware robot = Hardware.getInstance();
     Timer timer;
+    Timer armTimer;
     Pose starting;
+public void init (double setX, double setY, double setH) {
+    timer = new Timer();
+    armTimer = new ElapsedTime();
+}
 
     public void closeClaw(){
         robot.leftServo.setPosition(.639);
