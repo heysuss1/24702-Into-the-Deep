@@ -45,6 +45,7 @@ public class TeleOP extends LinearOpMode {
         boolean pressingRB = false;
         boolean pressingX2 = false;
         boolean goToPosition = false;
+        boolean pressingRB2 = false;
         boolean extensionLimiterPressed = false;
         boolean tooFar = false;
         boolean isStalling = false;
@@ -100,7 +101,7 @@ public class TeleOP extends LinearOpMode {
             }
             if (gamepad1.x && !pressingX){
                 toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
-                follower.followPath(toSubmersible);
+//                follower.followPath(toSubmersible);
                 pressingX = true;
             } else if (!gamepad1.x){
                 pressingX = false;
@@ -116,7 +117,13 @@ public class TeleOP extends LinearOpMode {
             } else if (!gamepad2.x){
                 pressingX2 = false;
             }
-
+            if (gamepad2.right_bumper && !pressingRB2){
+                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                pressingRB2 = true;
+            } else if (!gamepad2.right_bumper){
+                pressingRB2 = false;
+            }
             if (goToPosition){
                 robot.armVertical.setPower(1);
                 if (robot.armVertical.getCurrentPosition() > -5 && robot.armVertical.getCurrentPosition() < 5){
@@ -127,7 +134,7 @@ public class TeleOP extends LinearOpMode {
             }
             if (gamepad1.right_bumper && !pressingRB){
                 toObservationZone = newPath(frontOfObservationZone.getX(), frontOfSubmersible.getY(), 0);
-                follower.followPath(toObservationZone);
+//                follower.followPath(toObservationZone);
                 pressingRB = true;
             } else if (!gamepad1.right_bumper){
                 pressingRB = false;
@@ -203,8 +210,9 @@ public class TeleOP extends LinearOpMode {
                     clawIsOpen = true;
                 } else {
                     //Close claw
-                    robot.leftServo.setPosition(.508);
-                    robot.rightServo.setPosition(.69);
+                    robot.leftServo.setPosition(.490);
+                    robot.rightServo.setPosition(.71);
+
                     clawIsOpen = false;
                 }
                 pressingLT = true;
