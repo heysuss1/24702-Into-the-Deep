@@ -34,7 +34,6 @@ public void init (double setX, double setY, double setH) {
     lastH = follower.getPose().getHeading();
     follower. setStartingPose(starting);
     starting = new Pose(setX, setY,  setH);
-    
 
     }
     public void buildPath(){

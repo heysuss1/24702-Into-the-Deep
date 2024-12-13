@@ -162,13 +162,13 @@ public class TeleOP extends LinearOpMode {
                 tooFar = true;
             }
 
-            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
-                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                hasSensed = true;
-            } else if (!(robot.colorSensor.getDistance(DistanceUnit.INCH) < 5)){
-                hasSensed = false;
-            }
+//            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
+//                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//                hasSensed = true;
+//            } else if (!(robot.colorSensor.getDistance(DistanceUnit.INCH) < 5)){
+//                hasSensed = false;
+//            }
 //            if (robot.extensionLimiter.getState() && !extensionLimiterPressed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                extensionLimiterPressed = true;
@@ -257,8 +257,8 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("Hello", position);
             telemetry.addData("Forwards", clawForwards);
             telemetry.addData("Robot Position", follower.getPose());
-            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
-            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
+//            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
+//            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
             telemetry.addData("Conttrol Toggle", goToPosition);
             //            telemetry.addData("Arm Vertical Position", robot.armVertical.getCurrentPosition());
             telemetry.update();
