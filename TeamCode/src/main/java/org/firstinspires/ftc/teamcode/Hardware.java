@@ -38,6 +38,10 @@ public class Hardware {
     public Servo rotateServo;
 
     public static double maxSpeed = 1;
+    double leftOpen = 0.6; //set to acc positions
+    double rightOpen = 0.6;  // but this should just work
+    double leftClosed = 0.4;
+    double rightClosed = 0.4;
     private static Hardware instance = null;
     public static Hardware getInstance() {
         if(instance == null){
@@ -52,26 +56,26 @@ public class Hardware {
         rf = hwMap.get(DcMotorEx.class, "rf");
         rf.setDirection(DcMotorSimple.Direction.REVERSE);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rf.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rf.setPower(0);
         //1
 
         rb = hwMap.get(DcMotorEx.class, "rr");
         rb.setDirection(DcMotorSimple.Direction.REVERSE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rb.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rb.setPower(0);
         //3
 
         lf = hwMap.get(DcMotorEx.class, "lf");
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lf.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lf.setPower(0);
         //0
 
         lb = hwMap.get(DcMotorEx.class, "lr");
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lb.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lb.setPower(0);
         //2
 
@@ -117,5 +121,10 @@ public class Hardware {
 
         armVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armVertical.setPower(0);
+    }
+
+    public void claw(double arg) {
+        leftServo.setPosition(leftClosed+arg*(leftOpen-leftClosed));
+        rightServo.setPosition(rightClosed+arg*(rightOpen-rightClosed));
     }
 }

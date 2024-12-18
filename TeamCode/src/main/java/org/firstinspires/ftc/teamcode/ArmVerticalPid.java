@@ -26,20 +26,18 @@ public class ArmVerticalPid extends OpMode {
     Hardware robot = Hardware.getInstance();
     public void init(){
         robot.init(hardwareMap);
-        output = pidf.calculate(robot.armExtension.getCurrentPosition(), setPoint);
+        output = pidf.calculate(robot.armVertical.getCurrentPosition(), setPoint);
 
     }
     public void loop(){
-        output = pidf.calculate(robot.armExtension.getCurrentPosition(), setPoint);
+        output = pidf.calculate(robot.armVertical.getCurrentPosition(), setPoint);
         while (!pidf.atSetPoint()){
-            output = pidf.calculate(robot.armExtension.getCurrentPosition(), setPoint);
+            output = pidf.calculate(robot.armVertical.getCurrentPosition(), setPoint);
             telemetry.addData("Error", output);
-            robot.armExtension.setVelocity(output);
+            robot.armVertical.setVelocity(output);
             telemetry.update();
-            
-            requestOpModeStop();
         }
-        robot.armExtension.setVelocity(0);
+        robot.armVertical.setVelocity(0);
         telemetry.update();
 
     }

@@ -1,27 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
-
-//close value right = .154, open = .298, close left = .684, open  = .538
-@TeleOp(name = "Demon TeleOP")
-public class TeleOP extends LinearOpMode {
+@TeleOp (name = "PID Controlled TeleOP")
+public class TeleOPStuff extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
 
-    double kP, kI, kD, kF;
-    SquidPID squid = new SquidPID(kP, kI, kD, kF);
     //PHUHS
     public void runOpMode(){
         int position = 0;
@@ -34,7 +28,6 @@ public class TeleOP extends LinearOpMode {
         Pose frontOfSubmersible = new Pose(31.6, 78, Point.CARTESIAN);
         Pose frontOfObservationZone = new Pose(30, 17, Point.CARTESIAN);
         Path toSubmersible, toObservationZone, toBuckets;
-
         waitForStart();
         boolean clawIsOpen = false;
         boolean pressingB = false;
@@ -100,6 +93,7 @@ public class TeleOP extends LinearOpMode {
 
 
             if (gamepad2.dpad_left){
+
             }
             if (gamepad1.x && !pressingX){
                 toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
@@ -274,14 +268,14 @@ public class TeleOP extends LinearOpMode {
         }
     }
 
-        public Path newPath(double targetX, double targetY, double targetH){
-            Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
-            Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
-            Path path = new Path(new BezierLine(startPoint, endPoint));
-            path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
-            return path;
+    public Path newPath(double targetX, double targetY, double targetH){
+        Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
+        Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
+        Path path = new Path(new BezierLine(startPoint, endPoint));
+        path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
+        return path;
 
-        }
+    }
 //    public void pickUpRobot(){
 //        robot.armVertical.setTargetPosition(0);
 //        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
