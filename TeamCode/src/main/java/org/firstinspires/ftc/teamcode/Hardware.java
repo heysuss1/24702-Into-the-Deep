@@ -32,7 +32,7 @@ public class Hardware {
     public DcMotorEx armVertical;
     public DcMotorEx armExtension;
     public GoBildaPinpointDriver odo;
-    public RevColorSensorV3 colorSensor;
+//    public RevColorSensorV3 colorSensor;
     public Servo leftServo;
     public Servo rightServo;
     public Servo rotateServo;
