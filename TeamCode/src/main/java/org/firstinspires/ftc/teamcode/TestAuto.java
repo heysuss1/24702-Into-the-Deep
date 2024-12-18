@@ -20,9 +20,10 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 @Autonomous (name = "Samples Auto")
 public class TestAuto extends OpMode {
     Follower follower;
-    Hardware robot = Hardware.getInstance();
+    Hardware robot = Hardware.getInstance();\
     Pose starting = new Pose(5, 78, 0);
     Timer timer;
+    int ARM_CONSTANT = 1200;
     Pose bucket = new Pose(15, 127, Point.CARTESIAN);
     Pose frontOfSubmersible = new Pose(34, 71, Point.CARTESIAN);
     Pose frontOfObservationZone = new Pose(9, 17, Point.CARTESIAN);
@@ -78,9 +79,9 @@ public class TestAuto extends OpMode {
         backUp = newPath(19.2, 78, lastH);
         toSample1 = newPath(28.5, 118.2, lastH);
         toBucket = newPath(12, 124, -45);
-        toSample2 = newPath(25, 128.2, 0);
+        toSample2 = newPath(22, 128, 0);
         toBucketFromSample2 = newPath(12, 124, -45);
-        toSample3 = newPath(29, 128, 37.5);
+        toSample3 = newPath(29, 128, 39);
         toBucketFromSample3 = newPath(12.3, 124, -45);
         toParking = newPath(56, 98.5, -90);
 
@@ -92,9 +93,9 @@ public class TestAuto extends OpMode {
         robot.init(hardwareMap);
         lastH = follower.getPose().getHeading();
         follower.setStartingPose(starting);
-        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        robot.armVertical.setTargetPosition(1200);
-        robot.armVertical.setPower(0.8);
+//        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        robot.armVertical.setTargetPosition(1200);
+//        robot.armVertical.setPower(0.8);
         robot.rotateServo.setPosition(.741);
         timer = new Timer();
         armTimer = new ElapsedTime();
@@ -222,18 +223,19 @@ public class TestAuto extends OpMode {
             case RAISE_ARMS:
                 closeClaw();
                 armExtend(-1200);
-                armUp(2300);
-                if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > 2290) {
+                armUp(2400-ARM_CONSTANT);
+                if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > (2290-ARM_CONSTANT)) {
                     setAction(ActionState.HANG_SPECIMEN);
 
                 }
                 break;
             case HANG_SPECIMEN:
-                if (!follower.isBusy()){
+                closeClaw();
+                if (!follower.isBusy() || armTimer.seconds() > 2.5){
                     armExtend(-350);
-                    armUp(2100);
+                    armUp(2100-ARM_CONSTANT);
                 }
-                if (robot.armExtension.getCurrentPosition() > -351 && robot.armVertical.getCurrentPosition() < 2101) {
+                if (robot.armExtension.getCurrentPosition() > -351 && robot.armVertical.getCurrentPosition() < (2101-ARM_CONSTANT) || armTimer.seconds() > 2.5) {
                     setAction(ActionState.GRAB_SAMPLE1);
                 }
 //                telemetry.update();
@@ -247,12 +249,12 @@ public class TestAuto extends OpMode {
 
                 if (state == State.GO_TO_SAMPLE1){
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(-50);
+                    armUp(-50-ARM_CONSTANT);
                     armExtend(-697);
 
                 }
                 if (follower.getPose().getY() > 117){
-                    armUp(-420);
+                    armUp(-420-ARM_CONSTANT);
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET){
                     if (armTimer.seconds() > 1){
@@ -268,14 +270,14 @@ public class TestAuto extends OpMode {
             case PUT_IN_BUCKET:
                 closeClaw();
                 if (state == State.GO_TO_SAMPLE2 && !follower.isBusy()){
-                    armUp(4000);
+                    armUp(4000-ARM_CONSTANT);
                     armExtend(-2350);
-                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > 3000){
+                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)){
                         rotateArmBackWards();
                         if (armTimer.seconds() > 1){
                             armTimer.reset();
                         }
-                        if (robot.armVertical.getCurrentPosition() > 3900){
+                        if (robot.armVertical.getCurrentPosition() > (3900-ARM_CONSTANT)){
                             openClaw();
                             if (armTimer.seconds() > 0.4){
                                 setAction(ActionState.GRAB_SAMPLE2);
@@ -292,8 +294,8 @@ public class TestAuto extends OpMode {
 
                 if (state == State.GO_TO_BASKET_FROM_SAMPLE_2){
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(-420);
-                    armExtend(-950);
+                    armUp(-420-ARM_CONSTANT);
+                    armExtend(-1250);
                     rotateArmForwards();
 
                 }
@@ -314,13 +316,13 @@ public class TestAuto extends OpMode {
                 closeClaw();
                 if (state == State.GO_TO_SAMPLE3 && !follower.isBusy()){
                     rotateArmBackWards();
-                    armUp(4100);
-                    armExtend(-2350);
-                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > 3000) {
+                    armUp(4100-ARM_CONSTANT);
+                    armExtend(-2380);
+                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)) {
                         if (armTimer.seconds() > 1) {
                             armTimer.reset();
                         }
-                        if (robot.armVertical.getCurrentPosition() > 3900) {
+                        if (robot.armVertical.getCurrentPosition() > (3900-ARM_CONSTANT)) {
                             openClaw();
                             if (armTimer.seconds() > 0.4) {
                                 setAction(ActionState.GRAB_SAMPLE3);
@@ -333,18 +335,18 @@ public class TestAuto extends OpMode {
             case GRAB_SAMPLE3:
                 if (state == State.GO_TO_BASKET_FROM_SAMPLE_3){
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(0);
+                    armUp(0-ARM_CONSTANT);
                     armExtend(-800);
 
                 }
 
-                if (robot.armVertical.getCurrentPosition() < 5){
+                if (robot.armVertical.getCurrentPosition() < (5-ARM_CONSTANT)){
                     armExtend(-1550);
                 }
                 if (robot.armExtension.getCurrentPosition() < -1200){
-                    armUp(-420);
+                    armUp(-420-ARM_CONSTANT);
                 }
-                if (armTimer.seconds() > 2.8){
+                if (armTimer.seconds() > 3.1){
                     setAction(ActionState.PUT_IN_BUCKET_3);
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3 && !robot.armVertical.isBusy() && !robot.armExtension.isBusy()){
@@ -362,13 +364,13 @@ public class TestAuto extends OpMode {
                 closeClaw();
                 if (state == State.GO_TO_PARKING && !follower.isBusy()){
                     rotateArmBackWards();
-                    armUp(4000);
-                    armExtend(-2350);
-                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > 3000) {
+                    armUp(4000-ARM_CONSTANT);
+                    armExtend(-2380);
+                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)) {
                         if (armTimer.seconds() > 1) {
                             armTimer.reset();
                         }
-                        if (robot.armVertical.getCurrentPosition() > 3900) {
+                        if (robot.armVertical.getCurrentPosition() > (3900-ARM_CONSTANT)) {
                             openClaw();
                             if (armTimer.seconds() > 0.4) {
                                 setAction(ActionState.PARK);
@@ -380,13 +382,12 @@ public class TestAuto extends OpMode {
             case PARK:
                 if (armTimer.seconds() > 2){
                     rotateArmForwards();
-                    armUp(750);
+                    armUp(580-ARM_CONSTANT);
                     armExtend(-1000);
                 }
                 break;
             default:
                 stop();
-
         }
     }
 

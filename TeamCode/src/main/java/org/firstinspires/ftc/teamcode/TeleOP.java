@@ -36,6 +36,7 @@ public class TeleOP extends LinearOpMode {
         boolean clawIsOpen = false;
         boolean pressingB = false;
         boolean pressingLT = false;
+        boolean pressingRT = false;
         boolean hasSensed = false;
         boolean pressingY = false;
         boolean pressingA = false;
@@ -46,6 +47,7 @@ public class TeleOP extends LinearOpMode {
         boolean pressingX2 = false;
         boolean goToPosition = false;
         boolean pressingRB2 = false;
+        boolean armVerticalTooFar = false;
         boolean extensionLimiterPressed = false;
         boolean tooFar = false;
         boolean isStalling = false;
@@ -98,6 +100,12 @@ public class TeleOP extends LinearOpMode {
 
             if (gamepad2.dpad_left){
 
+            }
+
+            if (robot.armVertical.getCurrentPosition() > 5000){
+                armVerticalTooFar = true;
+            } else{
+                armVerticalTooFar = false;
             }
             if (gamepad1.x && !pressingX){
                 toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
@@ -183,10 +191,10 @@ public class TeleOP extends LinearOpMode {
 //                extensionLimiterPressed = false;
 //            }
 
-            if(gamepad2.right_stick_y > 0.1) {
+            if(gamepad2.right_stick_y > 0.1  ) {
                 robot.armVertical.setPower(-1);
             }
-            else if(gamepad2.right_stick_y < -0.1){
+            else if(gamepad2.right_stick_y < -0.1 && !armVerticalTooFar){
                 robot.armVertical.setPower(1);
             } else{
                 if (!goToPosition){
@@ -205,20 +213,30 @@ public class TeleOP extends LinearOpMode {
             if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
                 if(!clawIsOpen){
                     //Open claw
-                    robot.leftServo.setPosition(.639);
-                    robot.rightServo.setPosition(0.55);//may be wrong position
+                    //robot.leftServo.setPosition(0.64);
+                    //robot.rightServo.setPosition(0.55);//may be wrong position
+                    robot.openClaw(1);
                     clawIsOpen = true;
                 } else {
                     //Close claw
-                    robot.leftServo.setPosition(.490);
-                    robot.rightServo.setPosition(.71);
-
+                    //robot.leftServo.setPosition(0.49);
+                    //robot.rightServo.setPosition(0.71);
+                    robot.openClaw(0);
                     clawIsOpen = false;
                 }
                 pressingLT = true;
             }
             else if(!(gamepad2.left_trigger >0.1)){
                 pressingLT = false;
+            }
+
+            //right trigger = half-closed
+            if ((gamepad2.right_trigger > 0.1) && !pressingRT) {
+                robot.openClaw(0.5);
+                clawIsOpen = false;
+                pressingRT = true;
+            } else if (!(gamepad2.right_trigger > 0.1)) {
+                pressingRT = false;
             }
 
             if (gamepad2.left_bumper && !pressingLBumper){
