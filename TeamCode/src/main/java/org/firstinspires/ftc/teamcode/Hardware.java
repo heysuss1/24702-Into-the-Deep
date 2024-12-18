@@ -101,6 +101,14 @@ public class Hardware {
 
     }
 
+    double leftOpen = 0.64;
+    double leftClosed = 0.49;
+    double rightOpen  = 0.55;
+    double rightClosed = 0.71;
+    public void openClaw(double openedness) {
+        leftServo.setPosition(leftClosed + openedness*(leftOpen-leftClosed));
+        rightServo.setPosition(rightClosed + openedness*(rightOpen-rightClosed));
+    }
 
     public void setPower(double fr, double br, double fl, double bl){
         rf.setPower(Range.clip(fr, -maxSpeed, maxSpeed));
