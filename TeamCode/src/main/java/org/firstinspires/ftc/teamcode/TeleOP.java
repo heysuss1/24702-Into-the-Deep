@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
 //close value right = .154, open = .298, close left = .684, open  = .538
 @TeleOp(name = "Demon TeleOP")
-public class TeleOP extends LinearOpMode {
+public class  TeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
 
