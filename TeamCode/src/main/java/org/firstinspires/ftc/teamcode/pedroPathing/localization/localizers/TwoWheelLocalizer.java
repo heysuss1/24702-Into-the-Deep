@@ -26,18 +26,18 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.NanoTimer;
  *
  * forward on robot is the x positive direction
  *
- *    /--------------\
- *    |     ____     |
- *    |     ----     |
- *    | ||        || |
- *    | ||        || |  ----> left (y positive)
- *    |              |
- *    |              |
- *    \--------------/
- *           |
- *           |
- *           V
- *    forward (x positive)
+*                         forward (x positive)
+ *                                △
+ *                                |
+ *                                |
+ *                         /--------------\
+ *                         |              |
+ *                         |              |
+ *                         |           || |
+ *  left (y positive) <--- |           || |  
+ *                         |     ____     |
+ *                         |     ----     |
+ *                         \--------------/
  *
  * @author Anyi Lin - 10158 Scott's Bots
  * @version 1.0, 4/2/2024
@@ -208,7 +208,7 @@ public class TwoWheelLocalizer extends Localizer { // todo: make two wheel odo w
         globalDeltas = Matrix.multiply(Matrix.multiply(prevRotationMatrix, transformation), robotDeltas);
 
         displacementPose.add(new Pose(globalDeltas.get(0, 0), globalDeltas.get(1, 0), globalDeltas.get(2, 0)));
-        currentVelocity = new Pose(globalDeltas.get(0, 0) / (deltaTimeNano * Math.pow(10.0, 9)), globalDeltas.get(1, 0) / (deltaTimeNano * Math.pow(10.0, 9)), globalDeltas.get(2, 0) / (deltaTimeNano * Math.pow(10.0, 9)));
+        currentVelocity = new Pose(globalDeltas.get(0, 0) / (deltaTimeNano / Math.pow(10.0, 9)), globalDeltas.get(1, 0) / (deltaTimeNano / Math.pow(10.0, 9)), globalDeltas.get(2, 0) / (deltaTimeNano / Math.pow(10.0, 9)));
 
         totalHeading += globalDeltas.get(2, 0);
     }
@@ -295,5 +295,15 @@ public class TwoWheelLocalizer extends Localizer { // todo: make two wheel odo w
      */
     public void resetIMU() {
         imu.resetYaw();
+    }
+
+    /**
+     * This is returns the IMU.
+     *
+     * @return returns the IMU
+     */
+    @Override
+    public IMU getIMU() {
+        return imu;
     }
 }
