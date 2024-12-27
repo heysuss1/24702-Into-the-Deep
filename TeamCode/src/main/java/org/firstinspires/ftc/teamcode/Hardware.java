@@ -38,10 +38,6 @@ public class Hardware {
     public Servo rotateServo;
 
     public static double maxSpeed = 1;
-    double leftOpen = 0.6; //set to acc positions
-    double rightOpen = 0.6;  // but this should just work
-    double leftClosed = 0.4;
-    double rightClosed = 0.4;
     private static Hardware instance = null;
     public static Hardware getInstance() {
         if(instance == null){

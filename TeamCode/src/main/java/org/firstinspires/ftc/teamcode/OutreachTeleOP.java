@@ -1,32 +1,29 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
-
-//close value right = .154, open = .298, close left = .684, open  = .538
-@TeleOp(name = "Demon TeleOP")
-public class TeleOP extends LinearOpMode {
+@TeleOp (name = "Outreach TeleOP")
+public class OutreachTeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
 
     double kP, kI, kD, kF;
     SquidPID squid = new SquidPID(kP, kI, kD, kF);
     //PHUHS
-    public void runOpMode(){
+    public void runOpMode() {
         int position = 0;
         robot.init(hardwareMap);
         telemetry.addData("Status", "Hello, Drivers!");
+        robot.setSpeed(0.3);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(new Pose(63, 95));
         telemetry.update();
@@ -51,18 +48,17 @@ public class TeleOP extends LinearOpMode {
         boolean pressingX2 = false;
         boolean goToPosition = false;
         boolean pressingRB2 = false;
-        boolean pressingG1Y = false; // gamepad1's Y position
         boolean armVerticalTooFar = false;
         boolean extensionLimiterPressed = false;
         boolean tooFar = false;
         boolean isStalling = false;
         double ticks = 0;
-        while (opModeIsActive()){
+        while (opModeIsActive()) {
             //gamepad1 = Driver 1
-            if (gamepad1.dpad_left){
-               forward = -0.4;
+            if (gamepad1.dpad_left) {
+                forward = -0.4;
             }
-            if (gamepad1.dpad_right){
+            if (gamepad1.dpad_right) {
                 forward = 0.4;
             }
 
@@ -76,96 +72,89 @@ public class TeleOP extends LinearOpMode {
                 scaleFactor = robot.maxSpeed;
             }
             scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
-            robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
+            robot.setPower((forward - sideways - turning) * scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
             //only runs if the game button is he  ld down
-            //gamepad 2 = driver 2
-            if (gamepad2.y && !pressingY){
-                robot.rotateServo.setPosition(.153);
-
-                pressingY = true;
-            } else if (!gamepad2.y){
-                pressingY = false;
-            }
-            if (gamepad1.y && !pressingG1Y){
-                alignHeading();
-                pressingG1Y = true;
-            } else if (!gamepad1.y){
-                pressingG1Y = false;
-            }
-            if (gamepad2.b && !pressingB && !gamepad2.start){
-                robot.rotateServo.setPosition(.425);
-                pressingB = true;
-            } else if (!gamepad2.b){
-                pressingB = false;
-            }
-            if (gamepad2.a && !pressingA){
-                robot.rotateServo.setPosition(0.741);
-//                robot.rotateServo.setPosition(0.437);
-
-                pressingA = true;
-            } else{
-                pressingA = false;
-            }
+//            //gamepad 2 = driver 2
+//            if (gamepad2.y && !pressingY) {
+//                robot.rotateServo.setPosition(.153);
+//
+//                pressingY = true;
+//            } else if (!gamepad2.y) {
+//                pressingY = false;
+//            }
+//            if (gamepad2.b && !pressingB && !gamepad2.start) {
+//                robot.rotateServo.setPosition(.425);
+//                pressingB = true;
+//            } else if (!gamepad2.b) {
+//                pressingB = false;
+//            }
+//            if (gamepad2.a && !pressingA) {
+//                robot.rotateServo.setPosition(0.741);
+////                robot.rotateServo.setPosition(0.437);
+//
+//                pressingA = true;
+//            } else {
+//                pressingA = false;
+//            }
 
 
-            if (gamepad2.dpad_left){
+            if (gamepad2.dpad_left) {
             }
 
-            if (robot.armVertical.getCurrentPosition() > 5000){
+            if (robot.armVertical.getCurrentPosition() > 5000) {
                 armVerticalTooFar = true;
-            } else{
+            } else {
                 armVerticalTooFar = false;
             }
-            if (gamepad1.x && !pressingX){
+            if (gamepad1.x && !pressingX) {
                 toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
 //                follower.followPath(toSubmersible);
                 pressingX = true;
-            } else if (!gamepad1.x){
+            } else if (!gamepad1.x) {
                 pressingX = false;
             }
 
-            if (gamepad2.x && !pressingX2){
+            if (gamepad2.x && !pressingX2) {
                 robot.armVertical.setTargetPosition(0);
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //                robot.rotateServo.setPosition(0.437);
                 goToPosition = true;
 
                 pressingX2 = true;
-            } else if (!gamepad2.x){
+            } else if (!gamepad2.x) {
                 pressingX2 = false;
             }
-            if (gamepad2.right_bumper && !pressingRB2){
+            if (gamepad2.right_bumper && !pressingRB2) {
                 robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 pressingRB2 = true;
-            } else if (!gamepad2.right_bumper){
+            } else if (!gamepad2.right_bumper) {
                 pressingRB2 = false;
             }
-
-            if (goToPosition){
+            if (goToPosition) {
                 robot.armVertical.setPower(1);
-                if (robot.armVertical.getCurrentPosition() > -5 && robot.armVertical.getCurrentPosition() < 5){
+                if (robot.armVertical.getCurrentPosition() > -5 && robot.armVertical.getCurrentPosition() < 5) {
                     goToPosition = false;
                 }
-            } else{
+            } else {
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
-            if (gamepad1.right_bumper && !pressingRB){
+            if (gamepad1.right_bumper && !pressingRB) {
                 toObservationZone = newPath(frontOfObservationZone.getX(), frontOfSubmersible.getY(), 0);
 //                follower.followPath(toObservationZone);
                 pressingRB = true;
-            } else if (!gamepad1.right_bumper){
+            } else if (!gamepad1.right_bumper) {
                 pressingRB = false;
             }
-            if (gamepad1.right_trigger > 0.1){
-                robot.setSpeed(1-0.9 * gamepad1.right_trigger);
+            if (gamepad1.right_trigger > 0.1) {
+                robot.setSpeed(1 - 0.9 * gamepad1.right_trigger);
             } else {
                 robot.setSpeed(1);
             }
-            if(gamepad2.left_stick_y < -0.1 && (!tooFar)) {
+            if (gamepad2.left_stick_y < -0.1 && (!tooFar)) {
                 telemetry.addData("Status", "This is going, should be going forward");
                 robot.armExtension.setPower(-1);
-            } else if(gamepad2.left_stick_y > 0.1){
+            } else if (gamepad2.left_stick_y > 0.1) {
                 telemetry.addData("Status", "This is going, should be going backwards");
                 robot.armExtension.setPower(1);
             } else {
@@ -180,9 +169,9 @@ public class TeleOP extends LinearOpMode {
             }
 
 
-            if(ticks < 2700){
+            if (ticks < 2700) {
                 tooFar = false;
-            } else{
+            } else {
                 tooFar = true;
             }
 
@@ -200,13 +189,12 @@ public class TeleOP extends LinearOpMode {
 //                extensionLimiterPressed = false;
 //            }
 
-            if(gamepad2.right_stick_y > 0.1  ) {
+            if (gamepad2.right_stick_y > 0.1) {
                 robot.armVertical.setPower(-1);
-            }
-            else if(gamepad2.right_stick_y < -0.1 && !armVerticalTooFar){
+            } else if (gamepad2.right_stick_y < -0.1 && !armVerticalTooFar) {
                 robot.armVertical.setPower(1);
-            } else{
-                if (!goToPosition){
+            } else {
+                if (!goToPosition) {
                     robot.armVertical.setPower(0);
                 }
             }
@@ -219,8 +207,8 @@ public class TeleOP extends LinearOpMode {
                 pressingB = false;
             }*/
             //only for using trigger as a button
-            if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
-                if(!clawIsOpen){
+            if ((gamepad2.left_trigger > 0.1) && !pressingLT) {
+                if (!clawIsOpen) {
                     //Open claw
                     //robot.leftServo.setPosition(0.64);
                     //robot.rightServo.setPosition(0.55);//may be wrong position
@@ -234,8 +222,7 @@ public class TeleOP extends LinearOpMode {
                     clawIsOpen = false;
                 }
                 pressingLT = true;
-            }
-            else if(!(gamepad2.left_trigger >0.1)){
+            } else if (!(gamepad2.left_trigger > 0.1)) {
                 pressingLT = false;
             }
 
@@ -248,18 +235,17 @@ public class TeleOP extends LinearOpMode {
                 pressingRT = false;
             }
 
-            if (gamepad2.left_bumper && !pressingLBumper){
-                if (!clawForwards){
+            if (gamepad2.left_bumper && !pressingLBumper) {
+                if (!clawForwards) {
                     robot.rotateServo.setPosition(.726);
                     clawForwards = true;
-                } else{
+                } else {
                     robot.rotateServo.setPosition(.174);
                     clawForwards = false;
                 }
                 pressingLBumper = true;
 
-            }
-            else  if (!gamepad2.left_bumper){
+            } else if (!gamepad2.left_bumper) {
                 pressingLBumper = false;
             }
 //            robot.armExtension.setPower(1);
@@ -295,35 +281,19 @@ public class TeleOP extends LinearOpMode {
 //            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
 //            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
             telemetry.addData("Conttrol Toggle", goToPosition);
-            telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
+            telemetry.addData("Current heading is", robot.odo.getHeading());
+            robot.odo.update();
             //            telemetry.addData("Arm Vertical Position", robot.armVertical.getCurrentPosition());
             telemetry.update();
         }
     }
 
-        public Path newPath(double targetX, double targetY, double targetH){
-            Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
-            Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
-            Path path = new Path(new BezierLine(startPoint, endPoint));
-            path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
-            return path;
+    public Path newPath(double targetX, double targetY, double targetH) {
+        Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
+        Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
+        Path path = new Path(new BezierLine(startPoint, endPoint));
+        path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
+        return path;
 
-        }
-        public void alignHeading(){
-
-            while (Math.toDegrees(follower.getPose().getHeading()) > 0 && !(Math.toDegrees(follower.getPose().getHeading()) < 2)){
-                robot.setPower(-0.8, -0.8, 0.8, 0.8);
-                follower.update();
-
-            }
-            while (Math.toDegrees(follower.getPose().getHeading()) < 0 && !(Math.toDegrees(follower.getPose().getHeading()) > -2)){
-                robot.setPower(0.8, 0.8, -0.8, -0.8);
-                follower.update();
-            }
-        }
-//    public void pickUpRobot(){
-//        robot.armVertical.setTargetPosition(0);
-//        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        robot.armVertical.setPower(1);
-//    }
+    }
 }

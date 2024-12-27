@@ -19,9 +19,9 @@ public class MoveArmSlightlyUp extends LinearOpMode {
         telemetry.addData("WSG DRIVERS!!!", "THE ARM IS MOVING SLIGHTLY UP!!! HOORAY!!!");
         robot.init(hardwareMap);
         waitForStart();
-        if (robot.armVertical.getCurrentPosition() < 1199) {
-            robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (robot.armVertical.getCurrentPosition() < 1199) {
             robot.armVertical.setTargetPosition(1200);
+            robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.armVertical.setPower(0.8);
             robot.rotateServo.setPosition(.726);
         }

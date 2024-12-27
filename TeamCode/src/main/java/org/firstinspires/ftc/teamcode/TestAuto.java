@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 @Autonomous (name = "Samples Auto")
 public class TestAuto extends OpMode {
     Follower follower;
-    Hardware robot = Hardware.getInstance();\
+    Hardware robot = Hardware.getInstance();
     Pose starting = new Pose(5, 78, 0);
     Timer timer;
     int ARM_CONSTANT = 1200;
