@@ -103,7 +103,7 @@ public class TeleOP extends LinearOpMode {
 //                robot.rotateServo.setPosition(0.437);
 
                 pressingA = true;
-            } else{
+            } else {
                 pressingA = false;
             }
 
