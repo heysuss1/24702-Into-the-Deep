@@ -71,7 +71,7 @@ public class TeleOP extends LinearOpMode {
         boolean extensionLimiterPressed = false;
         boolean tooFar = false;
         boolean isStalling = false;
-        double ticks = 0;
+        double ticks = robot.armExtension.getCurrentPosition();
         while (opModeIsActive()){
             //gamepad1 = Driver 1
             if (gamepad1.dpad_left){

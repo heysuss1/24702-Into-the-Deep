@@ -74,41 +74,43 @@ public class SpecimenAuto extends OpMode {
     Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, goBackWards, goForwards, strafeToSubmersible1, forwardToSubmersible1, backwardsFromSubmersible1, pickUpSpecimen2, strafeToSubmersible4, forwardToSubmersible2, backwardsFromSubmersible3, pickUpSpecimen3, strafeToSubmersible3, forwardsToSubmersible3, backwardsFromSubmersible2, pickUpSpecimen4, strafeToSubmersible2, forwardToSubmersible4;
     public void init(){
         follower = new Follower(hardwareMap);
+        toSubmersible = newPath(21.1, (64), 0);
+        strafeToSample1 = newPath(21.1, 49, lastH);
         robot.init(hardwareMap);
         follower.setStartingPose(starting);
         armTimer = new Timer();
         pathTimer = new Timer();
         extendAlready = false;
-        buildPaths();
-        robot.rotateServo.setPosition(.741);
+
+//        robot.rotateServo.setPosition(.741);
 
     }
 
 
     public void buildPaths(){
-        toSubmersible = newPath(21.1, (64-10.5), 0);
-        strafeToSample1 = newPath(21.1, 40-10.5, lastH);
-        behindSample1 = newPath(60-10.5, 24-10.5, lastH);
-        pushSample1 = newPath(13-10.5,26-10.5, lastH);
-//        backwardsFromSample1 = newPath(65,24, lastH);
-//        strafeBehindSample2 = newPath(65 , 14, lastH);
-//        pushSample2 = newPath(12, 14, lastH);
-        goBackWards = newPath(30-10.5, 28-10.5, -179);
-        goForwards = newPath(6-10.5, 49-10.5, -179);
-        strafeToSubmersible1 = newPath(6-10.5, 64-10.5, 0);
-        forwardToSubmersible1 = newPath(31.6-10.5, 64-10.5, 0);
-        backwardsFromSubmersible1 = newPath(6-10.5, 64-10.5, 0);
-        pickUpSpecimen2 = newPath(6-10.5, 49-10.5, -179);
-        strafeToSubmersible2 = newPath(6-10.5, 64-10.5, 0);
-        forwardToSubmersible2 = newPath(31.6-10.5, 65-10.5, 0);
-        backwardsFromSubmersible2 = newPath(6-10.5, 64-10.5, 0);
-        pickUpSpecimen3 = newPath(6-10.5, 49-10.5, -179);
-        strafeToSubmersible3 = newPath(6-10.5, 66-10.5, 0);
-        forwardsToSubmersible3 = newPath(31.6-10.5, 66-10.5, 0);
-        backwardsFromSubmersible3 = newPath(6-10.5, 64-10.5, 0);
-        pickUpSpecimen4 = newPath(6-10.5, 49-10.5, -179);
-        strafeToSubmersible4 = newPath(6-10.5, 66-10.5, 0 );
-        forwardToSubmersible4 = newPath(31.6-10.5, 66-10.5, 0);
+        toSubmersible = newPath(21.1, (64), 0);
+        strafeToSample1 = newPath(21.1, 49, lastH);
+//        behindSample1 = newPath(60, 28, lastH);
+//        pushSample1 = newPath(25,26, lastH);
+////        backwardsFromSample1 = newPath(65,24, lastH);
+////        strafeBehindSample2 = newPath(65 , 14, lastH);
+////        pushSample2 = newPath(12, 14, lastH);
+//        goBackWards = newPath(30-10.5, 28, -179);
+//        goForwards = newPath(6-22, 49, -179);
+//        strafeToSubmersible1 = newPath(6-10.5, 64, 0);
+//        forwardToSubmersible1 = newPath(31.6-10.5, 64, 0);
+//        backwardsFromSubmersible1 = newPath(6-10.5, 64, 0);
+//        pickUpSpecimen2 = newPath(6-10.5, 49, -179);
+//        strafeToSubmersible2 = newPath(6-10.5, 64, 0);
+//        forwardToSubmersible2 = newPath(31.6-10.5, 65, 0);
+//        backwardsFromSubmersible2 = newPath(6-10.5, 64, 0);
+//        pickUpSpecimen3 = newPath(6-10.5, 49-10.5, -179);
+//        strafeToSubmersible3 = newPath(6-10.5, 66-10.5, 0);
+//        forwardsToSubmersible3 = newPath(31.6-10.5, 66-10.5, 0);
+//        backwardsFromSubmersible3 = newPath(6-10.5, 64-10.5, 0);
+//        pickUpSpecimen4 = newPath(6-10.5, 49-10.5, -179);
+//        strafeToSubmersible4 = newPath(6-10.5, 66-10.5, 0 );
+//        forwardToSubmersible4 = newPath(31.6-10.5, 66-10.5, 0);
 
 
 
@@ -145,24 +147,24 @@ public class SpecimenAuto extends OpMode {
                 follower.followPath(toSubmersible);
                 setPathState(PathState.STRAFE_TO_SAMPLE1);
                 break;
-            case STRAFE_TO_SAMPLE1:
-                if (follower.getCurrentPath().isAtParametricEnd() && actionState == ActionState.PICK_UP_SPECIMEN_1){
-                    follower.followPath(strafeToSample1);
-                    setPathState(PathState.BEHIND_SAMPLE1);
-                }
-                break;
-            case BEHIND_SAMPLE1:
-                if (follower.getCurrentPath().isAtParametricEnd()){
-                    follower.followPath(behindSample1);
-                    setPathState(PathState.PUSH_SAMPLE1);
-                }
-            case PUSH_SAMPLE1:
-                if (follower.getCurrentPath().isAtParametricEnd()){
-                    follower.followPath(pushSample1);
-                    setPathState(PathState.GO_BACKWARDS);
-                }
-                break;
-//            case BACKWARDS_FROM_SAMPLE1:
+//            case STRAFE_TO_SAMPLE1:
+//                if (follower.getCurrentPath().isAtParametricEnd() /*&& actionState == ActionState.PICK_UP_SPECIMEN_1*/){
+//                    follower.followPath(strafeToSample1);
+//                    setPathState(PathState.BEHIND_SAMPLE1);
+//                }
+//                break;
+//            case BEHIND_SAMPLE1:
+//                if (follower.getCurrentPath().isAtParametricEnd()){
+//                    follower.followPath(behindSample1);
+//                    setPathState(PathState.PUSH_SAMPLE1);
+//                }
+//            case PUSH_SAMPLE1:
+//                if (follower.getCurrentPath().isAtParametricEnd()){
+//                    follower.followPath(pushSample1);
+//                    setPathState(PathState.GO_BACKWARDS);
+//                }
+//                break;
+////            case BACKWARDS_FROM_SAMPLE1:
 //                if (follower.getCurrentPath().isAtParametricEnd()){
 //                    follower.followPath(backwardsFromSample1);
 //                    setPathState(PathState.STRAFE_BEHIND_SAMPLE2);
@@ -446,9 +448,10 @@ public class SpecimenAuto extends OpMode {
         telemetry.addData("Current Path: ", pathState);
         telemetry.addData("Timer: ", pathTimer.getElapsedTimeSeconds());
         telemetry.addData("Path State", pathState);
+//        telemetry.addData("Target Pose", follower.getCurrentPath().));
         telemetry.addData("Action State",actionState);
         telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
-        autonomousActionUpdate();
+//        autonomousActionUpdate();
         telemetry.update();
         autonomousPathUpdate();
         follower.update();

@@ -75,7 +75,7 @@ public class TestAuto extends OpMode {
             case 0:
         }
          */
-        toSubmersible = (newPath(31.5, 78, Point.CARTESIAN));
+        toSubmersible = (newPath(21, 78, Point.CARTESIAN));
         backUp = newPath(19.2, 78, lastH);
         toSample1 = newPath(28.5, 118.2, lastH);
         toBucket = newPath(12, 124, -45);
