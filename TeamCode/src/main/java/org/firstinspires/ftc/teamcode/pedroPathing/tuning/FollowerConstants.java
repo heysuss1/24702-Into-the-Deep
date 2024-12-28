@@ -29,14 +29,14 @@ public class FollowerConstants {
     public static String rightFrontMotorName = "rf";
     public static String rightRearMotorName = "rr";
 
-    public static DcMotorSimple.Direction leftFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
+    public static DcMotorSimple.Direction leftFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
     public static DcMotorSimple.Direction rightFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
     public static DcMotorSimple.Direction leftRearMotorDirection = DcMotorSimple.Direction.FORWARD;
-    public static DcMotorSimple.Direction rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
+    public static DcMotorSimple.Direction rightRearMotorDirection = DcMotorSimple.Direction.REVERSE;
 
     // This section is for setting the actual drive vector for the front left wheel, if the robot
     // is facing a heading of 0 radians with the wheel centered at (0,0)
-    private static double xMovement = 75.322;
+    private static double xMovement = 77.5234;
     private static double yMovement = 59.2118;
     private static double[] convertToPolar = Point.cartesianToPolar(xMovement, -yMovement);
     public static Vector frontLeftVector = MathFunctions.normalizeVector(new Vector(convertToPolar[0], convertToPolar[1]));
@@ -44,9 +44,9 @@ public class FollowerConstants {
 
     // Translational PIDF coefficients (don't use integral)
     public static CustomPIDFCoefficients translationalPIDFCoefficients = new CustomPIDFCoefficients(
-            0.112,
+            0.3,
             0,
-            0.00004,
+            0.008,
             0);
 
     // Translational Integral
@@ -62,9 +62,9 @@ public class FollowerConstants {
 
     // Heading error PIDF coefficients
     public static CustomPIDFCoefficients headingPIDFCoefficients = new CustomPIDFCoefficients(
-            0.008,
+            3,
             0,
-            0.0001,
+            0.2,
             0);
 
     // Feed forward constant added on to the heading PIDF
@@ -73,9 +73,9 @@ public class FollowerConstants {
 
     // Drive PIDF coefficients
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
-            0.009,
+            0.01,
             0,
-            0.00009,
+            0.0003,
             0.6,
             0);
 
@@ -97,11 +97,11 @@ public class FollowerConstants {
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double forwardZeroPowerAcceleration = -37.8814;
+    public static double forwardZeroPowerAcceleration = -36.8814;
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double lateralZeroPowerAcceleration = -69.2845;
+    public static double lateralZeroPowerAcceleration = -60.8219;
 
     // A multiplier for the zero power acceleration to change the speed the robot decelerates at
     // the end of paths.
@@ -116,7 +116,7 @@ public class FollowerConstants {
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
     // this value, then end the Path. This is in inches/second.
     // This can be custom set for each Path.
-    public static double pathEndVelocityConstraint = 0.1;
+    public static double pathEndVelocityConstraint = 0.05;
 
     // When the robot is at the end of its current Path or PathChain and the translational error
     // goes below this value, then end the Path. This is in inches.
@@ -136,7 +136,7 @@ public class FollowerConstants {
     // When the Path is considered at its end parametrically, then the Follower has this many
     // milliseconds to further correct by default.
     // This can be custom set for each Path.
-    public static double pathEndTimeoutConstraint = 500;
+    public static double pathEndTimeoutConstraint = 100;
 
     // This is how many steps the BezierCurve class uses to approximate the length of a BezierCurve.
     public static int APPROXIMATION_STEPS = 1000;

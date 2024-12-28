@@ -73,11 +73,11 @@ public class PinpointLocalizer extends Localizer {
     public PinpointLocalizer(HardwareMap map, Pose setStartPose){
         hardwareMap = map;
 
-        odo = hardwareMap.get(GoBildaPinpointDriver.class,"odo");
+        odo = hardwareMap.get(GoBildaPinpointDriver.class,"pinpoint");
 
         //The default units are inches, but you can swap the units if you wish.
         //If you have already tuned the TwoWheelLocalizer, you can simply use the forwardEncoderPose's y value and strafeEncoderPose's x values.
-        setOffsets(-2.815, 0.125, DistanceUnit.INCH); //these are tuned for 3110-0002-0001 Product Insight #1
+        setOffsets(50.8, -177.8, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
 
         //TODO: Tune urself if needed
         odo.setYawScalar(1.0);

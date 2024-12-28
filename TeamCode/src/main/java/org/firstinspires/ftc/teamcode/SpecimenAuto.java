@@ -86,29 +86,29 @@ public class SpecimenAuto extends OpMode {
 
 
     public void buildPaths(){
-        toSubmersible = newPath(31.6, 64, 0);
-        strafeToSample1 = newPath(31.6, 40, lastH);
-        behindSample1 = newPath(60, 24, lastH);
-        pushSample1 = newPath(13,26, lastH);
+        toSubmersible = newPath(21.1, (64-10.5), 0);
+        strafeToSample1 = newPath(21.1, 40-10.5, lastH);
+        behindSample1 = newPath(60-10.5, 24-10.5, lastH);
+        pushSample1 = newPath(13-10.5,26-10.5, lastH);
 //        backwardsFromSample1 = newPath(65,24, lastH);
 //        strafeBehindSample2 = newPath(65 , 14, lastH);
 //        pushSample2 = newPath(12, 14, lastH);
-        goBackWards = newPath(30, 28, -179);
-        goForwards = newPath(6, 49, -179);
-        strafeToSubmersible1 = newPath(6, 64, 0);
-        forwardToSubmersible1 = newPath(31.6, 64, 0);
-        backwardsFromSubmersible1 = newPath(6, 64, 0);
-        pickUpSpecimen2 = newPath(6, 49, -179);
-        strafeToSubmersible2 = newPath(6, 64, 0);
-        forwardToSubmersible2 = newPath(31.6, 65, 0);
-        backwardsFromSubmersible2 = newPath(6, 64, 0);
-        pickUpSpecimen3 = newPath(6, 49, -179);
-        strafeToSubmersible3 = newPath(6, 66, 0);
-        forwardsToSubmersible3 = newPath(31.6, 66, 0);
-        backwardsFromSubmersible3 = newPath(6, 64, 0);
-        pickUpSpecimen4 = newPath(6, 49, -179);
-        strafeToSubmersible4 = newPath(6, 66, 0 );
-        forwardToSubmersible4 = newPath(31.6, 66, 0);
+        goBackWards = newPath(30-10.5, 28-10.5, -179);
+        goForwards = newPath(6-10.5, 49-10.5, -179);
+        strafeToSubmersible1 = newPath(6-10.5, 64-10.5, 0);
+        forwardToSubmersible1 = newPath(31.6-10.5, 64-10.5, 0);
+        backwardsFromSubmersible1 = newPath(6-10.5, 64-10.5, 0);
+        pickUpSpecimen2 = newPath(6-10.5, 49-10.5, -179);
+        strafeToSubmersible2 = newPath(6-10.5, 64-10.5, 0);
+        forwardToSubmersible2 = newPath(31.6-10.5, 65-10.5, 0);
+        backwardsFromSubmersible2 = newPath(6-10.5, 64-10.5, 0);
+        pickUpSpecimen3 = newPath(6-10.5, 49-10.5, -179);
+        strafeToSubmersible3 = newPath(6-10.5, 66-10.5, 0);
+        forwardsToSubmersible3 = newPath(31.6-10.5, 66-10.5, 0);
+        backwardsFromSubmersible3 = newPath(6-10.5, 64-10.5, 0);
+        pickUpSpecimen4 = newPath(6-10.5, 49-10.5, -179);
+        strafeToSubmersible4 = newPath(6-10.5, 66-10.5, 0 );
+        forwardToSubmersible4 = newPath(31.6-10.5, 66-10.5, 0);
 
 
 

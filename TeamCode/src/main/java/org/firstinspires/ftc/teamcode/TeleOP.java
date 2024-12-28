@@ -15,6 +15,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
 
 //close value right = .154, open = .298, close left = .684, open  = .538
+
+//VERY BAD NUMBERS (heading):
+//P: 0.002
+//D: 0.00055
+
+//TEMPORARY D AND P:
+//D: 0.0005
+//P:0.08
 @TeleOp(name = "Demon TeleOP")
 public class TeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
@@ -36,6 +44,13 @@ public class TeleOP extends LinearOpMode {
         Path toSubmersible, toObservationZone, toBuckets;
         double forward, sideways, turning, max;
         double scaleFactor = 0.8;
+        robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
         waitForStart();
         boolean clawIsOpen = false;
         boolean pressingB = false;
