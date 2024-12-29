@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 public class TeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
+    boolean isAligned;
 
     double kP, kI, kD, kF;
     SquidPID squid = new SquidPID(kP, kI, kD, kF);
@@ -58,6 +59,8 @@ public class TeleOP extends LinearOpMode {
         boolean isStalling = false;
         double ticks = 0;
         while (opModeIsActive()){
+            isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
+
             //gamepad1 = Driver 1
             if (gamepad1.dpad_left){
                forward = -0.4;
@@ -279,10 +282,10 @@ public class TeleOP extends LinearOpMode {
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //            } else{
 //                if (robot.armExtension.getCurrent(CurrentUnit.AMPS) < 0.3){
-//                    robot.armExtension.setPower(1);
+//                    robot.armExtension.setPower(1)
 //                }
 //            }
-
+            robot.armExtension.setPower(-0.001 * Math.sin((Math.PI*robot.armVertical.getCurrentPosition())/7600));
             follower.update();
             telemetry.addData("Position", ticks);
             telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
@@ -292,6 +295,7 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("Hello", position);
             telemetry.addData("Forwards", clawForwards);
             telemetry.addData("Robot Position", follower.getPose());
+            telemetry.addData("is the robot aligned?", isAligned);
 //            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
 //            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
             telemetry.addData("Conttrol Toggle", goToPosition);
@@ -310,16 +314,17 @@ public class TeleOP extends LinearOpMode {
 
         }
         public void alignHeading(){
-
-            while (Math.toDegrees(follower.getPose().getHeading()) > 0 && !(Math.toDegrees(follower.getPose().getHeading()) < 2)){
-                robot.setPower(-0.8, -0.8, 0.8, 0.8);
+            while (!isAligned){
                 follower.update();
+                isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
+                if (Math.toDegrees(follower.getPose().getHeading()) > 180){
+                    robot.setPower(0.05 , 0.05, -0.05, -0.05);
+                } else {
+                    robot.setPower(-0.2, -0.2, 0.2, 0.2);
 
+                }
             }
-            while (Math.toDegrees(follower.getPose().getHeading()) < 0 && !(Math.toDegrees(follower.getPose().getHeading()) > -2)){
-                robot.setPower(0.8, 0.8, -0.8, -0.8);
-                follower.update();
-            }
+
         }
 //    public void pickUpRobot(){
 //        robot.armVertical.setTargetPosition(0);
