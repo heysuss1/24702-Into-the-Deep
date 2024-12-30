@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 public class TurningTuning extends OpMode {
     Hardware robot = Hardware.getInstance();
     private Telemetry telemetryA;
-    public static double kP = 0.0031, kD = 0.0028, kI = 0, kF = 0;
+    public static double kP;
     Follower follower;
     double output;
     public static int target;
@@ -22,16 +22,7 @@ public class TurningTuning extends OpMode {
     SquidPID squid;
     public void init(){
         telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
-        robot.init(hardwareMap);
-        squid = new SquidPID(kP, kD, kI, kF);
     }
     public void loop(){
-        output = squid.calculate((Math.toDegrees(robot.odo.getHeading())),  target);
-        telemetryA.addLine("Error: " + output);
-        telemetryA.addLine("current position is: " + Math.toDegrees(robot.odo.getHeading()));
-        robot.setPower(output, output, -output, -output);
-        telemetryA.update();
-        robot.odo.update();
-
     }
 }
