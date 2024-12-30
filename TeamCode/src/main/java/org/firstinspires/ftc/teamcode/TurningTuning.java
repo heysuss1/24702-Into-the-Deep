@@ -6,10 +6,11 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.controllers.SquidPID;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 
 @Config
 @TeleOp (name ="Turning Tuning")
@@ -28,6 +29,7 @@ public class TurningTuning extends OpMode {
         telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
         controller = new PController(kP);
         follower = new Follower(hardwareMap);
+        follower.setStartingPose(new Pose(0,0,90));
     }
     public void loop(){
         output = controller.calculate(follower.getPose().getHeading(), target);
@@ -36,7 +38,8 @@ public class TurningTuning extends OpMode {
         } else {
             robot.setPower(output, output, -output, -output);
         }
-
+        telemetryA.addData("Target", target);
+        telemetryA.addData("Current Position", follower.getPose().getHeading());
+        follower.update();
     }
-
 }
