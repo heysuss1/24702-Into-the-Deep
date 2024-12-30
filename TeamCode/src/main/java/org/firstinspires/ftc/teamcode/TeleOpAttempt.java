@@ -112,7 +112,7 @@ public class TeleOpAttempt extends LinearOpMode {
                 robot.setSpeed(1);
             }
             //start checking here
-            if (currentGamepad1.left_stick_y < -0.1 && (!tooFar)){
+            if (currentGamepad2.left_stick_y < -0.1 && (!tooFar)){
                 telemetry.addData("Status", "Forward");
                 robot.armExtension.setPower(-1);
             } else if(currentGamepad2.left_stick_y > 0.1){
@@ -121,6 +121,7 @@ public class TeleOpAttempt extends LinearOpMode {
             } else {
                 robot.armExtension.setPower(0);
             }
+
 
             if(currentGamepad2.right_stick_y > 0.1) {
                 robot.armVertical.setPower(-1);
@@ -162,7 +163,8 @@ public class TeleOpAttempt extends LinearOpMode {
             telemetry.addData("Speed", robot.getSpeed());
             telemetry.addData("Extension Voltabge", robot.armExtension.getCurrent(CurrentUnit.AMPS));
             telemetry.addData("Hello", position);
-            telemetry.addData("Forwards", clawForwards);
+//            telemetry.addData("Forwards", clawForwards);
+            telemetry.addData("Too far?", tooFar);
             telemetry.addData("Robot Position", follower.getPose());
 //            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
 //            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
