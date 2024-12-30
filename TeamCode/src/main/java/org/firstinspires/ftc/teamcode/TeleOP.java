@@ -305,7 +305,7 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("is the robot aligned?", isAligned);
 //            telemetry.addData("Color Sensor Distance", robot.colorSensor.getDistance(DistanceUnit.INCH));
 //            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
-            telemetry.addData("Conttrol Toggle", goToPosition);
+            telemetry.addData("Control Toggle", goToPosition);
             telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
             telemetry.addData("scale factor", scaleFactor);
             telemetry.addData("Motors power", robot.rf.getPower());
