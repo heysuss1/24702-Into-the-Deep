@@ -4,10 +4,13 @@ package org.firstinspires.ftc.teamcode.runmodes;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardware;
+import org.firstinspires.ftc.teamcode.controllers.ExtensionPID;
 import org.firstinspires.ftc.teamcode.controllers.SquidPID;
+import org.firstinspires.ftc.teamcode.controllers.VerticalPID;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
@@ -21,6 +24,8 @@ public class TeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
     boolean isAligned;
+    ExtensionPID extensionPID;
+    VerticalPID verticalPID;
 
     double kP, kI, kD, kF;
     SquidPID squid = new SquidPID(kP, kI, kD, kF);
@@ -43,39 +48,43 @@ public class TeleOP extends LinearOpMode {
         robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        extensionPID.init();
+        verticalPID.init();
 
+        Gamepad currentGamepad1 = new Gamepad();
+        Gamepad currentGamepad2 = new Gamepad();
 
-
+        Gamepad previousGamepad1 = new Gamepad();
+        Gamepad previousGamepad2 = new Gamepad();
         waitForStart();
+
+
         boolean clawIsOpen = false;
-        boolean pressingB = false;
         boolean pressingLT = false;
         boolean pressingRT = false;
-        boolean hasSensed = false;
-        boolean pressingY = false;
-        boolean pressingA = false;
-        boolean pressingX = false;
-        boolean pressingLBumper = false;
         boolean clawForwards = false;
-        boolean pressingRB = false;
-        boolean pressingX2 = false;
         boolean goToPosition = false;
-        boolean pressingRB2 = false;
-        boolean pressingG1Y = false; // gamepad1's Y position
         boolean armVerticalTooFar = false;
-        boolean extensionLimiterPressed = false;
         boolean tooFar = false;
         boolean isStalling = false;
+        boolean usePID = false;
         double ticks = 0;
         while (opModeIsActive()){
+            previousGamepad1.copy(currentGamepad1);
+            previousGamepad2.copy(currentGamepad2);
+
+            currentGamepad1.copy(gamepad1);
+            currentGamepad2.copy(gamepad2);
             isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
 
             //gamepad1 = Driver 1
             if (gamepad1.dpad_left){
-               forward = -0.4;
+
             }
             if (gamepad1.dpad_right){
-                forward = 0.4;
+            }
+            if (gamepad1.dpad_up){
+
             }
 
             forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
@@ -91,34 +100,22 @@ public class TeleOP extends LinearOpMode {
             robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
             //only runs if the game button is he  ld down
             //gamepad 2 = driver 2
-            if (gamepad2.y && !pressingY){
-                robot.rotateServo.setPosition(.153);
 
-                pressingY = true;
-            } else if (!gamepad2.y){
-                pressingY = false;
-            }
-            if (gamepad1.y && !pressingG1Y){
-                alignHeading();
-                pressingG1Y = true;
-            } else if (!gamepad1.y){
-                pressingG1Y = false;
-            }
-            if (gamepad2.b && !pressingB && !gamepad2.start){
-                robot.rotateServo.setPosition(.425);
-                pressingB = true;
-            } else if (!gamepad2.b){
-                pressingB = false;
-            }
-            if (gamepad2.a && !pressingA){
-                robot.rotateServo.setPosition(0.741);
-//                robot.rotateServo.setPosition(0.437);
+            previousGamepad1.copy(currentGamepad1);
+            previousGamepad2.copy(currentGamepad2);
 
-                pressingA = true;
-            } else{
-                pressingA = false;
-            }
+            currentGamepad1.copy(gamepad1);
+            currentGamepad2.copy(gamepad2);
 
+            if (currentGamepad2.y && !previousGamepad2.y) {
+                robot.rotateServo.setPosition(0.174);
+            }
+            if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
+                robot.rotateServo.setPosition(0.437);
+            }
+            if (currentGamepad2.a && !previousGamepad2.a) {
+                robot.rotateServo.setPosition(0.726);
+            }
 
             if (gamepad2.dpad_left){
             }
@@ -128,32 +125,16 @@ public class TeleOP extends LinearOpMode {
             } else{
                 armVerticalTooFar = false;
             }
-            if (gamepad1.x && !pressingX){
+            if (currentGamepad1.x && !previousGamepad1.x){
                 toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
 //                follower.followPath(toSubmersible);
-                pressingX = true;
-            } else if (!gamepad1.x){
-                pressingX = false;
             }
 
-            if (gamepad2.x && !pressingX2){
+            if (currentGamepad2.x && !previousGamepad2.x) {
                 robot.armVertical.setTargetPosition(0);
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//                robot.rotateServo.setPosition(0.437);
                 goToPosition = true;
-
-                pressingX2 = true;
-            } else if (!gamepad2.x){
-                pressingX2 = false;
             }
-            if (gamepad2.right_bumper && !pressingRB2){
-                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                pressingRB2 = true;
-            } else if (!gamepad2.right_bumper){
-                pressingRB2 = false;
-            }
-
             if (goToPosition){
                 robot.armVertical.setPower(1);
                 if (robot.armVertical.getCurrentPosition() > -5 && robot.armVertical.getCurrentPosition() < 5){
@@ -162,12 +143,13 @@ public class TeleOP extends LinearOpMode {
             } else{
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
-            if (gamepad1.right_bumper && !pressingRB){
-                toObservationZone = newPath(frontOfObservationZone.getX(), frontOfSubmersible.getY(), 0);
-//                follower.followPath(toObservationZone);
-                pressingRB = true;
-            } else if (!gamepad1.right_bumper){
-                pressingRB = false;
+            if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
+                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
+            if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
+                toObservationZone = newPath(frontOfSubmersible.getX(), frontOfObservationZone.getY(), 0);
+                follower.followPath(toObservationZone);
             }
             if (gamepad1.right_trigger > 0.1){
                 robot.setSpeed(1-0.9 * gamepad1.right_trigger);
@@ -177,27 +159,23 @@ public class TeleOP extends LinearOpMode {
             if(gamepad2.left_stick_y < -0.1 && (!tooFar)) {
                 telemetry.addData("Status", "This is going, should be going forward");
                 robot.armExtension.setPower(-1);
+                usePID = false;
             } else if(gamepad2.left_stick_y > 0.1){
                 telemetry.addData("Status", "This is going, should be going backwards");
                 robot.armExtension.setPower(1);
+                usePID = false;
             } else {
+                usePID = true;
                 robot.armExtension.setPower(0);
-//                if (ticks < 2850) {
-//                    robot.armExtension.setTargetPosition(2700);
-//                } else if (ticks > 100) {
-//                    robot.armExtension.setTarge'tPosition(500);
-//                } else {
-//                    robot.armExtension.setPower(0);
-//                }
             }
-
-
             if(ticks < 2700){
                 tooFar = false;
             } else{
                 tooFar = true;
             }
-
+            if (currentGamepad1.y && !previousGamepad1.y){
+                alignHeading();
+            }
 //            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -214,23 +192,17 @@ public class TeleOP extends LinearOpMode {
 
             if(gamepad2.right_stick_y > 0.1  ) {
                 robot.armVertical.setPower(-1);
+                usePID = false;
             }
             else if(gamepad2.right_stick_y < -0.1 && !armVerticalTooFar){
                 robot.armVertical.setPower(1);
+                usePID = false;
             } else{
+                usePID = true;
                 if (!goToPosition){
                     robot.armVertical.setPower(0);
                 }
             }
-            /*if(gamepad2.b && !pressingB){
-                telemetry.addData("Extention Position", robot.armExtension.getCurrentPosition());
-                telemetry.addData("Horizontal Position", robot.armVertical.getCurrentPosition());
-                telemetry.update();
-                pressingB = true;
-            } else if (!gamepad2.b){
-                pressingB = false;
-            }*/
-            //only for using trigger as a button
             if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
                 if(!clawIsOpen){
                     //Open claw
@@ -260,20 +232,7 @@ public class TeleOP extends LinearOpMode {
                 pressingRT = false;
             }
 
-            if (gamepad2.left_bumper && !pressingLBumper){
-                if (!clawForwards){
-                    robot.rotateServo.setPosition(.726);
-                    clawForwards = true;
-                } else{
-                    robot.rotateServo.setPosition(.174);
-                    clawForwards = false;
-                }
-                pressingLBumper = true;
 
-            }
-            else  if (!gamepad2.left_bumper){
-                pressingLBumper = false;
-            }
 //            robot.armExtension.setPower(1);
 //            robot.armExtension.setTargetPosition();
 //            robot.armExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
