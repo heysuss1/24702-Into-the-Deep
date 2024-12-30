@@ -43,6 +43,7 @@ public class TeleOP extends LinearOpMode {
         Path toSubmersible, toObservationZone, toBuckets;
         double forward, sideways, turning, max;
         double scaleFactor = 0;
+        // outlining locations of game parts
         robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -86,6 +87,7 @@ public class TeleOP extends LinearOpMode {
             if (gamepad1.dpad_up){
 
             }
+            // math for mechanum wheels
 
             forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
             sideways = (Math.atan(5 * gamepad1.left_stick_x) / Math.atan(5));
@@ -112,28 +114,30 @@ public class TeleOP extends LinearOpMode {
             }
             if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
                 robot.rotateServo.setPosition(0.437);
+                // wrist movement commands
             }
             if (currentGamepad2.a && !previousGamepad2.a) {
                 robot.rotateServo.setPosition(0.726);
             }
 
-            if (gamepad2.dpad_left){
-            }
 
             if (robot.armVertical.getCurrentPosition() > 5000){
                 armVerticalTooFar = true;
             } else{
                 armVerticalTooFar = false;
+                // stops from going too far and tipping
             }
             if (currentGamepad1.x && !previousGamepad1.x){
                 toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
 //                follower.followPath(toSubmersible);
+                // hit x1, follow path to submersible
             }
 
             if (currentGamepad2.x && !previousGamepad2.x) {
                 robot.armVertical.setTargetPosition(0);
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 goToPosition = true;
+                // back to parallel
             }
             if (goToPosition){
                 robot.armVertical.setPower(1);
@@ -146,15 +150,18 @@ public class TeleOP extends LinearOpMode {
             if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
                 robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                // manual reset
             }
             if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
                 toObservationZone = newPath(frontOfSubmersible.getX(), frontOfObservationZone.getY(), 0);
                 follower.followPath(toObservationZone);
+                // go to human player
             }
             if (gamepad1.right_trigger > 0.1){
                 robot.setSpeed(1-0.9 * gamepad1.right_trigger);
             } else {
                 robot.setSpeed(1);
+                // slow robot down based on right trigger preasure
             }
             if(gamepad2.left_stick_y < -0.1 && (!tooFar)) {
                 telemetry.addData("Status", "This is going, should be going forward");
@@ -172,10 +179,11 @@ public class TeleOP extends LinearOpMode {
                 tooFar = false;
             } else{
                 tooFar = true;
+                // extension position
             }
             if (currentGamepad1.y && !previousGamepad1.y){
                 alignHeading();
-            }
+            } // press y, align so can pick up specimen from human player
 //            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -193,15 +201,18 @@ public class TeleOP extends LinearOpMode {
             if(gamepad2.right_stick_y > 0.1  ) {
                 robot.armVertical.setPower(-1);
                 usePID = false;
+                // pull y stick down, move arm down
             }
             else if(gamepad2.right_stick_y < -0.1 && !armVerticalTooFar){
                 robot.armVertical.setPower(1);
                 usePID = false;
+                // push y stick up, move arm up
             } else{
                 usePID = true;
                 if (!goToPosition){
                     robot.armVertical.setPower(0);
                 }
+                // if your not goin to a set position don't move the arm
             }
             if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
                 if(!clawIsOpen){
@@ -222,6 +233,7 @@ public class TeleOP extends LinearOpMode {
             else if(!(gamepad2.left_trigger >0.1)){
                 pressingLT = false;
             }
+            // press left trigger once to open and again to close
 
             //right trigger = half-closed
             if ((gamepad2.right_trigger > 0.1) && !pressingRT) {
@@ -280,6 +292,7 @@ public class TeleOP extends LinearOpMode {
             Path path = new Path(new BezierLine(startPoint, endPoint));
             path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
             return path;
+            // path outline
 
         }
         public void alignHeading(){
@@ -292,6 +305,7 @@ public class TeleOP extends LinearOpMode {
                     robot.setPower(-0.3, -0.3, 0.3, 0.3);
                 }
             }
+            // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
 
         }
 //    public void pickUpRobot(){
