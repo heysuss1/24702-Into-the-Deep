@@ -75,15 +75,15 @@ public class TestAuto extends OpMode {
             case 0:
         }
          */
-        toSubmersible = (newPath(19.5, 78, Point.CARTESIAN));
-        backUp = newPath(19.2, 78, lastH);
-        toSample1 = newPath(28.5, 118.2, lastH);
+        toSubmersible = (newPath(30.5, 78, 0));
+        backUp = newPath(19, 78, lastH);
+        toSample1 = newPath(28.5, 114, lastH);
         toBucket = newPath(12, 124, -45);
-//        toSample2 = newPath(22, 128, 0);
-//        toBucketFromSample2 = newPath(12, 124, -45);
-//        toSample3 = newPath(29, 128, 39);
-//        toBucketFromSample3 = newPath(12.3, 124, -45);
-//        toParking = newPath(56, 98.5, -90);
+        toSample2 = newPath(22, 126.8, 0);
+        toBucketFromSample2 = newPath(12, 124, -45);
+        toSample3 = newPath(29, 128, 39);
+        toBucketFromSample3 = newPath(12.3, 124, -45);
+        toParking = newPath(56, 98.5, -90);
 
 
 
@@ -93,7 +93,7 @@ public class TestAuto extends OpMode {
         robot.init(hardwareMap);
         lastH = follower.getPose().getHeading();
         follower.setStartingPose(starting);
-        follower.setMaxPower(0.5);
+//        follower.setMaxPower(0.5);
 //        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        robot.armVertical.setTargetPosition(1200);
 //        robot.armVertical.setPower(0.8);
@@ -127,13 +127,13 @@ public class TestAuto extends OpMode {
                 setPathState(State.GO_BACKWARDS);
                 break;
             case GO_BACKWARDS:
-//                if (actionState == ActionState.GRAB_SAMPLE1){
-//                    follower.followPath(backUp);
-//                    setPathState(State.GO_TO_SAMPLE1);
-//                }
-                if (follower.getCurrentPath().isAtParametricEnd()) {
+                if (actionState == ActionState.GRAB_SAMPLE1){
+                    follower.followPath(backUp);
                     setPathState(State.GO_TO_SAMPLE1);
                 }
+//                if (follower.getCurrentPath().isAtParametricEnd()) {
+//                    setPathState(State.GO_TO_SAMPLE1);
+//                }
                 break;
             case GO_TO_SAMPLE1:
                 if (follower.getCurrentPath().isAtParametricEnd()){
@@ -143,7 +143,7 @@ public class TestAuto extends OpMode {
                 }
                 break;
             case GO_TO_BASKET:
-                if (/*actionState == ActionState.PUT_IN_BUCKET &&*/ !follower.isBusy()) {
+                if (actionState == ActionState.PUT_IN_BUCKET && !follower.isBusy()) {
                     rotateArmBackWards();
                     follower.followPath(toBucket);
                     setPathState(State.GO_TO_SAMPLE2);
@@ -254,8 +254,8 @@ public class TestAuto extends OpMode {
                     armExtend(-697);
 
                 }
-                if (follower.getPose().getY() > 117){
-                    armUp(-420-ARM_CONSTANT);
+                if (follower.getPose().getY() > 113){
+                    armUp(-470-ARM_CONSTANT);
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET){
                     if (armTimer.seconds() > 1){
@@ -296,7 +296,7 @@ public class TestAuto extends OpMode {
                 if (state == State.GO_TO_BASKET_FROM_SAMPLE_2){
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(-420-ARM_CONSTANT);
-                    armExtend(-1250);
+                    armExtend(-1320);
                     rotateArmForwards();
 
                 }
@@ -420,7 +420,7 @@ public class TestAuto extends OpMode {
         telemetry.addData("Claw Position", robot.leftServo.getPosition());
         telemetry.update();
         autonomousPathUpdate();
-//        autonomousActionUpdate();
+        autonomousActionUpdate();
         follower.update();
 
     }

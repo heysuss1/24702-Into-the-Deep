@@ -36,7 +36,15 @@ public class TeleOP extends LinearOpMode {
         Pose frontOfObservationZone = new Pose(30, 17, Point.CARTESIAN);
         Path toSubmersible, toObservationZone, toBuckets;
         double forward, sideways, turning, max;
-        double scaleFactor = 0.8;
+        double scaleFactor = 0;
+        robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
+
         waitForStart();
         boolean clawIsOpen = false;
         boolean pressingB = false;
@@ -285,11 +293,10 @@ public class TeleOP extends LinearOpMode {
 //                    robot.armExtension.setPower(1)
 //                }
 //            }
-            robot.armExtension.setPower(-0.001 * Math.sin((Math.PI*robot.armVertical.getCurrentPosition())/7600));
             follower.update();
             telemetry.addData("Position", ticks);
             telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
-            telemetry.addData("Arm Horizontal Position", ticks);
+            telemetry.addData("Arm Horizontal Position", robot.armExtension.getCurrentPosition());
             telemetry.addData("Speed", robot.getSpeed());
             telemetry.addData("Extension Voltabge", robot.armExtension.getCurrent(CurrentUnit.AMPS));
             telemetry.addData("Hello", position);
@@ -300,6 +307,8 @@ public class TeleOP extends LinearOpMode {
 //            telemetry.addData("Color Sensor Status", robot.colorSensor.getClass());
             telemetry.addData("Conttrol Toggle", goToPosition);
             telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
+            telemetry.addData("scale factor", scaleFactor);
+            telemetry.addData("Motors power", robot.rf.getPower());
             //            telemetry.addData("Arm Vertical Position", robot.armVertical.getCurrentPosition());
             telemetry.update();
         }
@@ -320,7 +329,7 @@ public class TeleOP extends LinearOpMode {
                 if (Math.toDegrees(follower.getPose().getHeading()) > 180){
                     robot.setPower(0.05 , 0.05, -0.05, -0.05);
                 } else {
-                    robot.setPower(-0.2, -0.2, 0.2, 0.2);
+                    robot.setPower(-0.05, -0.05, 0.05, 0.05);
 
                 }
             }

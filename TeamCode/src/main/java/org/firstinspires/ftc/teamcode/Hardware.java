@@ -52,26 +52,26 @@ public class Hardware {
         rf = hwMap.get(DcMotorEx.class, "rf");
         rf.setDirection(DcMotorSimple.Direction.REVERSE);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rf.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rf.setPower(0);
         //1
 
         rb = hwMap.get(DcMotorEx.class, "rr");
         rb.setDirection(DcMotorSimple.Direction.REVERSE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rb.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rb.setPower(0);
         //3
 
         lf = hwMap.get(DcMotorEx.class, "lf");
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lf.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        lf.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lf.setPower(0);
         //0
 
         lb = hwMap.get(DcMotorEx.class, "lr");
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lb.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        lb.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         lb.setPower(0);
         //2
 
