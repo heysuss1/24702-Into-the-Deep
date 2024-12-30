@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.runmodes;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Hardware;
+import org.firstinspires.ftc.teamcode.SquidPID;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
@@ -327,10 +328,9 @@ public class TeleOP extends LinearOpMode {
                 follower.update();
                 isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
                 if (Math.toDegrees(follower.getPose().getHeading()) > 180){
-                    robot.setPower(0.05 , 0.05, -0.05, -0.05);
+                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
                 } else {
-                    robot.setPower(-0.05, -0.05, 0.05, 0.05);
-
+                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
                 }
             }
 
