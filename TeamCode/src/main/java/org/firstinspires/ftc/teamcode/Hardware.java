@@ -78,13 +78,13 @@ public class Hardware {
         armVertical = hwMap.get(DcMotorEx.class, "armV");
         armVertical.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armVertical.setPower(0);
 
         armExtension = hwMap.get(DcMotorEx.class, "armE");
         armExtension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armExtension.setPower(0);
 
         leftServo = hwMap.get(Servo.class, "leftServo");
