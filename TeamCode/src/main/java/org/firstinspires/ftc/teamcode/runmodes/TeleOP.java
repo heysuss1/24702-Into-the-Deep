@@ -35,8 +35,7 @@ public class TeleOP extends LinearOpMode {
     }
     ArmState armState = ArmState.DONE;
 
-    double kP, kI, kD, kF;
-    SquidPID squid = new SquidPID(kP, kI, kD, kF);
+    double output;
     //PHUHS
     public void runOpMode(){
         int position = 0;
@@ -58,10 +57,9 @@ public class TeleOP extends LinearOpMode {
         robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        extensionPID = new PIDFController(0.02, 0, 0.015, 0);
-        verticalPID = new PIDFController(0.0219, 0, 0.000415, 0);
-        robot.armVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.armExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extensionPID = new PIDFController(0.02, 0, 0.001, 0);
+        verticalPID = new PIDFController(0.0219, 0, 0.001, 0);
+
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
 
@@ -92,17 +90,46 @@ public class TeleOP extends LinearOpMode {
             isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
 
             //gamepad1 = Driver 1
-            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left && usePID){
+            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
                 armState = ArmState.PARALLEL_ARM;
+                usePID = true;
             }
-            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right &&usePID){
+            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
                 armState = ArmState.HANG_SPECIMEN;
+                usePID = true;
 
             }
             if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
                 armState = ArmState.HIGH_BASKET;
+                usePID = true;
             }
-//            updateArm();
+            switch (armState){
+                case PARALLEL_ARM:
+                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), -80));
+                    if (robot.armVertical.getCurrentPosition() > -81){
+//                    armState = ArmState.DONE;
+                    }
+                    telemetry.addData("state", armState);
+                    break;
+                case HANG_SPECIMEN:
+                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200));
+                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400));
+                    if (robot.armExtension.getCurrentPosition() <-1198 && robot.armVertical.getCurrentPosition() > 2398){
+//                        armState = ArmState.DONE;
+                    }
+                    break;
+                case HIGH_BASKET:
+                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(),-2350));
+                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 3000));
+                    if (robot.armExtension.getCurrentPosition() <-2348 && robot.armVertical.getCurrentPosition() > 2995) {
+//                        armState = ArmState.DONE;
+                    }
+                    break;
+                case DONE:
+                    break;
+                default:
+                    break;
+            }
 //            robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200));
 //            robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400));
             if (gamepad1.dpad_up){
@@ -173,11 +200,22 @@ public class TeleOP extends LinearOpMode {
                 follower.followPath(toObservationZone);
                 // go to human player
             }
+//            output = extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200);
+
+//            robot.armExtension.setPower(output);
+//            output = verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400);
+//            robot.armVertical.setPower(output);
             if (gamepad1.right_trigger > 0.1){
                 robot.setSpeed(1-0.9 * gamepad1.right_trigger);
             } else {
                 robot.setSpeed(1);
                 // slow robot down based on right trigger preasure
+            }
+            if(ticks < 2700){
+                tooFar = false;
+            } else{
+                tooFar = true;
+                // extension position
             }
             if(gamepad2.left_stick_y < -0.1 && (!tooFar)) {
                 telemetry.addData("Status", "This is going, should be going forward");
@@ -188,15 +226,11 @@ public class TeleOP extends LinearOpMode {
                 robot.armExtension.setPower(1);
                 usePID = false;
             } else {
-                usePID = true;
-                robot.armExtension.setPower(0);
+                if (!usePID){
+                 robot.armExtension.setPower(0);
+                }
             }
-            if(ticks < 2700){
-                tooFar = false;
-            } else{
-                tooFar = true;
-                // extension position
-            }
+
             if (currentGamepad1.y && !previousGamepad1.y){
                 alignHeading();
             } // press y, align so can pick up specimen from human player
@@ -224,8 +258,7 @@ public class TeleOP extends LinearOpMode {
                 usePID = false;
                 // push y stick up, move arm up
             } else{
-                usePID = true;
-                if (!goToPosition){
+                if (!goToPosition && !usePID){
                     robot.armVertical.setPower(0);
                 }
                 // if your not goin to a set position don't move the arm
@@ -294,7 +327,7 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
             telemetry.addData("scale factor", scaleFactor);
             telemetry.addData("Motors power", robot.rf.getPower());
-            telemetry.addData("arm state", armState);
+            telemetry.addData("use pid", armState);
 
 
             telemetry.update();
@@ -315,41 +348,16 @@ public class TeleOP extends LinearOpMode {
                 follower.update();
                 isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
                 if (Math.toDegrees(follower.getPose().getHeading()) > 180){
-                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
+                    robot.setPower(0.6 , 0.6, -0.6, -0.6);
                 } else {
-                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
+                    robot.setPower(-0.6, -0.6, 0.6, 0.6);
                 }
             }
             // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
 
         }
         public void updateArm(){
-            switch (armState){
-                case PARALLEL_ARM:
-                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), -80));
-                    if (robot.armVertical.getCurrentPosition() > -81){
-//                    armState = ArmState.DONE;
-                    }
-                    telemetry.addData("state", armState);
 
-                case HANG_SPECIMEN:
-                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200));
-                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400));
-                    if (robot.armExtension.getCurrentPosition() <-1198 && robot.armVertical.getCurrentPosition() > 2398){
-//                        armState = ArmState.DONE;
-                    }
-
-                case HIGH_BASKET:
-                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(),-2350));
-                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 3000));
-                    if (robot.armExtension.getCurrentPosition() <-2348 && robot.armVertical.getCurrentPosition() > 2995) {
-//                        armState = ArmState.DONE;
-                    }
-                case DONE:
-                    break;
-                default:
-                    break;
-            }
         }
 //    public void pickUpRobot(){
 //        robot.armVertical.setTargetPosition(0);

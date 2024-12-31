@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.runmodes;
+package org.firstinspires.ftc.teamcode.runmodes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -310,7 +310,7 @@ public class SpecimenAuto extends OpMode {
 //                setActionState(ActionState.RAISE_ARMS);
                 closeClaw();
                 armExtend(-1200);
-                armUp(2300-ARM_CONSTANT);
+                armUp(2300-ARM_CONSTANT);//may be 2400
                 if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > (2290-ARM_CONSTANT)) {
                     setActionState(ActionState.HANG_PRELOAD);
 

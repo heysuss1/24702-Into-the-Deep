@@ -29,7 +29,7 @@ public class ExtensionPID extends OpMode {
 
     public void init(){
         telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
-        pidf = new PIDFController(kP, kD, kI, kF);
+        pidf = new PIDFController(kP, kI, kD, kF);
         robot.init(hardwareMap);
     }
     public void loop(){

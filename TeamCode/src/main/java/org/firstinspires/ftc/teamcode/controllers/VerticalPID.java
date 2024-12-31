@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Hardware;
 public class VerticalPID extends OpMode {
     Hardware robot = Hardware.getInstance();
     private Telemetry telemetryA;
-    public static double kP = 0.0219, kD = 0.000415, kI = 0, kF = 0;
+    public static double kP = 0.0219, kD = 0.0001, kI = 0, kF = 0;
     double output;
 
     public static int setpoint;
