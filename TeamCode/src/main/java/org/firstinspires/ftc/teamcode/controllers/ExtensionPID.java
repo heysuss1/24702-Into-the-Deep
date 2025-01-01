@@ -15,34 +15,44 @@ import org.firstinspires.ftc.teamcode.Hardware;
 @TeleOp (name = "Extension Tuner")
 public class ExtensionPID extends OpMode {
     Hardware robot = Hardware.getInstance();
-    private Telemetry telemetryA;
-    public static double kP = 0.02;
-    public static double kD = 0.015;
-    public static double kI, kF;
-    public static int armVerticalPos;
+//    private Telemetry telemetryA;
+   public static double kP, kI, kD, kF;
 
-    private double gravityComp;
-    double output;
+   double extensionError;
+   double verticalError;
+   public static double kpVert, kIVert, kDVert, kFVert;
+
+   public static int targetVert;
+//    public static int armVerticalPos;
+
+//    private double gravityComp;
+//    double output;
     public static int setpoint;
     FtcDashboard dashboard = FtcDashboard.getInstance();
     PIDFController pidf;
+    PIDFController pidfVert;
 
     public void init(){
-        telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
+//        telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
         pidf = new PIDFController(kP, kI, kD, kF);
+        pidfVert = new PIDFController(kpVert, kIVert, kDVert, kFVert);
         robot.init(hardwareMap);
     }
     public void loop(){
-        output = pidf.calculate((robot.armExtension.getCurrentPosition()),  setpoint);
-//        gravityComp = -0.001 * Math.sin(Math.PI*armVerticalPos/7600);
-        telemetryA.addLine("Error: " + output);
-        telemetryA.addLine("current position is: " + robot.armExtension.getCurrentPosition());
-        robot.armExtension.setPower(output /*+ gravityComp*/);
-        telemetryA.update();
+        extensionError = setpoint - robot.armExtension.getCurrentPosition();
+        verticalError = targetVert - robot.armVertical.getCurrentPosition();
+        pidfVert.setPIDF(kpVert, kIVert, kDVert, kFVert);
+        pidf.setPIDF(kP, kI, kD, kF);
+        pidfVert.calculate(0, verticalError);
+        pidf.calculate(0, extensionError);
+        robot.armVertical.setPower(pidfVert.calculate(0, verticalError));
+        robot.armExtension.setPower(pidf.calculate(0, extensionError));
+
+
     }
-    public void extend(int target){
-        gravityComp = -0.001 * Math.sin((Math.PI*robot.armVertical.getCurrentPosition())/7600);
-        output = pidf.calculate(robot.armExtension.getCurrentPosition(), target);
-        robot.armExtension.setPower(output);
-    }
+//    public void extend(int target)
+//        gravityComp = -0.001 * Math.sin((Math.PI*robot.armVertical.getCurrentPosition())/7600);
+//        output = pidf.calculate(robot.armExtension.getCurrentPosition(), target);
+//        robot.armExtension.setPower(output);
+//    }
 }

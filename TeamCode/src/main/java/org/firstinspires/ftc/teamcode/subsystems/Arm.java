@@ -29,8 +29,9 @@ public class Arm implements Subsystem {
     public static DcMotorEx extension, vertical;
     public static final Arm INSTANCE = new Arm();
     public static double verticalTarget, extensionTarget, verticalOutput, extensionOutput;
-    public static double kP = 0.0002, kD = 0.0001, kI = 0, kF = 0;
-    public static com.arcrobotics.ftclib.controller.PIDFController pid;
+    public static double kP = 0.02, kD = 0.0001, kI = 0, kF = 0;
+    private static double extensionError, verticalError;
+//    public static com.arcrobotics.ftclib.controller.PIDFController pid;
     public static int counter = 0;
     public static Waiter waiter;
     public static boolean usePID = false;
@@ -57,8 +58,9 @@ public class Arm implements Subsystem {
         vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         vertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        setDefaultCommand(update());
-        pid = new PIDFController(kP, kI, kD, kF);
+//        setDefaultCommand(update());
+//        pid = new PIDFController(kP, kI, kD, kF);
+        extension.setPower(0);
 //        waiter = new Waiter();
     }
     public static void setVerticalTarget(int setpoint){ verticalTarget = setpoint;}
@@ -66,52 +68,45 @@ public class Arm implements Subsystem {
     public static double getVerticalTarget(){return verticalTarget;}
     public static double getExtensionTarget(){return extensionTarget;}
 
-    public static void updatePID(boolean useExtension){
-        if (useExtension) {
-            extensionOutput = pid.calculate(extension.getCurrentPosition(), extensionTarget);
-        } else extensionOutput = 0;
-        verticalOutput = pid.calculate(vertical.getCurrentPosition(), verticalTarget);
+    public static void updatePID(boolean useExtension, PIDFController pidfVertical, PIDFController extend){
+        extensionError = extensionTarget - extension.getCurrentPosition();
+        verticalError = verticalTarget - vertical.getCurrentPosition();
 
-        if (verticalAtTarget()){
-            verticalOutput = 0;
-        }
-        if (extensionAtTarget()){
-            extensionOutput = 0;
-        }
-        vertical.setPower(verticalOutput);
-        extension.setPower(extensionOutput);
-    }
-    public static void moveArm(Gamepad gamepad){
 
-        if (gamepad.right_stick_y > 0.1){
-            vertical.setPower(-1);
-        } else if (gamepad.right_stick_y < -0.1) {
-            vertical.setPower(1);
-        } else{
-            setExtensionTarget(extension.getCurrentPosition());
-        }
+        vertical.setPower(pidfVertical.calculate(0, verticalError));
+        extension.setPower(extend.calculate(0, extensionError));
     }
-    public static void extendArm(Gamepad gamepad){
-        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2700){
-            extension.setPower(-1);
-        } else if (gamepad.left_stick_y > 0.1){
-            extension.setPower(1);
-        } else{
-            setExtensionTarget(extension.getCurrentPosition());
-        }
-    }
-    public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
-    public static boolean extensionAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <=1;}
+//    public static void moveArm(Gamepad gamepad){
+//
+//        if (gamepad.right_stick_y > 0.1){
+//            vertical.setPower(-1);
+//        } else if (gamepad.right_stick_y < -0.1) {
+//            vertical.setPower(1);
+//        } else{
+//            setExtensionTarget(extension.getCurrentPosition());
+//        }
+//    }
+//    public static void extendArm(Gamepad gamepad){
+//        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2700){
+//            extension.setPower(-1);
+//        } else if (gamepad.left_stick_y > 0.1){
+//            extension.setPower(1);
+//        } else{
+//            setExtensionTarget(extension.getCurrentPosition());
+//        }
+////    }
+//    public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
+//    public static boolean extensionAtTarget(){return Math.abs(extensionTarget - extension.getCurrentPosition()) <=1;}
 
-    public static Lambda update(){
-        return new Lambda("update")
-                .addRequirements(INSTANCE)
-                .setExecute(()->{
-                    updatePID(true);
-                });
-    }
+//    public static Lambda update(PIDFController pidfVertical, PIDFController pidfExtension){
+//        return new Lambda("update")
+//                .addRequirements(INSTANCE)
+//                .setExecute(()->{
+//                    updatePID(true, pidfVertical, pidfExtension);
+//                });
+//    }
     @NonNull
-    public static Lambda raiseSpecimen(){
+    public static Lambda raiseSpecimen(PIDFController pidfVertical, PIDFController pidfExtension){
         return new Lambda("raise specimen")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
@@ -119,14 +114,14 @@ public class Arm implements Subsystem {
                    setVerticalTarget(2400);
                 })
                 .setExecute(() -> {
-                   Arm.updatePID(true);
-                })
-                .setFinish(() -> {
-                   return verticalAtTarget() && extensionAtTarget();
+                   Arm.updatePID(true, pidfVertical, pidfExtension);
                 });
+//                .setFinish(() -> {
+////                   return verticalAtTarget() && extensionAtTarget();
+//                });
     }
     @NonNull
-    public static Lambda hangSpecimen(){
+    public static Lambda hangSpecimen(PIDFController pidfVertical, PIDFController pidfExtension){
         return new Lambda("hang specimen")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
@@ -134,15 +129,15 @@ public class Arm implements Subsystem {
                     setVerticalTarget(2100);
                 })
                 .setExecute(() -> {
-                    Arm.updatePID(true);
-                })
-                .setFinish(() -> {
-                    return verticalAtTarget() && extensionAtTarget();
+                    Arm.updatePID(true, pidfVertical, pidfExtension);
                 });
+//                .setFinish(() -> {
+//                    return verticalAtTarget() && extensionAtTarget();
+//                });
     }
 
     @NonNull
-    public static Lambda goToBasket(){
+    public static Lambda goToBasket(PIDFController pidfVertical, PIDFController pidfExtension){
         return new Lambda("go to basket")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
@@ -150,13 +145,13 @@ public class Arm implements Subsystem {
                     setVerticalTarget(2100);
                 })
                 .setExecute(() -> {
-                    Arm.updatePID(true);
-                })
-                .setFinish(() -> {
-                    return verticalAtTarget() && extensionAtTarget();
+                    Arm.updatePID(true, pidfVertical, pidfExtension);
                 });
+//                .setFinish(() -> {
+//                    return verticalAtTarget() && extensionAtTarget();
+//                });
     }
-    public static Lambda parallelArm(){
+    public static Lambda parallelArm(PIDFController pidfVertical, PIDFController pidfExtension){
         return new Lambda("parallel arm")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
@@ -165,9 +160,9 @@ public class Arm implements Subsystem {
                     setExtensionTarget(extension.getCurrentPosition());
                 })
                 .setExecute(() -> {
-                    Arm.updatePID(false);
-                })
-                .setFinish(Arm::verticalAtTarget);
+                    Arm.updatePID(false, pidfVertical, pidfExtension);
+                });
+//                .setFinish(Arm::verticalAtTarget);
 
 
     }
