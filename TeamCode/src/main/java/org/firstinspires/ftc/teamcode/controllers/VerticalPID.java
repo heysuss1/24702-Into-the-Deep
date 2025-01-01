@@ -18,24 +18,38 @@ public class VerticalPID extends OpMode {
     Hardware robot = Hardware.getInstance();
     private Telemetry telemetryA;
     public static double kP = 0.0219, kD = 0.0001, kI = 0, kF = 0;
-    double output;
+    double output, armOutput;
 
+    PIDFController extensionPID;
     public static int setpoint;
 
     FtcDashboard dashboard = FtcDashboard.getInstance();
     PIDFController pidf;
+    boolean hi = false;
 
     public void init(){
         telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
         robot.init(hardwareMap);
         pidf = new PIDFController(kP, kI, kD, kF);
+        extensionPID = new PIDFController(0.02, 0, 0.0001, 0);
 
     }
     public void loop(){
-        output = pidf.calculate((robot.armVertical.getCurrentPosition()),  setpoint);
-        telemetryA.addLine("Error: " + output);
-        telemetryA.addLine("current position is: " + robot.armVertical.getCurrentPosition());
-        robot.armVertical.setPower(output);
+        if (gamepad2.y){
+            hi = true;
+        }
+
+        if (hi){
+            output = pidf.calculate((robot.armVertical.getCurrentPosition()),  -2000);
+            telemetryA.addLine("Error: " + output);
+            telemetryA.addLine("current position is: " + robot.armVertical.getCurrentPosition());
+            armOutput = extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200);
+            robot.armVertical.setPower(output);
+            robot.armExtension.setPower(armOutput);
+            telemetryA.addLine("Extension Error: " + armOutput);
+            telemetryA.addLine("current extension position is: " + robot.armExtension.getCurrentPosition());
+        }
+
         telemetryA.update();
 
     }

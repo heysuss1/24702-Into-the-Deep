@@ -16,7 +16,7 @@ import dev.frozenmilk.mercurial.Mercurial;
 import dev.frozenmilk.mercurial.commands.Lambda;
 
 
-@Config
+//@Config
 @TeleOp (name = "Mercurial teleop")
 @Mercurial.Attach
 @Arm.Attach
@@ -29,17 +29,22 @@ public class MercurialAssistedTeleOP extends OpMode {
     double output, extensionError,verticalError;
     boolean hi = false;
     static Hardware robot = Hardware.getInstance();
+    public static double setpoint = -500;
+    public static double targetVert = 500;
     public static double kP, kI, kD, kF;
 //    kP = .02;
     PIDFController pidExtension;
     PIDFController pidVertical;
-
+    double looptime;
     Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
     public void init(){
         follower = new Follower(hardwareMap);
         kP = .01;
+        setpoint = -500;
+        targetVert = 500;
         kD = 0;
         robot.init(hardwareMap);
+        looptime = 0.0;
         pidExtension= new com.arcrobotics.ftclib.controller.PIDFController(kP, 0, kD, 0);
         pidVertical = new PIDFController(kP, 0, kD, 0);
 
@@ -83,9 +88,12 @@ public class MercurialAssistedTeleOP extends OpMode {
         if (gamepad1.y){
             hi = true;
         }
+        double loop = System.nanoTime();
+        telemetry.addData("hz ", 1000000000/(loop - looptime));
+        looptime = loop;
         if (hi){
-            extensionError = -500 - (robot.armExtension.getCurrentPosition());
-            verticalError = 1000 - robot.armVertical.getCurrentPosition();
+            extensionError = setpoint - robot.armExtension.getCurrentPosition();
+            verticalError = targetVert - robot.armVertical.getCurrentPosition();
             pidExtension.setPIDF(kP, 0, kD, 0);
             pidVertical.setPIDF(kP, kI, kD, kF);
             robot.armVertical.setPower(pidVertical.calculate(0, verticalError));
@@ -97,7 +105,7 @@ public class MercurialAssistedTeleOP extends OpMode {
         telemetry.addData("Use pid", Arm.usePID);
         telemetry.addData("is the arm vertical at target", Arm.getExtensionTarget());
         telemetry.addData("get power", Arm.extension.getPower());
-        telemetry.addData("output", Arm.verticalOutput);
+        telemetry.addData("output", pidExtension.calculate(0, extensionError));
     }
 
 //    public static Lambda alignHeading(){
