@@ -4,6 +4,7 @@ repositories {
 
     maven { url = 'https://maven.brott.dev/' }
     maven { url = "https://maven.rowanmcalpin.com/" }
+    maven {url = "https://repo.dairy.foundation/releases"}
 
 
 
@@ -20,8 +21,8 @@ dependencies {
     implementation 'org.firstinspires.ftc:FtcCommon:10.1.0'
     implementation 'org.firstinspires.ftc:Vision:10.1.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.rowanmcalpin.nextftc:core:0.5.3-beta1'
-    implementation 'com.rowanmcalpin.nextftc:ftc:0.5.3-beta2'
+    implementation "dev.frozenmilk.mercurial:Mercurial:1.0.1"
+    implementation "dev.frozenmilk.dairy:Core:1.0.1"
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.5'
     }
 

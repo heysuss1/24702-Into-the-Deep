@@ -87,9 +87,7 @@ public class Hardware {
         armExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armExtension.setPower(0);
 
-        leftServo = hwMap.get(Servo.class, "leftServo");
-        rightServo = hwMap.get(Servo.class, "rightServo");
-        rotateServo = hwMap.get(Servo.class, "rotateServo");
+
 
         odo = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
@@ -115,18 +113,6 @@ public class Hardware {
     public void setSpeed(double speed){
         maxSpeed = speed;
     }
-    public void moveArmForward(double distance){
-        armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        armVertical.setTargetPosition((int) (distance * 1120));
-        while(armVertical.isBusy()){
-            telemetry.addData("Arm Vertical Encoder", armVertical.getCurrentPosition());
-            telemetry.update();
-        }
-
-        armVertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        armVertical.setPower(0);
-    }
-
     public void claw(double arg) {
         leftServo.setPosition(leftClosed+arg*(leftOpen-leftClosed));
         rightServo.setPosition(rightClosed+arg*(rightOpen-rightClosed));

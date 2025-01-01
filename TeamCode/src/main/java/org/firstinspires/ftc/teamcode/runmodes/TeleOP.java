@@ -139,7 +139,7 @@ public class TeleOP extends LinearOpMode {
 
             forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
             sideways = (Math.atan(5 * gamepad1.left_stick_x) / Math.atan(5));
-            turning = (Math.atan(5 * gamepad1.right_stick_x) / Math.atan(5)) * 0.5;
+            turning = (Math.atan(5 * gamepad1.right_stick_x) / Math.atan(5));
             max = Math.max(Math.abs(forward - sideways - turning), Math.max(Math.abs(forward + sideways - turning), Math.max(Math.abs(forward + sideways + turning), Math.abs(forward + turning - sideways))));
             if (max > robot.maxSpeed) {
                 scaleFactor = robot.maxSpeed / max;
@@ -205,12 +205,12 @@ public class TeleOP extends LinearOpMode {
 //            robot.armExtension.setPower(output);
 //            output = verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400);
 //            robot.armVertical.setPower(output);
-            if (gamepad1.right_trigger > 0.1){
-                robot.setSpeed(1-0.9 * gamepad1.right_trigger);
-            } else {
-                robot.setSpeed(1);
-                // slow robot down based on right trigger preasure
-            }
+//            if (gamepad1.right_trigger > 0.1){
+//                robot.setSpeed(1-0.9 * gamepad1.right_trigger);
+//            } else {
+//                robot.setSpeed(1);
+//                // slow robot down based on right trigger preasure
+//            }
             if(ticks < 2700){
                 tooFar = false;
             } else{
@@ -348,9 +348,9 @@ public class TeleOP extends LinearOpMode {
                 follower.update();
                 isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
                 if (Math.toDegrees(follower.getPose().getHeading()) > 180){
-                    robot.setPower(0.6 , 0.6, -0.6, -0.6);
+                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
                 } else {
-                    robot.setPower(-0.6, -0.6, 0.6, 0.6);
+                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
                 }
             }
             // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way

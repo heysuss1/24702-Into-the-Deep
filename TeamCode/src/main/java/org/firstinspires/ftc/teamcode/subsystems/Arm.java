@@ -1,102 +1,181 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import androidx.annotation.NonNull;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.rowanmcalpin.nextftc.core.Subsystem;
-import com.rowanmcalpin.nextftc.core.command.Command;
-import com.rowanmcalpin.nextftc.core.command.groups.ParallelGroup;
-import com.rowanmcalpin.nextftc.core.control.coefficients.PIDCoefficients;
-import com.rowanmcalpin.nextftc.core.control.controllers.PIDController;
-import com.rowanmcalpin.nextftc.ftc.hardware.controllables.MotorEx;
-import com.rowanmcalpin.nextftc.ftc.hardware.controllables.RunToPosition;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 
-public class Arm extends Subsystem {
+import org.firstinspires.ftc.teamcode.Waiter;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import dev.frozenmilk.dairy.core.dependency.Dependency;
+import dev.frozenmilk.dairy.core.dependency.annotation.SingleAnnotation;
+import dev.frozenmilk.dairy.core.util.controller.calculation.pid.DoubleComponent;
+import dev.frozenmilk.dairy.core.wrapper.Wrapper;
+import dev.frozenmilk.mercurial.commands.Lambda;
+import dev.frozenmilk.mercurial.subsystems.Subsystem;
+import kotlin.annotation.MustBeDocumented;
+
+public class Arm implements Subsystem {
+    public static DcMotorEx extension, vertical;
     public static final Arm INSTANCE = new Arm();
-    public PIDController extensionPID = new PIDController(new PIDCoefficients(0.02, 0.0, 0.0001));
-    public PIDController verticalPID = new PIDController(new PIDCoefficients(0.0219, 0.0, 0.0001));
+    public static double verticalTarget, extensionTarget, verticalOutput, extensionOutput;
+    public static double kP = 0.0002, kD = 0.0001, kI = 0, kF = 0;
+    public static com.arcrobotics.ftclib.controller.PIDFController pid;
+    public static int counter = 0;
+    public static Waiter waiter;
+    public static boolean usePID = false;
+    private Arm(){}
+    @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
+    @Inherited
+    public @interface Attach { }
+    private Dependency<?> dependency = Subsystem.DEFAULT_DEPENDENCY.and(new SingleAnnotation<>(Claw.Attach.class));
 
-    MotorEx extension, vertical;
-    String extensionName = "armE";
-    String verticalName = "armV";
+    @NonNull
+    @Override
+    public Dependency<?> getDependency() { return dependency; }
+    @Override
+    public void setDependency(@NonNull Dependency<?> dependency) { this.dependency = dependency; }
 
-    public Command liftSpecimen(){
-        return new ParallelGroup(
-          new RunToPosition(
-                  extension,
-                  -1200.0,
-                  extensionPID,
-                  this
-          ),
-          new RunToPosition(
-                  vertical,
-                  2300.0,
-                  verticalPID,
-                  this
-          )
-        );
+    @Override
+    public void preUserInitHook(@NonNull Wrapper opMode){
+        HardwareMap hardwareMap = opMode.getOpMode().hardwareMap;
+        vertical = hardwareMap.get(DcMotorEx.class, "armV");
+        extension = hardwareMap.get(DcMotorEx.class, "armE");
+        extension.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        vertical.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        vertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        setDefaultCommand(update());
+        pid = new PIDFController(kP, kI, kD, kF);
+//        waiter = new Waiter();
     }
-    public Command hangSpecimen(){
-        return new ParallelGroup(
-                new RunToPosition(
-                        extension,
-                        -350,
-                        extensionPID,
-                        this
-                ),
-                new RunToPosition(
-                        vertical,
-                        2100,
-                        verticalPID,
-                        this
-                )
-        );
+    public static void setVerticalTarget(int setpoint){ verticalTarget = setpoint;}
+    public static void setExtensionTarget(int setpoint) {extensionTarget = setpoint;}
+    public static double getVerticalTarget(){return verticalTarget;}
+    public static double getExtensionTarget(){return extensionTarget;}
+
+    public static void updatePID(boolean useExtension){
+        if (useExtension) {
+            extensionOutput = pid.calculate(extension.getCurrentPosition(), extensionTarget);
+        } else extensionOutput = 0;
+        verticalOutput = pid.calculate(vertical.getCurrentPosition(), verticalTarget);
+
+        if (verticalAtTarget()){
+            verticalOutput = 0;
+        }
+        if (extensionAtTarget()){
+            extensionOutput = 0;
+        }
+        vertical.setPower(verticalOutput);
+        extension.setPower(extensionOutput);
     }
-    public Command liftBasket(){
-        return new ParallelGroup(
-                new RunToPosition(
-                        extension,
-                        -350,
-                        extensionPID,
-                        this
-                ),
-                new RunToPosition(
-                        vertical,
-                        2100,
-                        verticalPID,
-                        this
-                )
-        );
+    public static void moveArm(Gamepad gamepad){
+
+        if (gamepad.right_stick_y > 0.1){
+            vertical.setPower(-1);
+        } else if (gamepad.right_stick_y < -0.1) {
+            vertical.setPower(1);
+        } else{
+            setExtensionTarget(extension.getCurrentPosition());
+        }
     }
-    public Command hangBasket(){
-        return new ParallelGroup(
-                new RunToPosition(
-                        extension,
-                        -2300,
-                        extensionPID,
-                        this
-                ),
-                new RunToPosition(
-                        vertical,
-                        4100,
-                        verticalPID,
-                        this
-                )
-        );
+    public static void extendArm(Gamepad gamepad){
+        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2700){
+            extension.setPower(-1);
+        } else if (gamepad.left_stick_y > 0.1){
+            extension.setPower(1);
+        } else{
+            setExtensionTarget(extension.getCurrentPosition());
+        }
     }
-    public Command parallelArm(){
-        return new ParallelGroup(
-                new RunToPosition(
-                        vertical,
-                        -180,
-                        verticalPID,
-                        this
-                )
-        );
+    public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
+    public static boolean extensionAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <=1;}
+
+    public static Lambda update(){
+        return new Lambda("update")
+                .addRequirements(INSTANCE)
+                .setExecute(()->{
+                    updatePID(true);
+                });
     }
-    public void initialize(){
-        vertical = new MotorEx(verticalName);
-        extension = new MotorEx(extensionName);
+    @NonNull
+    public static Lambda raiseSpecimen(){
+        return new Lambda("raise specimen")
+                .addRequirements(INSTANCE)
+                .setInit(() -> {
+                   setExtensionTarget(-1200);
+                   setVerticalTarget(2400);
+                })
+                .setExecute(() -> {
+                   Arm.updatePID(true);
+                })
+                .setFinish(() -> {
+                   return verticalAtTarget() && extensionAtTarget();
+                });
+    }
+    @NonNull
+    public static Lambda hangSpecimen(){
+        return new Lambda("hang specimen")
+                .addRequirements(INSTANCE)
+                .setInit(() -> {
+                    setExtensionTarget(-350);
+                    setVerticalTarget(2100);
+                })
+                .setExecute(() -> {
+                    Arm.updatePID(true);
+                })
+                .setFinish(() -> {
+                    return verticalAtTarget() && extensionAtTarget();
+                });
+    }
+
+    @NonNull
+    public static Lambda goToBasket(){
+        return new Lambda("go to basket")
+                .addRequirements(INSTANCE)
+                .setInit(() -> {
+                    setExtensionTarget(-350);
+                    setVerticalTarget(2100);
+                })
+                .setExecute(() -> {
+                    Arm.updatePID(true);
+                })
+                .setFinish(() -> {
+                    return verticalAtTarget() && extensionAtTarget();
+                });
+    }
+    public static Lambda parallelArm(){
+        return new Lambda("parallel arm")
+                .addRequirements(INSTANCE)
+                .setInit(() -> {
+                    usePID = true;
+                    setVerticalTarget(0);
+                    setExtensionTarget(extension.getCurrentPosition());
+                })
+                .setExecute(() -> {
+                    Arm.updatePID(false);
+                })
+                .setFinish(Arm::verticalAtTarget);
+
+
+    }
+
+    public static Lambda moveArm(){
+        return new Lambda ("move arm")
+                .addRequirements(INSTANCE)
+                .setExecute(Arm::moveArm);
     }
 
 }
-

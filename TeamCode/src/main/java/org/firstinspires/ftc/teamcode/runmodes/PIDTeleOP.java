@@ -11,20 +11,23 @@ import org.firstinspires.ftc.teamcode.Hardware;
 @TeleOp (name = "PID Debugging")
 public class PIDTeleOP extends OpMode {
     PIDFController extensionPID;
-    PIDFController verticalPID;
+    PIDFController controller;
     double output, armOutput;
     Hardware robot = Hardware.getInstance();
     public void init(){
-        extensionPID = new PIDFController(0.02, 0, 0.0001, 0);
-        verticalPID = new PIDFController(0.0219, 0, 0.0001, 0);
+        controller = new PIDFController(0.02, 0, 0.0001, 0);
+
         robot.init(hardwareMap);
     }
     public void loop(){
-            output = extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200);
+            output = controller.calculate(robot.armExtension.getCurrentPosition(), -1200);
 
             robot.armExtension.setPower(output);
-            output = verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400);
+            armOutput = controller.calculate(robot.armVertical.getCurrentPosition(), 2400);
             robot.armVertical.setPower(armOutput);
+            telemetry.addData("Current pos: ",robot.armExtension.getCurrentPosition());
+            telemetry.addData("target", 2400);
+            telemetry.addData("output", output);
 
     }
 }
