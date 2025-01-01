@@ -26,7 +26,7 @@ public class MercurialAssistedTeleOP extends OpMode {
     double scaleFactor;
     static boolean isAligned;
     static Follower follower;
-    double output, extensionError,verticalError;
+    double output, extensionError,verticalError, armOutput;
     boolean hi = false;
     static Hardware robot = Hardware.getInstance();
     public static double setpoint = -500;
@@ -39,7 +39,7 @@ public class MercurialAssistedTeleOP extends OpMode {
     Gamepad currentGamepad1, currentGamepad2, previousGamepad1, previousGamepad2;
     public void init(){
         follower = new Follower(hardwareMap);
-        kP = .01;
+        kP = .015;
         setpoint = -500;
         targetVert = 500;
         kD = 0;
@@ -53,8 +53,8 @@ public class MercurialAssistedTeleOP extends OpMode {
 //        Mercurial.gamepad2().a().onTrue(Claw.wristDown());
         Mercurial.gamepad2().x().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
 //        Mercurial.gamepad1().y().onTrue(alignHeading());
-//        Mercurial.gamepad2().dpadLeft().onTrue(Arm.raiseSpecimen(pid));
-//        Mercurial.gamepad2().dpadRight().onTrue(Arm.hangSpecimen());
+        Mercurial.gamepad2().dpadLeft().onTrue(Arm.raiseSpecimen(pidVertical, pidExtension));
+        Mercurial.gamepad2().dpadRight().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
 //
 
 
@@ -85,20 +85,20 @@ public class MercurialAssistedTeleOP extends OpMode {
 //        } else{
 //            hi = false;
 //        }
-        if (gamepad1.y){
+        if (gamepad2.y){
             hi = true;
         }
+
+        if (hi){
+//           Arm.setVerticalTarget(2000);
+//           Arm.setExtensionTarget(-1000);
+           Arm.hangSpecimen(pidVertical, pidExtension);
+        }
+
+
         double loop = System.nanoTime();
         telemetry.addData("hz ", 1000000000/(loop - looptime));
         looptime = loop;
-        if (hi){
-            extensionError = setpoint - robot.armExtension.getCurrentPosition();
-            verticalError = targetVert - robot.armVertical.getCurrentPosition();
-            pidExtension.setPIDF(kP, 0, kD, 0);
-            pidVertical.setPIDF(kP, kI, kD, kF);
-            robot.armVertical.setPower(pidVertical.calculate(0, verticalError));
-            robot.armExtension.setPower(pidExtension.calculate(0, extensionError));
-        }
         telemetry.addData("Arm Vertical Pos", Arm.vertical.getCurrentPosition());
         telemetry.addData("Arm Extension Pos", Arm.extension.getCurrentPosition());
         telemetry.addData("Counter", output);

@@ -91,6 +91,9 @@ public class Hardware {
 
         odo = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
+        leftServo = hwMap.get();
+        rightServo;
+        rotateServo;
 //        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
 
     }

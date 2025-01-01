@@ -93,6 +93,9 @@ public class SamplesAuto extends OpMode {
 //        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        robot.armVertical.setTargetPosition(1200);
 //        robot.armVertical.setPower(0.8);
+        robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         robot.rotateServo.setPosition(.741);
         timer = new Timer();
         armTimer = new ElapsedTime();

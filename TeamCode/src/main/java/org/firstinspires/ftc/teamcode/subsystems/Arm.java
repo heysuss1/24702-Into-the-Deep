@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+//import static org.firstinspires.ftc.teamcode.MercurialAssistedTeleOP.robot;
+
 import androidx.annotation.NonNull;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
@@ -58,6 +61,8 @@ public class Arm implements Subsystem {
         vertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         vertical.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        setExtensionTarget(0);
+        setVerticalTarget(0);
 //        setDefaultCommand(update());
 //        pid = new PIDFController(kP, kI, kD, kF);
         extension.setPower(0);
@@ -69,12 +74,13 @@ public class Arm implements Subsystem {
     public static double getExtensionTarget(){return extensionTarget;}
 
     public static void updatePID(boolean useExtension, PIDFController pidfVertical, PIDFController extend){
-        extensionError = extensionTarget - extension.getCurrentPosition();
-        verticalError = verticalTarget - vertical.getCurrentPosition();
+        extensionError = extend.calculate((extension.getCurrentPosition()),  extensionTarget);
+        verticalError = pidfVertical.calculate(vertical.getCurrentPosition(), verticalTarget);
 
+//        verticalError = pidfVertical.calculate(extension.getCurrentPosition(), -1200);
+        vertical.setPower(verticalError);
+        extension.setPower(extensionError);
 
-        vertical.setPower(pidfVertical.calculate(0, verticalError));
-        extension.setPower(extend.calculate(0, extensionError));
     }
 //    public static void moveArm(Gamepad gamepad){
 //
@@ -95,8 +101,8 @@ public class Arm implements Subsystem {
 //            setExtensionTarget(extension.getCurrentPosition());
 //        }
 ////    }
-//    public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
-//    public static boolean extensionAtTarget(){return Math.abs(extensionTarget - extension.getCurrentPosition()) <=1;}
+    public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
+    public static boolean extensionAtTarget(){return Math.abs(extensionTarget - extension.getCurrentPosition()) <=1;}
 
 //    public static Lambda update(PIDFController pidfVertical, PIDFController pidfExtension){
 //        return new Lambda("update")
@@ -115,10 +121,10 @@ public class Arm implements Subsystem {
                 })
                 .setExecute(() -> {
                    Arm.updatePID(true, pidfVertical, pidfExtension);
+                })
+                .setFinish(() -> {
+                   return verticalAtTarget() && extensionAtTarget();
                 });
-//                .setFinish(() -> {
-////                   return verticalAtTarget() && extensionAtTarget();
-//                });
     }
     @NonNull
     public static Lambda hangSpecimen(PIDFController pidfVertical, PIDFController pidfExtension){
@@ -130,10 +136,10 @@ public class Arm implements Subsystem {
                 })
                 .setExecute(() -> {
                     Arm.updatePID(true, pidfVertical, pidfExtension);
+                })
+                .setFinish(() -> {
+                    return verticalAtTarget() && extensionAtTarget();
                 });
-//                .setFinish(() -> {
-//                    return verticalAtTarget() && extensionAtTarget();
-//                });
     }
 
     @NonNull
@@ -146,10 +152,10 @@ public class Arm implements Subsystem {
                 })
                 .setExecute(() -> {
                     Arm.updatePID(true, pidfVertical, pidfExtension);
+                })
+                .setFinish(() -> {
+                    return verticalAtTarget() && extensionAtTarget();
                 });
-//                .setFinish(() -> {
-//                    return verticalAtTarget() && extensionAtTarget();
-//                });
     }
     public static Lambda parallelArm(PIDFController pidfVertical, PIDFController pidfExtension){
         return new Lambda("parallel arm")
@@ -161,8 +167,8 @@ public class Arm implements Subsystem {
                 })
                 .setExecute(() -> {
                     Arm.updatePID(false, pidfVertical, pidfExtension);
-                });
-//                .setFinish(Arm::verticalAtTarget);
+                })
+                .setFinish(Arm::verticalAtTarget);
 
 
     }
