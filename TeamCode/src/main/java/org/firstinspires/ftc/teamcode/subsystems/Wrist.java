@@ -17,13 +17,13 @@ public class Wrist extends Subsystem {
         );
     }
     public Command down(){
-        return new ParallelGroup(
-                new ServoToPosition(wrist, 0.726, this)
+        return new ServoToPosition(
+               wrist, 0.726, this
         );
     }
     public Command up(){
-        return new ParallelGroup(
-                new ServoToPosition(wrist, 0.174, this)
+       return new ServoToPosition(
+              wrist, 0.174, this
         );
     }
 
