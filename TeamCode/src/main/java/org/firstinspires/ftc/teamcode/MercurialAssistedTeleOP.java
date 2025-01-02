@@ -51,7 +51,7 @@ public class MercurialAssistedTeleOP extends OpMode {
 //        Mercurial.gamepad2().y().onTrue(Claw.wristUp());
 //        Mercurial.gamepad2().b().onTrue(Claw.wristStraight());
 //        Mercurial.gamepad2().a().onTrue(Claw.wristDown());
-        Mercurial.gamepad2().x().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
+        Mercurial.gamepad2().x().onTrue(Arm.parallelArm(pidVertical, pidExtension));
 //        Mercurial.gamepad1().y().onTrue(alignHeading());
         Mercurial.gamepad2().dpadLeft().onTrue(Arm.raiseSpecimen(pidVertical, pidExtension));
         Mercurial.gamepad2().dpadRight().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
@@ -61,17 +61,17 @@ public class MercurialAssistedTeleOP extends OpMode {
 
     }
     public void loop(){
-//        forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
-//        sideways = (Math.atan(5 * gamepad1.left_stick_x) / Math.atan(5));
-//        turning = (Math.atan(5 * gamepad1.right_stick_x) / Math.atan(5));
-//        max = Math.max(Math.abs(forward - sideways - turning), Math.max(Math.abs(forward + sideways - turning), Math.max(Math.abs(forward + sideways + turning), Math.abs(forward + turning - sideways))));
-//        if (max > robot.maxSpeed) {
-//            scaleFactor = robot.maxSpeed / max;
-//        } else {
-//            scaleFactor = robot.maxSpeed;
-//        }
-//        scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
-//        robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
+        forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
+        sideways = (Math.atan(5 * gamepad1.left_stick_x) / Math.atan(5));
+        turning = (Math.atan(5 * gamepad1.right_stick_x) / Math.atan(5));
+        max = Math.max(Math.abs(forward - sideways - turning), Math.max(Math.abs(forward + sideways - turning), Math.max(Math.abs(forward + sideways + turning), Math.abs(forward + turning - sideways))));
+        if (max > robot.maxSpeed) {
+            scaleFactor = robot.maxSpeed / max;
+        } else {
+            scaleFactor = robot.maxSpeed;
+        }
+        scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
+        robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
 ////        Arm.moveArm(gamepad2);
 ////        Arm.extendArm(gamepad2);
 //        if (Arm.usePID && Arm.extensionAtTarget()){

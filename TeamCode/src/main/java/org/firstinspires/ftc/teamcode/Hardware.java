@@ -87,13 +87,12 @@ public class Hardware {
         armExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armExtension.setPower(0);
 
-
+        leftServo = hwMap.get(Servo.class, "leftServo");
+        rightServo = hwMap.get(Servo.class, "rightServo");
+        rotateServo = hwMap.get(Servo.class, "rotateServo");
 
         odo = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
-        leftServo = hwMap.get();
-        rightServo;
-        rotateServo;
 //        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
 
     }

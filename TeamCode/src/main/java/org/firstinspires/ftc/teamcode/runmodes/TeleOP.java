@@ -103,6 +103,24 @@ public class TeleOP extends LinearOpMode {
                 armState = ArmState.HIGH_BASKET;
                 usePID = true;
             }
+
+//            if (gamepad1.dpad_up){
+//                robot.setPower(1, 1, 1, 1);
+//            }
+//            else if (gamepad1.dpad_right){
+//                robot.setPower(-1, 1, -1, 1);
+//            }
+//            else if (gamepad1.dpad_left){
+//                robot.setPower(1, -1, -1, 1);
+//            }
+//            else if (gamepad1.dpad_down){
+//                robot.setPower(-1, -1, -1, -1);
+//            }
+//            else{
+//                robot.setPower(0,0,0 ,0);
+//            }
+
+
             switch (armState){
                 case PARALLEL_ARM:
                     robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), -80));
@@ -156,7 +174,7 @@ public class TeleOP extends LinearOpMode {
                 robot.rotateServo.setPosition(0.174);
             }
             if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
-                robot.rotateServo.setPosition(0.437);
+                robot.rotateServo.setPosition(0.38);
                 // wrist movement commands
             }
             if (currentGamepad2.a && !previousGamepad2.a) {

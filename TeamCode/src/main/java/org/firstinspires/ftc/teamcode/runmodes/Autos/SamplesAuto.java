@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode.runmodes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -71,14 +72,14 @@ public class SamplesAuto extends OpMode {
             case 0:
         }
          */
-        toSubmersible = (newPath(30.5, 78, 0));
+        toSubmersible = (newPath(29, 78, 0));
         backUp = newPath(19, 78, lastH);
         toSample1 = newPath(28.5, 114, lastH);
         toBucket = newPath(12, 124, -45);
         toSample2 = newPath(22, 126.8, 0);
         toBucketFromSample2 = newPath(12, 124, -45);
-        toSample3 = newPath(29, 128, 39);
-        toBucketFromSample3 = newPath(12.3, 124, -45);
+        toSample3 = newPath(26, 127.5, 33);
+        toBucketFromSample3 = newPath(10, 125, -45);
         toParking = newPath(56, 98.5, -90);
 
 
@@ -89,7 +90,7 @@ public class SamplesAuto extends OpMode {
         robot.init(hardwareMap);
         lastH = follower.getPose().getHeading();
         follower.setStartingPose(starting);
-//        follower.setMaxPower(0.5);
+        follower.setMaxPower(0.9);
 //        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 //        robot.armVertical.setTargetPosition(1200);
 //        robot.armVertical.setPower(0.8);
@@ -250,7 +251,7 @@ public class SamplesAuto extends OpMode {
                 if (state == State.GO_TO_SAMPLE1){
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(-50-ARM_CONSTANT);
-                    armExtend(-697);
+                    armExtend(-640);
 
                 }
                 if (follower.getPose().getY() > 113){
@@ -317,7 +318,7 @@ public class SamplesAuto extends OpMode {
                 if (state == State.GO_TO_SAMPLE3 && !follower.isBusy()){
                     rotateArmBackWards();
                     armUp(4100-ARM_CONSTANT);
-                    armExtend(-2380);
+                    armExtend(-2350);
                     if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)) {
                         if (armTimer.seconds() > 1) {
                             armTimer.reset();
@@ -337,13 +338,11 @@ public class SamplesAuto extends OpMode {
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(0-ARM_CONSTANT);
                     armExtend(-800);
-
                 }
-
                 if (robot.armVertical.getCurrentPosition() < (5-ARM_CONSTANT)){
-                    armExtend(-1550);
+                    armExtend(-800);
                 }
-                if (robot.armExtension.getCurrentPosition() < -1200){
+                if (robot.armExtension.getCurrentPosition() < -797){
                     armUp(-420-ARM_CONSTANT);
                 }
                 if (armTimer.seconds() > 3.1){
@@ -359,13 +358,13 @@ public class SamplesAuto extends OpMode {
                     }
                 }
 
-            break;
+                break;
             case PUT_IN_BUCKET_3:
                 closeClaw();
                 if (state == State.GO_TO_PARKING && !follower.isBusy()){
                     rotateArmBackWards();
                     armUp(4000-ARM_CONSTANT);
-                    armExtend(-2380);
+                    armExtend(-2350);
                     if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)) {
                         if (armTimer.seconds() > 1) {
                             armTimer.reset();
