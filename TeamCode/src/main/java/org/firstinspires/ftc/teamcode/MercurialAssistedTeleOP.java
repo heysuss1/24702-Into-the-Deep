@@ -27,10 +27,8 @@ public class MercurialAssistedTeleOP extends OpMode {
     static boolean isAligned;
     static Follower follower;
     double output, extensionError,verticalError, armOutput;
-    boolean hi = false;
+    boolean alignHeading = false;
     static Hardware robot = Hardware.getInstance();
-    public static double setpoint = -500;
-    public static double targetVert = 500;
     public static double kP, kI, kD, kF;
 //    kP = .02;
     PIDFController pidExtension;
@@ -40,27 +38,37 @@ public class MercurialAssistedTeleOP extends OpMode {
     public void init(){
         follower = new Follower(hardwareMap);
         kP = .015;
-        setpoint = -500;
-        targetVert = 500;
         kD = 0;
         robot.init(hardwareMap);
+        Gamepad currentGamepad1 = new Gamepad();
+        Gamepad currentGamepad2 = new Gamepad();
+
+        Gamepad previousGamepad1 = new Gamepad();
+        Gamepad previousGamepad2 = new Gamepad();
         looptime = 0.0;
         pidExtension= new com.arcrobotics.ftclib.controller.PIDFController(kP, 0, kD, 0);
         pidVertical = new PIDFController(kP, 0, kD, 0);
 
-//        Mercurial.gamepad2().y().onTrue(Claw.wristUp());
-//        Mercurial.gamepad2().b().onTrue(Claw.wristStraight());
-//        Mercurial.gamepad2().a().onTrue(Claw.wristDown());
+        Mercurial.gamepad2().y().onTrue(Claw.wristUp());
+        Mercurial.gamepad2().b().onTrue(Claw.wristStraight());
+        Mercurial.gamepad2().a().onTrue(Claw.wristDown());
         Mercurial.gamepad2().x().onTrue(Arm.parallelArm(pidVertical, pidExtension));
-//        Mercurial.gamepad1().y().onTrue(alignHeading());
+//        Mercurial.gamepad1().y().onTrue();
         Mercurial.gamepad2().dpadLeft().onTrue(Arm.raiseSpecimen(pidVertical, pidExtension));
         Mercurial.gamepad2().dpadRight().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
+
 //
 
 
 
     }
     public void loop(){
+        previousGamepad1.copy(currentGamepad1);
+        previousGamepad2.copy(currentGamepad2);
+
+        currentGamepad1.copy(gamepad1);
+        currentGamepad2.copy(gamepad2);
+
         forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
         sideways = (Math.atan(5 * gamepad1.left_stick_x) / Math.atan(5));
         turning = (Math.atan(5 * gamepad1.right_stick_x) / Math.atan(5));
@@ -85,11 +93,10 @@ public class MercurialAssistedTeleOP extends OpMode {
 //        } else{
 //            hi = false;
 //        }
-        if (gamepad2.y){
-            hi = true;
-        }
+        if (gamepad1.y && !previousGamepad1.y) isAligned = true;
 
-        if (hi){
+
+        if (isAligned){
 //           Arm.setVerticalTarget(2000);
 //           Arm.setExtensionTarget(-1000);
            Arm.hangSpecimen(pidVertical, pidExtension);

@@ -34,6 +34,7 @@ public class TeleOP extends LinearOpMode {
         DONE
     }
     ArmState armState = ArmState.DONE;
+    double currentHeading;
 
     double output;
     //PHUHS
@@ -102,6 +103,11 @@ public class TeleOP extends LinearOpMode {
             if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
                 armState = ArmState.HIGH_BASKET;
                 usePID = true;
+            }
+            if (currentGamepad1.a && !previousGamepad1.a){
+//                currentHeading = follower.getPose().getHeading();
+                follower.setStartingPose(new Pose(0, 0, 0));
+//                follower
             }
 
 //            if (gamepad1.dpad_up){
@@ -344,6 +350,7 @@ public class TeleOP extends LinearOpMode {
             telemetry.addData("is the robot aligned?", isAligned);
             telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
             telemetry.addData("scale factor", scaleFactor);
+            telemetry.addData("Current position", follower.getPose());
             telemetry.addData("Motors power", robot.rf.getPower());
             telemetry.addData("use pid", armState);
 
@@ -362,16 +369,48 @@ public class TeleOP extends LinearOpMode {
 
         }
         public void alignHeading(){
+        boolean isAligned = false;;
+        double heading, targetHeading = 0;
             while (!isAligned){
+                heading = Math.toDegrees(follower.getPose().getHeading());
+
+                if (heading <= 138  && heading > 45){
+                    isAligned = heading > 88 && heading < 90;
+                    targetHeading = 90;
+                } else if (heading > 135 && heading <= 215){
+                    isAligned = heading > 178 && heading < 180;
+                    targetHeading = 180;
+                } else if (heading > 215 && heading <= 315){
+                    isAligned = heading > 268 && heading < 270;
+                    targetHeading = 270;
+                } else if (heading > 315  || heading <=45){
+                    isAligned = heading < 2 && heading > 0;
+                    targetHeading = 360;
+                }
                 follower.update();
-                isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
-                if (Math.toDegrees(follower.getPose().getHeading()) > 180){
+//                isAligned = heading < 2 && heading > 0;
+                if (heading < targetHeading && targetHeading != 0){
                     robot.setPower(0.3 , 0.3, -0.3, -0.3);
-                } else {
+                } else if (heading > targetHeading && targetHeading != 0)  {
+                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
+                } else if (heading > 180 && targetHeading == 0){
+                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
+                } else if (heading < 180 && targetHeading == 0){
                     robot.setPower(-0.3, -0.3, 0.3, 0.3);
                 }
             }
             // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
+
+            /* welcome to carter pseudocode:
+            if (45 < heading <= 135) {
+                set heading to 90
+                } else if (135 < heading <= 215) {
+                set heading to 180
+                } else if (215 < heading <= 315) {
+                set heading to 270
+                } else if (315 < heading || heading <= 45) {
+                set heading to 0
+             */
 
         }
         public void updateArm(){

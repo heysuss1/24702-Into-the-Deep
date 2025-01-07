@@ -119,4 +119,18 @@ public class Hardware {
         leftServo.setPosition(leftClosed+arg*(leftOpen-leftClosed));
         rightServo.setPosition(rightClosed+arg*(rightOpen-rightClosed));
     }
+
+    public void turnCCW(double speed) {
+        rf.setPower(Range.clip(-speed, -maxSpeed, maxSpeed));
+        rb.setPower(Range.clip(-speed, -maxSpeed, maxSpeed));
+        lf.setPower(Range.clip(speed, -maxSpeed, maxSpeed));
+        lb.setPower(Range.clip(speed, -maxSpeed, maxSpeed));
+    }
+
+    public void turnCW(double speed) {
+        rf.setPower(Range.clip(speed, -maxSpeed, maxSpeed));
+        rb.setPower(Range.clip(speed, -maxSpeed, maxSpeed));
+        lf.setPower(Range.clip(-speed, -maxSpeed, maxSpeed));
+        lb.setPower(Range.clip(-speed, -maxSpeed, maxSpeed));
+    }
 }
