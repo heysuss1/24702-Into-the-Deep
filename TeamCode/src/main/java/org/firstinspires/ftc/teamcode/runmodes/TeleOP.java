@@ -43,7 +43,8 @@ public class TeleOP extends LinearOpMode {
         robot.init(hardwareMap);
         telemetry.addData("Status", "Hello, Drivers!");
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(new Pose(63, 95));
+//        follower.setStartingPose(new Pose(63, 95));
+        follower.setStartingPose(new Pose(0, 0, 0));
         telemetry.update();
         Pose bucket = new Pose(18, 127, Point.CARTESIAN);
         Pose frontOfSubmersible = new Pose(31.6, 78, Point.CARTESIAN);
@@ -188,7 +189,7 @@ public class TeleOP extends LinearOpMode {
             }
 
 
-            if (robot.armVertical.getCurrentPosition() > 5000){
+            if (robot.armVertical.getCurrentPosition() > 4800){
                 armVerticalTooFar = true;
             } else{
                 armVerticalTooFar = false;
@@ -235,7 +236,7 @@ public class TeleOP extends LinearOpMode {
 //                robot.setSpeed(1);
 //                // slow robot down based on right trigger preasure
 //            }
-            if(ticks < 2700){
+            if(robot.armExtension.getCurrentPosition() > -2500){
                 tooFar = false;
             } else{
                 tooFar = true;

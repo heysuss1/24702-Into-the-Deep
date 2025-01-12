@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode.runmodes.Autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -14,14 +13,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@Autonomous (name = "Samples Auto")
-public class SamplesAuto extends OpMode {
+
+@Autonomous (name = "Only Samples")
+public class OnlySamplesAuto extends OpMode {
     Follower follower;
     Hardware robot = Hardware.getInstance();
-    Pose starting = new Pose(5, 78, 0);
+    Pose starting = new Pose(5, 126, -90);
     Timer timer;
-    int counter = 0;
-    int ARM_CONSTANT = 900;
+    int ARM_CONSTANT = 1200;
     Pose bucket = new Pose(15, 127, Point.CARTESIAN);
     Pose frontOfSubmersible = new Pose(34, 71, Point.CARTESIAN);
     Pose frontOfObservationZone = new Pose(9, 17, Point.CARTESIAN);
@@ -31,10 +30,10 @@ public class SamplesAuto extends OpMode {
     double lastH = starting.getHeading();
 
     ElapsedTime armTimer;
-    Path toSubmersible, backUp, toSample1, toBucket, toSample2, toBucketFromSample2, toSample3, toBucketFromSample3, toParking;
+    Path preloadBasket, backUp, toSample1, toBucket, toSample2, toBucketFromSample2, toSample3, toBucketFromSample3, toParking;
 
     enum State{
-        GO_TO_BAR,
+        SCORE_PRELOAD_BASKET,
         GO_BACKWARDS,
         GO_TO_SAMPLE1,
         GO_TO_BASKET,
@@ -48,7 +47,7 @@ public class SamplesAuto extends OpMode {
 
     enum ActionState{
         RAISE_ARMS,
-        HANG_SPECIMEN,
+        SCORE_SAMPLE,
         GRAB_SAMPLE1,
         PUT_IN_BUCKET,
         GRAB_SAMPLE2,
@@ -60,7 +59,7 @@ public class SamplesAuto extends OpMode {
     enum ClawUpdate{
         CLOSE_SAMPLE_1,
     }
-    State state = State.GO_TO_BAR;
+    State state = State.SCORE_PRELOAD_BASKET;
     ActionState actionState = ActionState.RAISE_ARMS;
 //    PathBuilder toSubmersible;
 
@@ -73,14 +72,14 @@ public class SamplesAuto extends OpMode {
             case 0:
         }
          */
-        toSubmersible = (newPath(30.7, 78, 0));
-        backUp = newPath(19, 78, lastH);
-        toSample1 = newPath(28.5, 113.5, lastH);
-        toBucket = newPath(11.5, 123, -45);
+        preloadBasket = (newPath(5, 131, -90));
+//        backUp = newPath(19, 78, lastH);
+        toSample1 = newPath(28.5, 113, lastH);
+        toBucket = newPath(12, 124, -45);
         toSample2 = newPath(22, 126.8, 0);
-        toBucketFromSample2 = newPath(4, 126, -45);
-        toSample3 = newPath(22, 125, 33);
-        toBucketFromSample3 = newPath(12, 124, -45);
+        toBucketFromSample2 = newPath(12, 124, -45);
+        toSample3 = newPath(27.5, 128.8, 33);
+        toBucketFromSample3 = newPath(10, 125, -45);
         toParking = newPath(56, 98.5, -90);
 
     }
@@ -96,7 +95,7 @@ public class SamplesAuto extends OpMode {
         robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        robot.rotateServo.setPosition(.741);
+        robot.rotateServo.setPosition(.741);
         timer = new Timer();
         armTimer = new ElapsedTime();
         buildPaths();
@@ -121,20 +120,16 @@ public class SamplesAuto extends OpMode {
     }
     public void autonomousPathUpdate(){
         switch (state) {
-            case GO_TO_BAR:
-                rotateArmForwards();
-                follower.followPath(toSubmersible);
-                setPathState(State.GO_BACKWARDS);
+            case SCORE_PRELOAD_BASKET:
+                follower.followPath(preloadBasket);
+                setPathState(State.GO_TO_SAMPLE1);
                 break;
             case GO_BACKWARDS:
-                if (actionState == ActionState.GRAB_SAMPLE1){
-                    follower.followPath(backUp);
-                    setPathState(State.GO_TO_SAMPLE1);
-                }
-//                if (follower.getCurrentPath().isAtParametricEnd()) {
+//                if (actionState == ActionState.GRAB_SAMPLE1){
+//                    follower.followPath(backUp);
 //                    setPathState(State.GO_TO_SAMPLE1);
 //                }
-                break;
+//                break;
             case GO_TO_SAMPLE1:
                 if (follower.getCurrentPath().isAtParametricEnd()){
                     follower.followPath(toSample1);
@@ -165,7 +160,7 @@ public class SamplesAuto extends OpMode {
                 }
                 break;
             case GO_TO_SAMPLE3:
-                if (timer.getElapsedTimeSeconds() > 4 && !follower.isBusy() && robot.armVertical.getCurrentPosition() < 3500){
+                if (timer.getElapsedTimeSeconds() > 4 && !follower.isBusy()){
                     follower.followPath(toSample3);
                     rotateArmForwards();
                     setPathState(State.GO_TO_BASKET_FROM_SAMPLE_3);
@@ -199,8 +194,8 @@ public class SamplesAuto extends OpMode {
         robot.rightServo.setPosition(.69);
     }
     public void openClaw(){
-        robot.leftServo.setPosition(.7);
-        robot.rightServo.setPosition(0.4);
+        robot.leftServo.setPosition(.65);
+        robot.rightServo.setPosition(0.45);
     }
     public void armExtend(int ticks){
         robot.armExtension.setPower(1);
@@ -222,23 +217,25 @@ public class SamplesAuto extends OpMode {
     public void autonomousActionUpdate(){
         switch (actionState){
             case RAISE_ARMS:
+                rotateArmForwards();
                 closeClaw();
-                armExtend(-1200);
-                armUp(2300-ARM_CONSTANT);
-                if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > (2299-ARM_CONSTANT)) {
-                    setAction(ActionState.HANG_SPECIMEN);
+                armExtend(-2300);
+                armUp(2800-ARM_CONSTANT);
+                if (robot.armExtension.getCurrentPosition() < -2290 && robot.armVertical.getCurrentPosition() > (2800-ARM_CONSTANT)) {
+                    setAction(ActionState.SCORE_SAMPLE);
 
                 }
                 break;
-            case HANG_SPECIMEN:
-                closeClaw();
-                if (!follower.isBusy() || armTimer.seconds() > 2.5){
-                    armExtend(-350);
-                    armUp(1900-ARM_CONSTANT);
-                }
-                if (robot.armExtension.getCurrentPosition() > -351 && robot.armVertical.getCurrentPosition() < (1902-ARM_CONSTANT) || armTimer.seconds() > 2.5) {
+            case SCORE_SAMPLE:
+                if (!follower.isBusy()){
+                    openClaw();
+                if (armTimer.seconds() > 2.5){
                     setAction(ActionState.GRAB_SAMPLE1);
                 }
+            }
+//                if (robot.armExtension.getCurrentPosition() > -351 && robot.armVertical.getCurrentPosition() < (1902-ARM_CONSTANT) || armTimer.seconds() > 2.5) {
+//                    setAction(ActionState.GRAB_SAMPLE1);
+//                }
 //                telemetry.update();
                 break;
 ////                if (robot.armExtension.getCurrentPosition() < - && robot.armVertical.getCurrentPosition() > ) {
@@ -247,28 +244,21 @@ public class SamplesAuto extends OpMode {
 //                break;
             case GRAB_SAMPLE1:
                 openClaw();
-
-
                 if (state == State.GO_TO_SAMPLE1){
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(200-ARM_CONSTANT);
-                    armExtend(-590);
+                    armUp(-420-ARM_CONSTANT);
+                    armExtend(-640);
+
                 }
-                //Commented out because it was lowering arm prematurely
 //                if (follower.getPose().getY() > 113){
-//                    armUp(-500-ARM_CONSTANT);
+//                    armUp(-470-ARM_CONSTANT);
 //                }
-                if (follower.getCurrentPath().isAtParametricEnd() && state == State.GO_TO_BASKET){
-//                    openClaw();
-                    armUp(-650-ARM_CONSTANT);
-                }
-                if(!follower.isBusy() && state == State.GO_TO_BASKET && robot.armVertical.getCurrentPosition() < (-45 - ARM_CONSTANT)){
+                if(!follower.isBusy() && state == State.GO_TO_BASKET){
                     if (armTimer.seconds() > 1){
-                        closeClaw();
                         armTimer.reset();
                     }
                     closeClaw();
-                    if (armTimer.seconds() > 0.85){
+                    if (armTimer.seconds() > 0.3){
                         setAction(ActionState.PUT_IN_BUCKET);
                     }
                 }
@@ -322,50 +312,36 @@ public class SamplesAuto extends OpMode {
             case PUT_IN_BUCKET_2:
                 closeClaw();
                 if (state == State.GO_TO_SAMPLE3 && !follower.isBusy()){
-                    armUp(4000-ARM_CONSTANT);
+                    rotateArmBackWards();
+                    armUp(4100-ARM_CONSTANT);
                     armExtend(-2350);
-                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)){
-                        rotateArmBackWards();
-                        if (armTimer.seconds() > 1){
+                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (3000-ARM_CONSTANT)) {
+                        if (armTimer.seconds() > 1) {
                             armTimer.reset();
                         }
-                        if (robot.armVertical.getCurrentPosition() > (3900-ARM_CONSTANT)){
+                        if (robot.armVertical.getCurrentPosition() > (3900-ARM_CONSTANT)) {
                             openClaw();
-                            if (armTimer.seconds() > 0.4){
-                                setAction(ActionState.GRAB_SAMPLE2);
+                            if (armTimer.seconds() > 0.4) {
+                                setAction(ActionState.GRAB_SAMPLE3);
                             }
 
-                        }
-                        if (!robot.armVertical.isBusy() && !robot.armExtension.isBusy()){
                         }
                     }
                 }
                 break;
             case GRAB_SAMPLE3:
-                if (counter == 0){
-                    armUp(3400);
-                    armExtend(-2450);
-                    counter+= 1;
-                }
-                if (state == State.GO_TO_BASKET_FROM_SAMPLE_3 && counter == 0 && follower.getPose().getX() > 20){
+                if (state == State.GO_TO_BASKET_FROM_SAMPLE_3){
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(-100-ARM_CONSTANT);
-                    if (armTimer.seconds() > 10){
-                        armExtend(-300);
-                    }
-
-                    counter++;
+                    armUp(0-ARM_CONSTANT);
+                    armExtend(-900);
                 }
                 if (robot.armVertical.getCurrentPosition() < (5-ARM_CONSTANT)){
-//                    armExtend(-900);
-                }
-                if (follower.getCurrentPath().isAtParametricEnd() && !follower.isBusy()){
-                    armExtend(-1750);
+                    armExtend(-900);
                 }
                 if (robot.armExtension.getCurrentPosition() < -797){
-//                    armUp(-420-ARM_CONSTANT);
+                    armUp(-420-ARM_CONSTANT);
                 }
-                if (armTimer.seconds() > 6){
+                if (armTimer.seconds() > 3.1){
                     setAction(ActionState.PUT_IN_BUCKET_3);
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3 && !robot.armVertical.isBusy() && !robot.armExtension.isBusy()){
@@ -377,7 +353,6 @@ public class SamplesAuto extends OpMode {
                         setAction(ActionState.PUT_IN_BUCKET_3);
                     }
                 }
-
                 break;
             case PUT_IN_BUCKET_3:
                 closeClaw();
