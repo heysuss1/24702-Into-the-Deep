@@ -40,11 +40,11 @@ public class MercurialAssistedTeleOP extends OpMode {
         kP = .015;
         kD = 0;
         robot.init(hardwareMap);
-        Gamepad currentGamepad1 = new Gamepad();
-        Gamepad currentGamepad2 = new Gamepad();
+        currentGamepad1 = new Gamepad();
+        currentGamepad2 = new Gamepad();
 
-        Gamepad previousGamepad1 = new Gamepad();
-        Gamepad previousGamepad2 = new Gamepad();
+        previousGamepad1 = new Gamepad();
+        previousGamepad2 = new Gamepad();
         looptime = 0.0;
         pidExtension= new com.arcrobotics.ftclib.controller.PIDFController(kP, 0, kD, 0);
         pidVertical = new PIDFController(kP, 0, kD, 0);
@@ -80,8 +80,8 @@ public class MercurialAssistedTeleOP extends OpMode {
         }
         scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
         robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
-////        Arm.moveArm(gamepad2);
-////        Arm.extendArm(gamepad2);
+//        Arm.moveArm(gamepad2);
+//        Arm.extendArm(gamepad2);
 //        if (Arm.usePID && Arm.extensionAtTarget()){
 //            Arm.usePID = false;
 //        }

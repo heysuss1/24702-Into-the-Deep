@@ -6,13 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Hardware;
-import org.firstinspires.ftc.teamcode.controllers.ExtensionPID;
-import org.firstinspires.ftc.teamcode.controllers.SquidPID;
-import org.firstinspires.ftc.teamcode.controllers.VerticalPID;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
@@ -21,15 +17,13 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
 
 //close value right = .154, open = .298, close left = .684, open  = .538
-@TeleOp(name = "Demon TeleOP")
-public class TeleOP extends LinearOpMode {
+@TeleOp(name = "Outreach TeleOP (maxSpeed=0.2)")
+public class OutreachTeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
     boolean isAligned;
     PIDFController extensionPID;
     PIDFController verticalPID;
-    int pitch = 5, roll = 5;
-//    int addRoll, addPitch;
     enum ArmState{
         PARALLEL_ARM,
         HANG_SPECIMEN,
@@ -44,11 +38,10 @@ public class TeleOP extends LinearOpMode {
     public void runOpMode(){
         int position = 0;
         robot.init(hardwareMap);
-        robot.setSpeed(1);
+        robot.setSpeed(0.4);
         telemetry.addData("Status", "Hello, Drivers!");
         follower = new Follower(hardwareMap);
 //        follower.setStartingPose(new Pose(63, 95));
-        follower.setStartingPose(new Pose(0, 0, 0));
         telemetry.update();
         Pose bucket = new Pose(18, 127, Point.CARTESIAN);
         Pose frontOfSubmersible = new Pose(31.6, 78, Point.CARTESIAN);
@@ -56,9 +49,6 @@ public class TeleOP extends LinearOpMode {
         Path toSubmersible, toObservationZone, toBuckets;
         double forward, sideways, turning, max;
         double scaleFactor = 0;
-
-        robot.diffy1.setPosition(0.001);
-        robot.diffy2.setPosition(0.001);
         // outlining locations of game parts
         robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -78,9 +68,6 @@ public class TeleOP extends LinearOpMode {
 
 
         boolean clawIsOpen = false;
-        int[] clawPositions = {45, 20, 0, -15, -45};
-        int currentClawPosition = 0;
-        currentClawPosition = Range.clip(currentClawPosition, 0, 3);
         boolean pressingLT = false;
         boolean pressingRT = false;
         boolean clawForwards = false;
@@ -138,33 +125,33 @@ public class TeleOP extends LinearOpMode {
 //            }
 
 
-//            switch (armState){
-//                case PARALLEL_ARM:
-//                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), -80));
-//                    if (robot.armVertical.getCurrentPosition() > -81){
-////                    armState = ArmState.DONE;
-//                    }
-//                    telemetry.addData("state", armState);
-//                    break;
-//                case HANG_SPECIMEN:
-//                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200));
-//                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400));
-//                    if (robot.armExtension.getCurrentPosition() <-1198 && robot.armVertical.getCurrentPosition() > 2398){
-////                        armState = ArmState.DONE;
-//                    }
-//                    break;
-//                case HIGH_BASKET:
-//                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(),-2350));
-//                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 3000));
-//                    if (robot.armExtension.getCurrentPosition() <-2348 && robot.armVertical.getCurrentPosition() > 2995) {
-////                        armState = ArmState.DONE;
-//                    }
-//                    break;
-//                case DONE:
-//                    break;
-//                default:
-//                    break;
-//            }
+            switch (armState){
+                case PARALLEL_ARM:
+                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), -80));
+                    if (robot.armVertical.getCurrentPosition() > -81){
+//                    armState = ArmState.DONE;
+                    }
+                    telemetry.addData("state", armState);
+                    break;
+                case HANG_SPECIMEN:
+                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200));
+                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400));
+                    if (robot.armExtension.getCurrentPosition() <-1198 && robot.armVertical.getCurrentPosition() > 2398){
+//                        armState = ArmState.DONE;
+                    }
+                    break;
+                case HIGH_BASKET:
+                    robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(),-2350));
+                    robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 3000));
+                    if (robot.armExtension.getCurrentPosition() <-2348 && robot.armVertical.getCurrentPosition() > 2995) {
+//                        armState = ArmState.DONE;
+                    }
+                    break;
+                case DONE:
+                    break;
+                default:
+                    break;
+            }
 //            robot.armExtension.setPower(extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200));
 //            robot.armVertical.setPower(verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400));
             if (gamepad1.dpad_up){
@@ -188,17 +175,14 @@ public class TeleOP extends LinearOpMode {
 
 
             if (currentGamepad2.y && !previousGamepad2.y) {
-//                robot.rotateServo.setPosition(0.174);
-                pitch = 20;
+                robot.rotateServo.setPosition(0.174);
             }
             if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
-//                robot.rotateServo.setPosition(0.38);
-                pitch = 90;
-                roll = 0;
+                robot.rotateServo.setPosition(0.38);
+                // wrist movement commands
             }
             if (currentGamepad2.a && !previousGamepad2.a) {
-//                robot.rotateServo.setPosition(0.726);
-                pitch = 175;
+                robot.rotateServo.setPosition(0.726);
             }
 
 
@@ -271,34 +255,7 @@ public class TeleOP extends LinearOpMode {
 
             if (currentGamepad1.y && !previousGamepad1.y){
                 alignHeading();
-            }
-            if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
-                if (currentClawPosition > 0){
-                    currentClawPosition -= 1;
-                }
-                roll = clawPositions[currentClawPosition];
-            }
-            if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper){
-                if (currentClawPosition < clawPositions.length -1){
-                    currentClawPosition += 1;
-                }
-                roll = clawPositions[currentClawPosition];
-            }
-
-            if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
-                roll = 0;
-            }if (currentGamepad2.dpad_down && !previousGamepad2.dpad_down){
-                roll = 45;
-            }if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
-                roll = -15;
-            }if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
-                roll = 20;
-            }
-
-
-
-
-                // press y, align so can pick up specimen from human player
+            } // press y, align so can pick up specimen from human player
 //            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -313,7 +270,7 @@ public class TeleOP extends LinearOpMode {
 //                extensionLimiterPressed = false;
 //            }
 
-            if(gamepad2.right_stick_y > 0.1) {
+            if(gamepad2.right_stick_y > 0.1  ) {
                 robot.armVertical.setPower(-1);
                 usePID = false;
                 // pull y stick down, move arm down
@@ -333,15 +290,13 @@ public class TeleOP extends LinearOpMode {
                     //Open claw
                     //robot.leftServo.setPosition(0.64);
                     //robot.rightServo.setPosition(0.55);//may be wrong position
-//                    robot.openClaw(1);
-                    robot.claw.setPosition(0.1);
+                    robot.openClaw(1);
                     clawIsOpen = true;
                 } else {
                     //Close claw
                     //robot.leftServo.setPosition(0.49);
                     //robot.rightServo.setPosition(0.71);
-//                    robot.openClaw(0);
-                    robot.claw.setPosition(0.4);
+                    robot.openClaw(0);
                     clawIsOpen = false;
                 }
                 pressingLT = true;
@@ -353,22 +308,11 @@ public class TeleOP extends LinearOpMode {
 
             //right trigger = half-closed
             if ((gamepad2.right_trigger > 0.1) && !pressingRT) {
-//                robot.openClaw(0.5);
-                robot.armVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//                clawIsOpen = false;
+                robot.openClaw(0.5);
+                clawIsOpen = false;
                 pressingRT = true;
             } else if (!(gamepad2.right_trigger > 0.1)) {
                 pressingRT = false;
-            }
-
-            //maxSpeed stuff by Carter:
-
-            if (currentGamepad1.dpad_down && !previousGamepad1.dpad_down && (robot.getSpeed() > 0)) {
-                robot.setSpeed(robot.getSpeed()-0.1);
-            }
-            if (currentGamepad1.dpad_up && !previousGamepad1.dpad_up && (robot.getSpeed() < 1)) {
-                robot.setSpeed(robot.getSpeed()+0.1);
             }
 
 
@@ -392,15 +336,21 @@ public class TeleOP extends LinearOpMode {
 //                    robot.armExtension.setPower(1)
 //                }
 //            }
-            robot.diddylate(pitch, roll);
             follower.update();
+            telemetry.addData("Position", ticks);
             telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
             telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
-            telemetry.addData("Pitch", pitch);
-            telemetry.addData("Roll", roll);
+//            telemetry.addData("Speed", robot.getSpeed());
+            telemetry.addData("Extension Voltabge", robot.armExtension.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("Hello", position);
+//            telemetry.addData("Forwards", clawForwards);
+//            telemetry.addData("Robot Position", follower.getPose());
+            telemetry.addData("is the robot aligned?", isAligned);
             telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
+            telemetry.addData("scale factor", scaleFactor);
             telemetry.addData("Current position", follower.getPose());
-            telemetry.addData("Max Speed", robot.getSpeed());
+            telemetry.addData("Motors power", robot.rf.getPower());
+            telemetry.addData("use pid", armState);
 
 
             telemetry.update();
@@ -447,7 +397,6 @@ public class TeleOP extends LinearOpMode {
                     robot.setPower(-0.3, -0.3, 0.3, 0.3);
                 }
             }
-
             // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
 
             /* welcome to carter pseudocode:

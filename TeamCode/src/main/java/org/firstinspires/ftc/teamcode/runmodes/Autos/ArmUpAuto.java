@@ -17,9 +17,7 @@ public class ArmUpAuto extends LinearOpMode {
         waitForStart();
 
         robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.leftServo.setPosition(.490);
-        robot.rightServo.setPosition(.71);
-        robot.armVertical.setTargetPosition(900);
+        robot.armVertical.setTargetPosition(720);
         robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         robot.armVertical.setPower(0.8);
 //        robot.rotateServo.setPosition(.726);

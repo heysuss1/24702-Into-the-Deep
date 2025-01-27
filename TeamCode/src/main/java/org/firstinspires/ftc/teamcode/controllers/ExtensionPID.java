@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.Hardware;
 @TeleOp (name = "Extension Tuner")
 public class ExtensionPID extends OpMode {
     Hardware robot = Hardware.getInstance();
-//    private Telemetry telemetryA;
+    private Telemetry telemetryA;
    public static double kP, kI, kD, kF;
 
    double extensionError;
@@ -33,7 +33,7 @@ public class ExtensionPID extends OpMode {
     PIDFController pidfVert;
 
     public void init(){
-//        telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
+        telemetryA = new MultipleTelemetry(this.telemetry, dashboard.getTelemetry());
         pidf = new PIDFController(kP, kI, kD, kF);
         pidfVert = new PIDFController(kpVert, kIVert, kDVert, kFVert);
         robot.init(hardwareMap);
@@ -47,7 +47,9 @@ public class ExtensionPID extends OpMode {
         pidf.calculate(0, extensionError);
         robot.armVertical.setPower(pidfVert.calculate(0, verticalError));
         robot.armExtension.setPower(pidf.calculate(0, extensionError));
-
+        telemetryA.addData("Expected Position: ", targetVert);
+        telemetryA.addData("Current Position", robot.armVertical.getCurrentPosition());
+        telemetryA.update();
 
     }
 //    public void extend(int target)

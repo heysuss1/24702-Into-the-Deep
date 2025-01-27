@@ -31,12 +31,14 @@ public class Hardware {
     public DcMotorEx lb;
     public DcMotorEx armVertical;
     public DcMotorEx armExtension;
+    public Servo claw;
+    public Servo diffy1, diffy2;
     public GoBildaPinpointDriver odo;
-//    public RevColorSensorV3 colorSensor;
+    public RevColorSensorV3 colorSensor;
     public Servo leftServo;
     public Servo rightServo;
     public Servo rotateServo;
-
+    //public RevColorSensorV3 colorSensor;
     public static double maxSpeed = 1;
     private static Hardware instance = null;
     public static Hardware getInstance() {
@@ -87,13 +89,18 @@ public class Hardware {
         armExtension.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         armExtension.setPower(0);
 
-        leftServo = hwMap.get(Servo.class, "leftServo");
-        rightServo = hwMap.get(Servo.class, "rightServo");
-        rotateServo = hwMap.get(Servo.class, "rotateServo");
+//        leftServo = hwMap.get(Servo.class, "leftServo");
+//        rightServo = hwMap.get(Servo.class, "rightServo");
+//        rotateServo = hwMap.get(Servo.class, "rotateServo");
 
         odo = hwMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
-//        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
+        claw = hwMap.get(Servo.class, "claw");
+        diffy1 = hwMap.get(Servo.class, "diffy1");
+        diffy1.setDirection(Servo.Direction.REVERSE);
+        diffy2 = hwMap.get(Servo.class, "diffy2");
+
+        colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
 
     }
 
@@ -115,16 +122,24 @@ public class Hardware {
     public void setSpeed(double speed){
         maxSpeed = speed;
     }
-    public void claw(double arg) {
-        leftServo.setPosition(leftClosed+arg*(leftOpen-leftClosed));
-        rightServo.setPosition(rightClosed+arg*(rightOpen-rightClosed));
-    }
+//    public void claw(double arg) {
+//        leftServo.setPosition(leftClosed+arg*(leftOpen-leftClosed));
+//        rightServo.setPosition(rightClosed+arg*(rightOpen-rightClosed));
+//    }
 
     public void turnCCW(double speed) {
         rf.setPower(Range.clip(-speed, -maxSpeed, maxSpeed));
         rb.setPower(Range.clip(-speed, -maxSpeed, maxSpeed));
         lf.setPower(Range.clip(speed, -maxSpeed, maxSpeed));
         lb.setPower(Range.clip(speed, -maxSpeed, maxSpeed));
+    }
+    public void diddylate(double pitch, double roll){
+//        pitch = Range.clip(pitch, 160, 300);
+//        roll = Range.clip(roll, -30, 60);
+        roll = roll/300;
+        pitch = pitch/300;
+        diffy1.setPosition(pitch - roll);
+        diffy2.setPosition(pitch + roll);
     }
 
     public void turnCW(double speed) {

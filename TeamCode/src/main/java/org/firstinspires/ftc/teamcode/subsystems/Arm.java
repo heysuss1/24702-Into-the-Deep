@@ -33,6 +33,7 @@ public class Arm implements Subsystem {
     public static final Arm INSTANCE = new Arm();
     public static double verticalTarget, extensionTarget, verticalOutput, extensionOutput;
     public static double kP = 0.02, kD = 0.0001, kI = 0, kF = 0;
+//    public static boole
     private static double extensionError, verticalError;
 //    public static com.arcrobotics.ftclib.controller.PIDFController pid;
     public static int counter = 0;
@@ -82,42 +83,47 @@ public class Arm implements Subsystem {
         extension.setPower(extensionError);
 
     }
-//    public static void moveArm(Gamepad gamepad){
-//
-//        if (gamepad.right_stick_y > 0.1){
-//            vertical.setPower(-1);
-//        } else if (gamepad.right_stick_y < -0.1) {
-//            vertical.setPower(1);
-//        } else{
-//            setExtensionTarget(extension.getCurrentPosition());
-//        }
-//    }
-//    public static void extendArm(Gamepad gamepad){
-//        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2700){
-//            extension.setPower(-1);
-//        } else if (gamepad.left_stick_y > 0.1){
-//            extension.setPower(1);
-//        } else{
-//            setExtensionTarget(extension.getCurrentPosition());
-//        }
-////    }
+    public static void moveArm(Gamepad gamepad){
+
+        if (gamepad.right_stick_y > 0.1){
+            vertical.setPower(-1);
+        } else if (gamepad.right_stick_y < -0.1) {
+            vertical.setPower(1);
+        } else{
+            usePID = true;
+            
+            
+            
+            setExtensionTarget(extension.getCurrentPosition());
+        }
+    }
+    public static void extendArm(Gamepad gamepad){
+        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2700){
+            extension.setPower(-1);
+        } else if (gamepad.left_stick_y > 0.1){
+            extension.setPower(1);
+        } else{
+            usePID = true;
+            setExtensionTarget(extension.getCurrentPosition());
+        }
+    }
     public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
     public static boolean extensionAtTarget(){return Math.abs(extensionTarget - extension.getCurrentPosition()) <=1;}
 
-//    public static Lambda update(PIDFController pidfVertical, PIDFController pidfExtension){
-//        return new Lambda("update")
-//                .addRequirements(INSTANCE)
-//                .setExecute(()->{
-//                    updatePID(true, pidfVertical, pidfExtension);
-//                });
-//    }
+    public static Lambda update(PIDFController pidfVertical, PIDFController pidfExtension){
+        return new Lambda("update")
+                .addRequirements(INSTANCE)
+                .setExecute(()->{
+                    updatePID(true, pidfVertical, pidfExtension);
+                });
+    }
     @NonNull
     public static Lambda raiseSpecimen(PIDFController pidfVertical, PIDFController pidfExtension){
         return new Lambda("raise specimen")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                    setExtensionTarget(-1200);
-                   setVerticalTarget(2400);
+                   setVerticalTarget(1600);
                 })
                 .setExecute(() -> {
                    Arm.updatePID(true, pidfVertical, pidfExtension);
@@ -132,7 +138,7 @@ public class Arm implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                     setExtensionTarget(-350);
-                    setVerticalTarget(2100);
+                    setVerticalTarget(1150);
                 })
                 .setExecute(() -> {
                     Arm.updatePID(true, pidfVertical, pidfExtension);
@@ -161,7 +167,6 @@ public class Arm implements Subsystem {
         return new Lambda("parallel arm")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
-                    usePID = true;
                     setVerticalTarget(0);
                     setExtensionTarget(extension.getCurrentPosition());
                 })

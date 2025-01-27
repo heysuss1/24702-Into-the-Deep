@@ -40,7 +40,7 @@ public class FollowerConstants {
     public static CustomPIDFCoefficients translationalPIDFCoefficients = new CustomPIDFCoefficients(
             0.18,
             0,
-            0.00004,
+            0.0004,
             0);
 
     // Translational Integral
@@ -56,7 +56,7 @@ public class FollowerConstants {
 
     // Heading error PIDF coefficients
     public static CustomPIDFCoefficients headingPIDFCoefficients = new CustomPIDFCoefficients(
-            2.5,
+            3,
             0,
             0.2,
             0);
@@ -67,9 +67,9 @@ public class FollowerConstants {
 
     // Drive PIDF coefficients
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
-            0.0093,
+            0.019,
             0,
-            0.0001,
+            0.0008,
             0.6,
             0);
 
@@ -125,12 +125,12 @@ public class FollowerConstants {
     // When the t-value of the closest point to the robot on the Path is greater than this value,
     // then the Path is considered at its end.
     // This can be custom set for each Path.
-    public static double pathEndTValueConstraint = 0.991;
+    public static double pathEndTValueConstraint = .95;
 
     // When the Path is considered at its end parametrically, then the Follower has this many
     // milliseconds to further correct by default.
     // This can be custom set for each Path.
-    public static double pathEndTimeoutConstraint = 500;
+    public static double pathEndTimeoutConstraint = 100;
 
     // This is how many steps the BezierCurve class uses to approximate the length of a BezierCurve.
     public static int APPROXIMATION_STEPS = 1000;

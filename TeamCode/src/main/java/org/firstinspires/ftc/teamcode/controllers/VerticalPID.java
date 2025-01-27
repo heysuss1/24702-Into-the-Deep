@@ -40,7 +40,7 @@ public class VerticalPID extends OpMode {
         }
 
         if (hi){
-            output = pidf.calculate((robot.armVertical.getCurrentPosition()),  -2000);
+                output = pidf.calculate((robot.armVertical.getCurrentPosition()),  -2000);
             telemetryA.addLine("Error: " + output);
             telemetryA.addLine("current position is: " + robot.armVertical.getCurrentPosition());
             armOutput = extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200);
