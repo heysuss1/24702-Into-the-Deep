@@ -6,9 +6,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.controllers.ExtensionPID;
 import org.firstinspires.ftc.teamcode.controllers.SquidPID;
@@ -28,7 +30,7 @@ public class TeleOP extends LinearOpMode {
     boolean isAligned;
     PIDFController extensionPID;
     PIDFController verticalPID;
-    int pitch = 5, roll = 5;
+    int pitch, roll;
 //    int addRoll, addPitch;
     enum ArmState{
         PARALLEL_ARM,
@@ -38,7 +40,7 @@ public class TeleOP extends LinearOpMode {
     }
     ArmState armState = ArmState.DONE;
     double currentHeading;
-
+    ElapsedTime elapsedTime;
     double output;
     //PHUHS
     public void runOpMode(){
@@ -56,7 +58,7 @@ public class TeleOP extends LinearOpMode {
         Path toSubmersible, toObservationZone, toBuckets;
         double forward, sideways, turning, max;
         double scaleFactor = 0;
-
+        boolean showTelemetry = false;
         robot.diffy1.setPosition(0.001);
         robot.diffy2.setPosition(0.001);
         // outlining locations of game parts
@@ -74,9 +76,15 @@ public class TeleOP extends LinearOpMode {
 
         Gamepad previousGamepad1 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
+
+        Gamepad.LedEffect rgbEffect = new Gamepad.LedEffect.Builder()
+                .addStep(.4, 0, 1, 1000)
+//                .addStep(1, 1 , 0, 500)
+                .build();
         waitForStart();
 
-
+        elapsedTime = new ElapsedTime();
+        elapsedTime.startTime();
         boolean clawIsOpen = false;
         int[] clawPositions = {45, 20, 0, -15, -45};
         int currentClawPosition = 0;
@@ -93,12 +101,19 @@ public class TeleOP extends LinearOpMode {
         boolean isStalling = false;
         boolean usePID = false;
         double ticks = 0;
+        String colorPrediction = "";
+        double red, green, blue, distance;
+        boolean hasSample;
+
         while (opModeIsActive()){
             previousGamepad1.copy(currentGamepad1);
             previousGamepad2.copy(currentGamepad2);
 
             currentGamepad1.copy(gamepad1);
             currentGamepad2.copy(gamepad2);
+
+            gamepad2.runLedEffect(rgbEffect);
+
             isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
 
             //gamepad1 = Driver 1
@@ -115,6 +130,15 @@ public class TeleOP extends LinearOpMode {
                 armState = ArmState.HIGH_BASKET;
                 usePID = true;
             }
+            if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91){
+                gamepad1.rumble(0.5, 0.5, 1000);
+                gamepad2.rumble(0.5, 0.5, 1000);
+            } else if (elapsedTime.seconds() > 113 && elapsedTime.seconds() < 120){
+                gamepad1.rumble(1000, 1000, 7000);
+                gamepad2.rumble(1000, 1000, 7000);
+            }
+            gamepad1.setLedColor(.5, .5, 0, 100000);
+
             if (currentGamepad1.a && !previousGamepad1.a){
 //                currentHeading = follower.getPose().getHeading();
                 follower.setStartingPose(new Pose(0, 0, 0));
@@ -170,6 +194,8 @@ public class TeleOP extends LinearOpMode {
             if (gamepad1.dpad_up){
 
             }
+
+//            gamepad1.setLedColor();
             // math for mechanum wheels
 
             forward = -(Math.atan(5 * gamepad1.left_stick_y) / Math.atan(5));
@@ -371,6 +397,39 @@ public class TeleOP extends LinearOpMode {
                 robot.setSpeed(robot.getSpeed()+0.1);
             }
 
+            //color sensor
+            red = robot.colorSensor.red();
+            green = robot.colorSensor.green();
+            blue = robot.colorSensor.blue();
+            distance = robot.colorSensor.getDistance(DistanceUnit.INCH);
+            telemetry.addData("RGB", red + ", " + green + ", " + blue);
+            telemetry.addData("Distance", distance);
+//        if (robot.colorSensor.getDistance(DistanceUnit.INCH) < distanceThreshold){
+//            TelemetryA.addLine("Has something!");
+//            TelemetryA.addData("Current Color is (aka Raw Light)", robot.colorSensor.getRawLightDetected());
+//        }
+            hasSample = (distance < 0.5);
+
+            //Note this is carter's programming
+            if (hasSample) {
+                if (green > red && red > blue) {
+                    colorPrediction = "yellow";
+                    if (clawIsOpen) gamepad2.rumble(100,100,100);
+                } else if (red > green && red > blue) {
+                    colorPrediction = "red";
+                    if (clawIsOpen) gamepad2.rumble(100,100,100);
+                } else if (blue > red && blue > green) {
+                    colorPrediction = "blue";
+                    if (clawIsOpen) gamepad2.rumble(100,100,100);
+                } else {
+                    colorPrediction = "idfk";
+                }
+            } else {
+                colorPrediction = "no sample";
+            }
+            if (currentGamepad2.back && !previousGamepad2.back){
+                showTelemetry = !showTelemetry;
+            }
 
 //            robot.armExtension.setPower(1);
 //            robot.armExtension.setTargetPosition();
@@ -394,15 +453,18 @@ public class TeleOP extends LinearOpMode {
 //            }
             robot.diddylate(pitch, roll);
             follower.update();
-            telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
-            telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
-            telemetry.addData("Pitch", pitch);
-            telemetry.addData("Roll", roll);
-            telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
-            telemetry.addData("Current position", follower.getPose());
-            telemetry.addData("Max Speed", robot.getSpeed());
-
-
+            if (showTelemetry){
+                telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
+                telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
+                telemetry.addData("Pitch", pitch);
+                telemetry.addData("Roll", roll);
+                telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
+                telemetry.addData("Current position", follower.getPose());
+                telemetry.addData("Max Speed", robot.getSpeed());
+                telemetry.addData("Has Sample?", hasSample);
+                telemetry.addData("Color", colorPrediction);
+                telemetry.addLine("Time Elapsed:" + elapsedTime + " Time Remaining " + (120-elapsedTime.seconds()));
+            }
             telemetry.update();
         }
     }

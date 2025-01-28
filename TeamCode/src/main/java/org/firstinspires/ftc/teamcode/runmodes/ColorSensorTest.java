@@ -36,33 +36,7 @@ public class ColorSensorTest extends OpMode {
 
     }
     public void loop(){
-        red = robot.colorSensor.red();
-        green = robot.colorSensor.green();
-        blue = robot.colorSensor.blue();
-        distance = robot.colorSensor.getDistance(DistanceUnit.INCH);
-        TelemetryA.addData("RGB", red + ", " + green + ", " + blue);
-        TelemetryA.addData("Distance", distance);
-//        if (robot.colorSensor.getDistance(DistanceUnit.INCH) < distanceThreshold){
-//            TelemetryA.addLine("Has something!");
-//            TelemetryA.addData("Current Color is (aka Raw Light)", robot.colorSensor.getRawLightDetected());
-//        }
-        if (distance < 1) {
-            TelemetryA.addData("Has Sample?", "indeed");
-            TelemetryA.addData("Predicted Color", colorPrediction);
-        } else {
-            TelemetryA.addData("Has Sample?", "nevermore");
-        }
 
-        //Note this is carter's programming
-        if (green > red && red > blue) {
-            colorPrediction = "yellow";
-        } else if (red > green && red > blue) {
-            colorPrediction = "red";
-        } else if (blue > red && blue > green) {
-            colorPrediction = "blue";
-        } else {
-            colorPrediction = "idfk";
-        }
 
 
 
