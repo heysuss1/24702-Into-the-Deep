@@ -351,6 +351,7 @@ public class DiddySpecimenAuto extends OpMode {
     public void openClaw(){
         robot.claw.setPosition(0.1);
     }
+
     public void closeClaw(){
         robot.claw.setPosition(0.4);
     }
