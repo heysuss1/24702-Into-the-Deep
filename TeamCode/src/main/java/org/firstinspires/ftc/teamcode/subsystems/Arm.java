@@ -123,7 +123,7 @@ public class Arm implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                    setExtensionTarget(-1200);
-                   setVerticalTarget(1600);
+                   setVerticalTarget(1436);
                 })
                 .setExecute(() -> {
                    Arm.updatePID(true, pidfVertical, pidfExtension);
@@ -153,7 +153,7 @@ public class Arm implements Subsystem {
         return new Lambda("go to basket")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
-                    setExtensionTarget(-350);
+                    setExtensionTarget(-2300);
                     setVerticalTarget(2100);
                 })
                 .setExecute(() -> {

@@ -56,6 +56,7 @@ public class MercurialAssistedTeleOP extends OpMode {
 //        Mercurial.gamepad1().y().onTrue();
         Mercurial.gamepad2().dpadLeft().onTrue(Arm.raiseSpecimen(pidVertical, pidExtension));
         Mercurial.gamepad2().dpadRight().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
+        Mercurial.gamepad2().dpadDown().onTrue(Arm.goToBasket(pidVertical, pidExtension));
 
 //
 

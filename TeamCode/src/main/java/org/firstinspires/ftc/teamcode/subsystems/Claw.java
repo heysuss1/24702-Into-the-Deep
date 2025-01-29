@@ -23,9 +23,10 @@ import kotlin.annotation.MustBeDocumented;
 
 public class Claw implements Subsystem {
 
-    public static Servo leftServo, rightServo, rotateServo;
+    public static Servo claw, diffy1, diffy2;
     public static final Claw INSTANCE = new Claw();
     public static Waiter waiter;
+    int pitch, roll;
     private Claw(){}
     @Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE) @MustBeDocumented
     @Inherited
@@ -41,24 +42,30 @@ public class Claw implements Subsystem {
     @Override
     public void preUserInitHook(@NonNull Wrapper opMode){
         HardwareMap hardwareMap = opMode.getOpMode().hardwareMap;
-        leftServo = hardwareMap.get(Servo.class, "leftServo");
-        rightServo = hardwareMap.get(Servo.class, "rightServo");
-        rotateServo = hardwareMap.get(Servo.class, "rotateServo");
+        claw = hardwareMap.get(Servo.class, "claw");
+        diffy1 = hardwareMap.get(Servo.class, "diffy1");
+        diffy2 = hardwareMap.get(Servo.class, "diffy2");
         waiter = new Waiter();
     }
     public static void close(){
-        leftServo.setPosition(.508);
-        rightServo.setPosition(.69);
+        claw.setPosition(0.1);
     }
     public static void open(){
-        leftServo.setPosition(.639);
-        rightServo.setPosition(.55);
+        claw.setPosition(0.4);
     }
 
-    public static void setWristPosition(double pos){
-        rotateServo.setPosition(pos);
-    }
+//    public static void setWristPosition(int pitch, int roll){
+//        rotateServo.setPosition(pos);
+//    }
 
+    public static void diddylate(double pitch, double roll){
+//        pitch = Range.clip(pitch, 160, 300);
+//        roll = Range.clip(roll, -30, 60);
+        roll = roll/300;
+        pitch = pitch/300;
+        diffy1.setPosition(pitch - roll);
+        diffy2.setPosition(pitch + roll);
+    }
     @NonNull
     public static Lambda closeClaw(){
         return new Lambda("close claw")
@@ -77,7 +84,7 @@ public class Claw implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                     waiter.start(400);
-                    setWristPosition(.726);
+                    diddylate(175, 0);
                 })
                 .setFinish(() -> waiter.isDone());
     }
@@ -88,7 +95,7 @@ public class Claw implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                     waiter.start(400);
-                    setWristPosition(.437);
+                    diddylate(90, 0);
                 })
                 .setFinish(() -> waiter.isDone());
     }
@@ -98,7 +105,7 @@ public class Claw implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                     waiter.start(400);
-                    setWristPosition(.174);
+                    diddylate(15, 0);
                 })
                 .setFinish(() -> waiter.isDone());
     }

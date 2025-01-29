@@ -41,7 +41,8 @@ public class DiddySpecimenAuto extends OpMode {
         HANG_SPECIMEN_3,
         PICK_UP_SPECIMEN_4,
         RAISE_ARM_4,
-        HANG_SPECIMEN_4
+        HANG_SPECIMEN_4,
+        PARK
 
     }
     enum PathState{
@@ -88,7 +89,7 @@ public class DiddySpecimenAuto extends OpMode {
     int roll, pitch;
     double lastH = starting.getHeading();
 
-    Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, backwardsFromSample2, strafeBehindSample3, pushSample3, goBackWards, goForwards, pickUpSpecimen1, strafeToSubmersible1, forwardToSubmersible1, backwardsFromSubmersible1, pickUpSpecimen2, strafeToSubmersible4, forwardToSubmersible2, backwardsFromSubmersible3, pickUpSpecimen3, strafeToSubmersible3, forwardsToSubmersible3, backwardsFromSubmersible2, pickUpSpecimen4, strafeToSubmersible2, forwardToSubmersible4;
+    Path toSubmersible, strafeToSample1, behindSample1, pushSample1, backwardsFromSample1, strafeBehindSample2, pushSample2, backwardsFromSample2, strafeBehindSample3, pushSample3, goBackWards, goForwards, pickUpSpecimen1, strafeToSubmersible1, forwardToSubmersible1, backwardsFromSubmersible1, pickUpSpecimen2, strafeToSubmersible4, forwardToSubmersible2, backwardsFromSubmersible3, pickUpSpecimen3, strafeToSubmersible3, forwardsToSubmersible3, backwardsFromSubmersible2, pickUpSpecimen4, strafeToSubmersible2, forwardToSubmersible4, park;
     public void init(){
         follower = new Follower(hardwareMap);
 //        toSubmersible = new Path(new BezierLine (new Point (5, 64,  Point.CARTESIAN), new Point(30, 64,  Point.CARTESIAN)));
@@ -127,25 +128,26 @@ public class DiddySpecimenAuto extends OpMode {
 //        strafeBehindSample2.setPathEndTimeoutConstraint(100);
         pushSample2 = newPath(17, 15.5, lastH);
         backwardsFromSample2 = newPath(58, 18, lastH);
-        strafeBehindSample3 = newPath(58, 13, lastH);
-        pushSample3 = newPath(17, 13, lastH );
+        strafeBehindSample3 = newPath(58, 12, lastH);
+        pushSample3 = newPath(17, 12, lastH );
         pickUpSpecimen1 = newPath(7, 49, 179);
 //        goBackWards = newPath(30, 35, -179);
 //        goForwards = newPath(8.2, 49, -179);
 //        strafeToSubmersible1 = newPath(6, 64, 0);
         forwardToSubmersible1 = newPath(30.4, 65, 0);
-        backwardsFromSubmersible1 = newPath(20, 64, 0);
-        pickUpSpecimen2 = newPath(7, 49, -179);
+//        backwardsFromSubmersible1 = newPath(20, 64, 0);
+        pickUpSpecimen2 = newPath(7, 49, 179);
 //        strafeToSubmersible2 = newPath(7, 64, 0);
-        forwardToSubmersible2 = newPath(30.3, 66, 1);
-        backwardsFromSubmersible2 = newPath(20, 64, 0);
-        pickUpSpecimen3 = newPath(7, 49, -179);
+        forwardToSubmersible2 = newPath(30.3, 66, 5);
+//        backwardsFromSubmersible2 = newPath(20, 64, 0);
+        pickUpSpecimen3 = newPath(7, 49, 179);
 //        strafeToSubmersible3 = newPath(6, 68, 0);
-        forwardsToSubmersible3 = newPath(30.3, 68, 1);
-        backwardsFromSubmersible3= newPath(20, 64, 0);
-        pickUpSpecimen4 = newPath(7, 49, -179);
+        forwardsToSubmersible3 = newPath(30.3, 68, 3);
+//        backwardsFromSubmersible3= newPath(20, 64, 0);
+        pickUpSpecimen4 = newPath(7, 49, 179);
         strafeToSubmersible4 = newPath(6, 66, 0 );
         forwardToSubmersible4 = newPath(30, 66, 0);
+        park = newPath(7, 49, 0);
 
 
 
@@ -260,7 +262,7 @@ public class DiddySpecimenAuto extends OpMode {
             case FORWARDS_TO_SUBMERSIBLE_1:
                 if (actionState == ActionState.RAISE_ARM_1){
                     follower.followPath(forwardToSubmersible1);
-                    setPathState(PathState.BACKWARDS_FROM_SUBMERSIBLE_1);
+                    setPathState(PathState.PICK_UP_SPECIMEN_2);
                     rotateServoDown();
                 }
                 break;
@@ -273,13 +275,12 @@ public class DiddySpecimenAuto extends OpMode {
                 break;
             case PICK_UP_SPECIMEN_2:
 //                openClaw();
-                if (follower.getCurrentPath().isAtParametricEnd()){
+                if (follower.getCurrentPath().isAtParametricEnd() && actionState == ActionState.PICK_UP_SPECIMEN_2){
                     follower.followPath(pickUpSpecimen2);
                     rotateServoForward();
                     setPathState(PathState.FORWARDS_TO_SUBMERSIBLE_2);
                 }
                 break;
-
             case STRAFE_TO_SUBMERSIBLE_2:
                 if (actionState == ActionState.HANG_SPECIMEN_2){
                     follower.followPath(strafeToSubmersible2);
@@ -287,21 +288,21 @@ public class DiddySpecimenAuto extends OpMode {
                 }
                 break;
             case FORWARDS_TO_SUBMERSIBLE_2:
-                if (actionState == ActionState.RAISE_ARM_2 && !robot.armExtension.isBusy() ){
+                if (actionState == ActionState.RAISE_ARM_2){
                     follower.followPath(forwardToSubmersible2);
-                    setPathState(PathState.BACKWARDS_FROM_SUBMERSIBLE_2);
+                    setPathState(PathState.PICK_UP_SPECIMEN_3);
                     rotateServoDown();
                 }
                 break;
-            case BACKWARDS_FROM_SUBMERSIBLE_2:
-                rotateServoDown();
-                if(actionState == ActionState.PICK_UP_SPECIMEN_3 && !follower.isBusy()){
-                    follower.followPath(backwardsFromSubmersible2);
-                    setPathState(PathState.PICK_UP_SPECIMEN_3);
-                }
-                break;
+//            case BACKWARDS_FROM_SUBMERSIBLE_2:
+//                rotateServoDown();
+//                if(actionState == ActionState.PICK_UP_SPECIMEN_3 && !follower.isBusy()){
+//                    follower.followPath(backwardsFromSubmersible2);
+//                    setPathState(PathState.PICK_UP_SPECIMEN_3);
+//                }
+//                break;
             case PICK_UP_SPECIMEN_3:
-                if (!follower.isBusy()){
+                if (!follower.isBusy() && actionState == ActionState.PICK_UP_SPECIMEN_3){
                     follower.followPath(pickUpSpecimen3);
                     setPathState(PathState.FORWARDS_TO_SUBMERSIBLE_3);
                 }
@@ -313,9 +314,9 @@ public class DiddySpecimenAuto extends OpMode {
                 }
                 break;
             case FORWARDS_TO_SUBMERSIBLE_3:
-                if (actionState == ActionState.RAISE_ARM_3 && !robot.armExtension.isBusy() ){
+                if (actionState == ActionState.RAISE_ARM_3){
                     follower.followPath(forwardsToSubmersible3);
-                    setPathState(PathState.BACKWARDS_FROM_SUBMERSIBLE_3);
+                    setPathState(PathState.PICK_UP_SPECIMEN_4);
                     rotateServoDown();
                 }
                 break;
@@ -327,7 +328,7 @@ public class DiddySpecimenAuto extends OpMode {
                 }
                 break;
             case PICK_UP_SPECIMEN_4:
-                if (!follower.isBusy()){
+                if (!follower.isBusy() && actionState == ActionState.PICK_UP_SPECIMEN_4){
                     follower.followPath(pickUpSpecimen4);
                     setPathState(PathState.FORWARD_TO_SUBMERSIBLE_4);
                 }
@@ -335,8 +336,13 @@ public class DiddySpecimenAuto extends OpMode {
             case FORWARD_TO_SUBMERSIBLE_4:
                 if (actionState == ActionState.RAISE_ARM_4){
                     follower.followPath(forwardToSubmersible4);
+                    setPathState(PathState.STRAFE_TO_PARK);
                 }
-
+            case STRAFE_TO_PARK:
+                if (actionState == ActionState.PARK){
+                    follower.followPath(park);
+                    setPathState(PathState.DONE);
+                }
             default:
                 stop();
 
@@ -459,7 +465,6 @@ public class DiddySpecimenAuto extends OpMode {
                     extendAlready = true;
                 }
                 rotateServoForward();
-
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_2 && !follower.isBusy()){
                     armExtend(-380);
                     if (robot.armExtension.getCurrentPosition() < -375){
@@ -492,7 +497,7 @@ public class DiddySpecimenAuto extends OpMode {
             case HANG_SPECIMEN_2:
                 closeClaw();
                 rotateServoDown();
-                if (follower.getCurrentPath().isAtParametricEnd() ){
+                if (follower.getCurrentPath().isAtParametricEnd() && pathState == PathState.PICK_UP_SPECIMEN_3){
                     armExtend(-200);
                     armUp(1100-ARM_CONSTANT);
                     hungSpecimen = true;
@@ -557,7 +562,7 @@ public class DiddySpecimenAuto extends OpMode {
                 if (robot.armVertical.getCurrentPosition() < 1101-ARM_CONSTANT && robot.armExtension.getCurrentPosition() > -201 && hungSpecimen) {
                     counter++;
                     openClaw();
-//                    setActionState(ActionState.PICK_UP_SPECIMEN_4);
+                    setActionState(ActionState.PICK_UP_SPECIMEN_4);
                 }
                 break;
             case PICK_UP_SPECIMEN_4:
@@ -598,6 +603,21 @@ public class DiddySpecimenAuto extends OpMode {
                 if (robot.armVertical.getCurrentPosition() > (1298-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -1196){
                     setActionState(ActionState.HANG_SPECIMEN_4);
                     rotateServoDown();
+                }
+                break;
+            case HANG_SPECIMEN_4:
+                closeClaw();
+                rotateServoDown();
+                if (follower.getCurrentPath().isAtParametricEnd() ){
+                    armExtend(-200);
+                    armUp(1100-ARM_CONSTANT);
+                    hungSpecimen = true;
+                    waiter.start(2000);
+                }
+                if (robot.armVertical.getCurrentPosition() < 1101-ARM_CONSTANT && robot.armExtension.getCurrentPosition() > -201 && hungSpecimen) {
+                    counter++;
+                    openClaw();
+                    setActionState(ActionState.PICK_UP_SPECIMEN_4);
                 }
                 break;
             default:
