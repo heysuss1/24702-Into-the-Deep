@@ -77,10 +77,16 @@ public class TeleOP extends LinearOpMode {
         Gamepad previousGamepad1 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
 
-        Gamepad.LedEffect rgbEffect = new Gamepad.LedEffect.Builder()
+        Gamepad.LedEffect redAlliance = new Gamepad.LedEffect.Builder()
                 .addStep(.4, 0, 1, 1000)
-//                .addStep(1, 1 , 0, 500)
+                .addStep(1, 0 , 0, 200)
                 .build();
+
+        Gamepad.LedEffect blueAlliance = new Gamepad.LedEffect.Builder()
+                .addStep(.4,0,1,1000)
+                .addStep(0,0,1,200)
+                .build();
+
         waitForStart();
 
         elapsedTime = new ElapsedTime();
@@ -101,7 +107,7 @@ public class TeleOP extends LinearOpMode {
         boolean isStalling = false;
         boolean usePID = false;
         double ticks = 0;
-        String colorPrediction = "";
+        String colorPrediction = "", currentAlliance = "red";
         double red, green, blue, distance;
         boolean hasSample;
 
@@ -112,7 +118,6 @@ public class TeleOP extends LinearOpMode {
             currentGamepad1.copy(gamepad1);
             currentGamepad2.copy(gamepad2);
 
-            gamepad2.runLedEffect(rgbEffect);
 
             isAligned = Math.toDegrees(follower.getPose().getHeading()) < 2 && Math.toDegrees(follower.getPose().getHeading()) > 0;
 
@@ -137,7 +142,6 @@ public class TeleOP extends LinearOpMode {
                 gamepad1.rumble(1000, 1000, 7000);
                 gamepad2.rumble(1000, 1000, 7000);
             }
-            gamepad1.setLedColor(.5, .5, 0, 100000);
 
             if (currentGamepad1.a && !previousGamepad1.a){
 //                currentHeading = follower.getPose().getHeading();
@@ -228,7 +232,7 @@ public class TeleOP extends LinearOpMode {
             }
 
 
-            if (robot.armVertical.getCurrentPosition() > 4800){
+            if (robot.armVertical.getCurrentPosition() > 3285){
                 armVerticalTooFar = true;
             } else{
                 armVerticalTooFar = false;
@@ -397,6 +401,18 @@ public class TeleOP extends LinearOpMode {
                 robot.setSpeed(robot.getSpeed()+0.1);
             }
 
+            if (currentGamepad1.back && !previousGamepad1 .back){
+                if (currentAlliance == "red") {
+                    currentAlliance = "blue";
+                    gamepad1.runLedEffect(blueAlliance);
+                    gamepad2.runLedEffect(blueAlliance);
+                } else {
+                    currentAlliance = "red";
+                    gamepad1.runLedEffect(redAlliance);
+                    gamepad2.runLedEffect(redAlliance);
+                }
+            }
+
             //color sensor
             red = robot.colorSensor.red();
             green = robot.colorSensor.green();
@@ -417,16 +433,17 @@ public class TeleOP extends LinearOpMode {
                     if (clawIsOpen) gamepad2.rumble(100,100,100);
                 } else if (red > green && red > blue) {
                     colorPrediction = "red";
-                    if (clawIsOpen) gamepad2.rumble(100,100,100);
+                    if (clawIsOpen && currentAlliance == "red") gamepad2.rumble(100,100,100);
                 } else if (blue > red && blue > green) {
                     colorPrediction = "blue";
-                    if (clawIsOpen) gamepad2.rumble(100,100,100);
+                    if (clawIsOpen && currentAlliance == "blue") gamepad2.rumble(100,100,100);
                 } else {
                     colorPrediction = "idfk";
                 }
             } else {
                 colorPrediction = "no sample";
             }
+
             if (currentGamepad2.back && !previousGamepad2.back){
                 showTelemetry = !showTelemetry;
             }
@@ -454,6 +471,7 @@ public class TeleOP extends LinearOpMode {
             robot.diddylate(pitch, roll);
             follower.update();
             if (showTelemetry){
+                telemetry.addData("Current Alliance", currentAlliance); 
                 telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
                 telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
                 telemetry.addData("Pitch", pitch);
