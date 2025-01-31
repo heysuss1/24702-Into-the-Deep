@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.ArmLimits;
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
@@ -373,10 +374,10 @@ public class OnlySamplesAuto extends OpMode {
                 }
                 sidewaysClaw();
                     rotateArmForwards();
-                    if (/*state == State.GO_TO_BASKET && follower.getCurrentPath().isAtParametricEnd()*/ follower.getPose().getY() < 115 && isClawClosed == false){
+                    if (/*state == State.GO_TO_BASKET && follower.getCurrentPath().isAtParametricEnd()*/ follower.getPose().getY() < 115 && !isClawClosed){
                         // We need to figure out how to do this but for now Thread.sleep(300);
+                        armUp(0- ARM_CONSTANT);
                         isClawClosed = true;
-                        armUp(-550-ARM_CONSTANT);
                         armExtend(-5);
 
                     }
@@ -384,8 +385,9 @@ public class OnlySamplesAuto extends OpMode {
 //                    armUp(-470-ARM_CONSTANT);
 //                }
                     if(follower.getCurrentPath().isAtParametricEnd() && state == State.GO_TO_BASKET_FROM_SAMPLE_3 && robot.armVertical.getCurrentPosition() < (-525-ARM_CONSTANT)){
-                        armExtend(-700);
-                        if (armTimer.seconds() > 3 && robot.armExtension.getCurrentPosition() < -685){
+                        armUp(-750-ARM_CONSTANT);
+                        armExtend(-725);
+                        if (armTimer.seconds() > 3 && robot.armExtension.getCurrentPosition() < -685 && robot.armVertical.getCurrentPosition() < -750-ARM_CONSTANT){
                             closeClaw();
                             setAction(ActionState.CLOSE_CLAW_3);
                             armTimer.reset();

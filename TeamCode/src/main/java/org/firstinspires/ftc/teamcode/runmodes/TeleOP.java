@@ -324,10 +324,6 @@ public class TeleOP extends LinearOpMode {
             }if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
                 roll = 20;
             }
-
-
-
-
                 // press y, align so can pick up specimen from human player
 //            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -342,7 +338,6 @@ public class TeleOP extends LinearOpMode {
 //            } else if (!robot.extensionLimiter.getState()){
 //                extensionLimiterPressed = false;
 //            }
-
             if(gamepad2.right_stick_y > 0.1) {
                 robot.armVertical.setPower(-1);
                 usePID = false;
