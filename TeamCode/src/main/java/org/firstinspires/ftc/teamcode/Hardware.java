@@ -40,6 +40,7 @@ public class Hardware {
     public Servo rotateServo;
     //public RevColorSensorV3 colorSensor;
     public static double maxSpeed = 1;
+    public int pitch, roll;
     private static Hardware instance = null;
     public static Hardware getInstance() {
         if(instance == null){

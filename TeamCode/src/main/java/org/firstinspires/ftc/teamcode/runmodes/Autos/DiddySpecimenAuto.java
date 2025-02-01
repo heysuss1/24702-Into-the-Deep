@@ -137,7 +137,7 @@ public class DiddySpecimenAuto extends OpMode {
         backwardsFromSample2 = newPath(58, 18, lastH);
 //        backwardsFromSample2.setPathEndTValueConstraint(.94);
 
-        strafeBehindSample3 = newPath(58, 12, lastH);
+        strafeBehindSample3 = newPath(58, 11.5, lastH);
         pushSample3 = newPath(17, 12, lastH );
         pickUpSpecimen1 = newPath(9.3, 49, 179);
 //        goBackWards = newPath(30, 35, -179);
@@ -397,8 +397,8 @@ public class DiddySpecimenAuto extends OpMode {
                 armExtend(-1200);
                 armUp(1436-ARM_CONSTANT);//may be 2400
                 if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > (150-ARM_CONSTANT)) {
+                    pitch = 180;
                     setActionState(ActionState.HANG_PRELOAD);
-
                 }
                 break;
             case HANG_PRELOAD:
@@ -423,8 +423,8 @@ public class DiddySpecimenAuto extends OpMode {
                 rotateServoForward();
 
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_1 && !follower.isBusy()){
-                    armExtend(-700);
-                    if (robot.armExtension.getCurrentPosition() < -695){
+                    armExtend(-850);
+                    if (robot.armExtension.getCurrentPosition() < -845){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -478,8 +478,8 @@ public class DiddySpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_2 && !follower.isBusy()){
-                    armExtend(-660);
-                    if (robot.armExtension.getCurrentPosition() < -655){
+                    armExtend(-750);
+                    if (robot.armExtension.getCurrentPosition() < -735){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }

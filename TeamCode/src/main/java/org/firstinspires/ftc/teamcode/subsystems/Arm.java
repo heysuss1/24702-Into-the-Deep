@@ -98,12 +98,17 @@ public class Arm implements Subsystem {
         }
     }
     public static void extendArm(Gamepad gamepad){
-        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2700){
+        if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2600){
             extension.setPower(-1);
+            usePID = false;
         } else if (gamepad.left_stick_y > 0.1){
+            usePID = false;
             extension.setPower(1);
         } else{
-            usePID = true;
+            if (!usePID){
+                extension.setPower(0);
+                usePID = true;
+            }
             setExtensionTarget(extension.getCurrentPosition());
         }
     }
@@ -122,8 +127,8 @@ public class Arm implements Subsystem {
         return new Lambda("raise specimen")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
-                   setExtensionTarget(-1200);
-                   setVerticalTarget(1436);
+                   setExtensionTarget(-1220);
+                   setVerticalTarget(1500);
                 })
                 .setExecute(() -> {
                    Arm.updatePID(true, pidfVertical, pidfExtension);

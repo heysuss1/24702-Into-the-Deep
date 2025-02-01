@@ -30,7 +30,7 @@ public class TeleOP extends LinearOpMode {
     boolean isAligned;
     PIDFController extensionPID;
     PIDFController verticalPID;
-    int pitch, roll;
+//    int pitch, roll;
 //    int addRoll, addPitch;
     enum ArmState{
         PARALLEL_ARM,
@@ -219,20 +219,20 @@ public class TeleOP extends LinearOpMode {
 
             if (currentGamepad2.y && !previousGamepad2.y) {
 //                robot.rotateServo.setPosition(0.174);
-                pitch = 20;
+                robot.pitch = 20;
             }
             if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
 //                robot.rotateServo.setPosition(0.38);
-                pitch = 90;
-                roll = 0;
+                robot.pitch = 90;
+                robot.roll = 0;
             }
             if (currentGamepad2.a && !previousGamepad2.a) {
 //                robot.rotateServo.setPosition(0.726);
-                pitch = 175;
+                robot.pitch = 175;
             }
 
 
-            if (robot.armVertical.getCurrentPosition() > 3285){
+            if (robot.armVertical.getCurrentPosition() > 3130){
                 armVerticalTooFar = true;
             } else{
                 armVerticalTooFar = false;
@@ -279,7 +279,7 @@ public class TeleOP extends LinearOpMode {
 //                robot.setSpeed(1);
 //                // slow robot down based on right trigger preasure
 //            }
-            if(robot.armExtension.getCurrentPosition() > -2800){
+            if(robot.armExtension.getCurrentPosition() > -2600){
                 tooFar = false;
             } else{
                 tooFar = true;
@@ -306,24 +306,24 @@ public class TeleOP extends LinearOpMode {
                 if (currentClawPosition > 0){
                     currentClawPosition -= 1;
                 }
-                roll = clawPositions[currentClawPosition];
+                robot.roll = clawPositions[currentClawPosition];
             }
             if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper){
                 if (currentClawPosition < clawPositions.length -1){
                     currentClawPosition += 1;
                 }
-                roll = clawPositions[currentClawPosition];
+                robot.roll = clawPositions[currentClawPosition];
             }
 
-            if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
-                roll = 0;
-            }if (currentGamepad2.dpad_down && !previousGamepad2.dpad_down){
-                roll = 45;
-            }if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
-                roll = -15;
-            }if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
-                roll = 20;
-            }
+//            if (currentGamepad2.dpad_up && !previousGamepad2.dpad_up){
+//                roll = 0;
+//            }if (currentGamepad2.dpad_down && !previousGamepad2.dpad_down){
+//                roll = 45;
+//            }if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
+//                roll = -15;
+//            }if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
+//                roll = 20;
+//            }
                 // press y, align so can pick up specimen from human player
 //            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -463,14 +463,14 @@ public class TeleOP extends LinearOpMode {
 //                    robot.armExtension.setPower(1)
 //                }
 //            }
-            robot.diddylate(pitch, roll);
+            robot.diddylate(robot.pitch, robot.roll);
             follower.update();
             if (showTelemetry){
                 telemetry.addData("Current Alliance", currentAlliance); 
                 telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
                 telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
-                telemetry.addData("Pitch", pitch);
-                telemetry.addData("Roll", roll);
+                telemetry.addData("Pitch", robot.pitch);
+                telemetry.addData("Roll", robot.roll);
                 telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
                 telemetry.addData("Current position", follower.getPose());
                 telemetry.addData("Max Speed", robot.getSpeed());
