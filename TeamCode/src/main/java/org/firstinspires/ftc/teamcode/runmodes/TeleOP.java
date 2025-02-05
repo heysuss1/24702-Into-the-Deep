@@ -59,8 +59,6 @@ public class TeleOP extends LinearOpMode {
         double forward, sideways, turning, max;
         double scaleFactor = 0;
         boolean showTelemetry = false;
-        robot.diffy1.setPosition(0.001);
-        robot.diffy2.setPosition(0.001);
         // outlining locations of game parts
         robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -263,11 +261,11 @@ public class TeleOP extends LinearOpMode {
                 robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 // manual reset
             }
-            if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
-                toObservationZone = newPath(frontOfSubmersible.getX(), frontOfObservationZone.getY(), 0);
-                follower.followPath(toObservationZone);
-                // go to human player
-            }
+//            if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
+//                toObservationZone = newPath(frontOfSubmersible.getX(), frontOfObservationZone.getY(), 0);
+//                follower.followPath(toObservationZone);
+//                // go to human player
+//            }
 //            output = extensionPID.calculate(robot.armExtension.getCurrentPosition(), -1200);
 
 //            robot.armExtension.setPower(output);

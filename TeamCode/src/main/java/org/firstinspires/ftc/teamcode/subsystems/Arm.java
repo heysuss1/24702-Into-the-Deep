@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad2;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 //import static org.firstinspires.ftc.teamcode.MercurialAssistedTeleOP.robot;
 
@@ -32,6 +33,7 @@ public class Arm implements Subsystem {
     public static DcMotorEx extension, vertical;
     public static final Arm INSTANCE = new Arm();
     public static double verticalTarget, extensionTarget, verticalOutput, extensionOutput;
+    public static boolean extendArm, moveArm;
     public static double kP = 0.02, kD = 0.0001, kI = 0, kF = 0;
 //    public static boole
     private static double extensionError, verticalError;
@@ -79,37 +81,47 @@ public class Arm implements Subsystem {
         verticalError = pidfVertical.calculate(vertical.getCurrentPosition(), verticalTarget);
 
 //        verticalError = pidfVertical.calculate(extension.getCurrentPosition(), -1200);
-        vertical.setPower(verticalError);
-        extension.setPower(extensionError);
+        if (usePID){
+            vertical.setPower(verticalError);
+            extension.setPower(extensionError);
+        }
+
 
     }
     public static void moveArm(Gamepad gamepad){
-
-        if (gamepad.right_stick_y > 0.1){
+        if (gamepad.right_stick_y < -0.1 && vertical.getCurrentPosition() < 3130){
             vertical.setPower(-1);
-        } else if (gamepad.right_stick_y < -0.1) {
+            moveArm = true;
+            usePID = false;
+        } else if (gamepad.right_stick_y > 0.1){
+            usePID = false;
+            moveArm = true;
             vertical.setPower(1);
         } else{
-            usePID = true;
-            
-            
-            
-            setExtensionTarget(extension.getCurrentPosition());
+            if (moveArm){
+                vertical.setPower(0);
+                setVerticalTarget(vertical.getCurrentPosition());
+                moveArm = false;
+                usePID = true;
+            }
         }
     }
     public static void extendArm(Gamepad gamepad){
         if (gamepad.left_stick_y < -0.1 && extension.getCurrentPosition() > -2600){
             extension.setPower(-1);
-            usePID = false;
+            extendArm = true;
         } else if (gamepad.left_stick_y > 0.1){
             usePID = false;
+            extendArm = true;
             extension.setPower(1);
         } else{
-            if (!usePID){
+            if (extendArm){
                 extension.setPower(0);
+                setExtensionTarget(extension.getCurrentPosition());
+                extendArm = false;
                 usePID = true;
             }
-            setExtensionTarget(extension.getCurrentPosition());
+//            setExtensionTarget(extension.getCurrentPosition());
         }
     }
     public static boolean verticalAtTarget(){return Math.abs(verticalTarget - vertical.getCurrentPosition()) <= 1;}
@@ -128,7 +140,7 @@ public class Arm implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                    setExtensionTarget(-1220);
-                   setVerticalTarget(1500);
+                   setVerticalTarget(1436);
                 })
                 .setExecute(() -> {
                    Arm.updatePID(true, pidfVertical, pidfExtension);

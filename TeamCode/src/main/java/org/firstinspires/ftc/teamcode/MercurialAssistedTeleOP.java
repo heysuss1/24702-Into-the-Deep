@@ -26,6 +26,9 @@ public class MercurialAssistedTeleOP extends OpMode {
     double scaleFactor;
     static boolean isAligned;
     static Follower follower;
+    boolean pressingLT = false; boolean clawIsOpen = false;
+    int[] clawPositions = {45, 20, 0, -15, -45};
+    int  currentClawPosition = 0;
     double output, extensionError,verticalError, armOutput;
     boolean alignHeading = false;
     static Hardware robot = Hardware.getInstance();
@@ -52,12 +55,14 @@ public class MercurialAssistedTeleOP extends OpMode {
         Mercurial.gamepad2().y().onTrue(Claw.wristUp());
         Mercurial.gamepad2().b().onTrue(Claw.wristStraight());
         Mercurial.gamepad2().a().onTrue(Claw.wristDown());
+        Mercurial.gamepad2().leftBumper().onTrue(Claw.clawRollIncreasing());
+        Mercurial.gamepad2().rightBumper().onTrue(Claw.clawRollDecreasing());
+
         Mercurial.gamepad2().x().onTrue(Arm.parallelArm(pidVertical, pidExtension));
 //        Mercurial.gamepad1().y().onTrue();
         Mercurial.gamepad2().dpadLeft().onTrue(Arm.raiseSpecimen(pidVertical, pidExtension));
         Mercurial.gamepad2().dpadRight().onTrue(Arm.hangSpecimen(pidVertical, pidExtension));
         Mercurial.gamepad2().dpadDown().onTrue(Arm.goToBasket(pidVertical, pidExtension));
-
 //
 
 
@@ -81,8 +86,8 @@ public class MercurialAssistedTeleOP extends OpMode {
         }
         scaleFactor *= Math.max(Math.abs(1 - gamepad1.right_trigger), 0.2);
         robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
-//        Arm.moveArm(gamepad2);
-//        Arm.extendArm(gamepad2);
+        Arm.moveArm(gamepad2);
+        Arm.extendArm(gamepad2);
 //        if (Arm.usePID && Arm.extensionAtTarget()){
 //            Arm.usePID = false;
 //        }
@@ -94,17 +99,35 @@ public class MercurialAssistedTeleOP extends OpMode {
 //        } else{
 //            hi = false;
 //        }
-        if (gamepad1.y && !previousGamepad1.y) isAligned = true;
+//        if (gamepad1.y && !previousGamepad1.y) isAligned = true;
 
 
-        if (isAligned){
-//           Arm.setVerticalTarget(2000);
-//           Arm.setExtensionTarget(-1000);
-           Arm.hangSpecimen(pidVertical, pidExtension);
+//        if (isAligned){
+////           Arm.setVerticalTarget(2000);
+////           Arm.setExtensionTarget(-1000);
+//           Arm.hangSpecimen(pidVertical, pidExtension);
+//        }
+        if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
+            if(!clawIsOpen){
+                //Open claw
+                //robot.leftServo.setPosition(0.64);
+                //robot.rightServo.setPosition(0.55);//may be wrong position
+//                    robot.openClaw(1);
+                robot.claw.setPosition(0.1);
+                clawIsOpen = true;
+            } else {
+                //Close claw
+                //robot.leftServo.setPosition(0.49);
+                //robot.rightServo.setPosition(0.71);
+//                    robot.openClaw(0);
+                robot.claw.setPosition(0.4);
+                clawIsOpen = false;
+            }
+            pressingLT = true;
         }
 
-
         double loop = System.nanoTime();
+        Claw.diddylate();
         telemetry.addData("hz ", 1000000000/(loop - looptime));
         looptime = loop;
         telemetry.addData("Arm Vertical Pos", Arm.vertical.getCurrentPosition());

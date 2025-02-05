@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 public class DiddySpecimenAuto extends OpMode {
     Follower follower;
     //727 741 4771
-    int ARM_CONSTANT = 720;
+    int ARM_CONSTANT = 570;
     Timer armTimer, pathTimer;
     boolean hungSpecimen = false;
     Waiter waiter;
@@ -114,7 +114,7 @@ public class DiddySpecimenAuto extends OpMode {
 
 
     public void buildPaths(){
-        toSubmersible = newPath(28.2, 61, 0);
+        toSubmersible = newPath(28.3, 61, 0);
         toSubmersible.setPathEndTimeoutConstraint(500);
         strafeToSample1 = newPath(29, 40, 0);
 //        strafeToSample1.setPathEndTimeoutConstraint(100);
@@ -362,10 +362,10 @@ public class DiddySpecimenAuto extends OpMode {
     }
 
     public void rotateServoForward(){
-        pitch = 90;
-        roll = 0;
+        robot.pitch = 90;
+        robot.roll = 0;
     }
-    public void rotateServoDown() {pitch = 175;}
+    public void rotateServoDown() {robot.pitch = 175;}
     public void openClaw(){
         robot.claw.setPosition(0.1);
     }
@@ -397,7 +397,7 @@ public class DiddySpecimenAuto extends OpMode {
                 armExtend(-1200);
                 armUp(1436-ARM_CONSTANT);//may be 2400
                 if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > (150-ARM_CONSTANT)) {
-                    pitch = 180;
+                    robot.pitch = 180;
                     setActionState(ActionState.HANG_PRELOAD);
                 }
                 break;
@@ -588,8 +588,8 @@ public class DiddySpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARD_TO_SUBMERSIBLE_4 && !follower.isBusy()){
-                    armExtend(-660);
-                    if (robot.armExtension.getCurrentPosition() < -655){
+                    armExtend(-750);
+                    if (robot.armExtension.getCurrentPosition() < -730){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -646,7 +646,7 @@ public class DiddySpecimenAuto extends OpMode {
         telemetry.addData("Power of rf", robot.rf.getPower());
 //        telemetry.addData("Path timer", pathTimer);
         autonomousActionUpdate();
-        robot.diddylate(pitch, roll);
+        robot.diddylate(robot.pitch, robot.roll);
         telemetry.update();
         autonomousPathUpdate();
 
