@@ -77,7 +77,6 @@ public class UtilityCameraFrameCapture extends LinearOpMode
     public void runOpMode()
     {
         VisionPortal portal;
-
         if (USING_WEBCAM)
         {
             portal = new VisionPortal.Builder()

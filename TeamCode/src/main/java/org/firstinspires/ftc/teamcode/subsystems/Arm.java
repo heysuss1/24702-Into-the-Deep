@@ -69,6 +69,7 @@ public class Arm implements Subsystem {
 //        setDefaultCommand(update());
 //        pid = new PIDFController(kP, kI, kD, kF);
         extension.setPower(0);
+        vertical.setPower(0);
 //        waiter = new Waiter();
     }
     public static void setVerticalTarget(int setpoint){ verticalTarget = setpoint;}
