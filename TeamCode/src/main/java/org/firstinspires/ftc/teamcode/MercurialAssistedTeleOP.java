@@ -99,21 +99,24 @@ public class MercurialAssistedTeleOP extends OpMode {
             }
             pressingLT = true;
         }
-        else if(!(gamepad2.left_trigger >0.1)){
+        else if(!(gamepad2.left_trigger > 0.1)){
             pressingLT = false;
         }
 
         double loop = System.nanoTime();
-        Claw.diddylate();
+//        Claw.diddylate();diddylate
         telemetry.addData("hz ", 1000000000/(loop - looptime));
         looptime = loop;
         telemetry.addData("Arm Vertical Pos", Arm.vertical.getCurrentPosition());
         telemetry.addData("Arm Extension Pos", Arm.extension.getCurrentPosition());
         telemetry.addData("Counter", output);
+//        telemetry.addData("Pitch",pitch );
+//        telemetry.addData("Roll", Claw.roll);
         telemetry.addData("Use pid", Arm.usePID);
         telemetry.addData("is the arm vertical at target", Arm.getExtensionTarget());
         telemetry.addData("get power", Arm.extension.getPower());
         telemetry.addData("output", pidExtension.calculate(0, extensionError));
+        telemetry.update();
     }
 
 //    public static Lambda alignHeading(){

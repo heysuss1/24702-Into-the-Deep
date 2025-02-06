@@ -26,7 +26,7 @@ public class Claw implements Subsystem {
     public static Servo claw, diffy1, diffy2;
     public static final Claw INSTANCE = new Claw();
     public static Waiter waiter;
-    public static int pitch, roll;
+//    public static int pitch, roll;roll
     public static int[] clawPositions = {45, 20, 0, -15, -45};
     public static int currentClawPosition = 0;
     private Claw(){}
@@ -60,7 +60,7 @@ public class Claw implements Subsystem {
 //        rotateServo.setPosition(pos);
 //    }
 
-    public static void diddylate(){
+    public static void diddylate(int pitch, int roll){
 //        pitch = Range.clip(pitch, 160, 300);
 //        roll = Range.clip(roll, -30, 60);
         roll = roll/300;
@@ -68,19 +68,19 @@ public class Claw implements Subsystem {
         diffy1.setPosition(pitch - roll);
         diffy2.setPosition(pitch + roll);
     }
-
+//90
     public static void clawRollDecrease(){
         if (currentClawPosition > 0){
                 currentClawPosition -= 1;
         }
-            roll = clawPositions[currentClawPosition];
+//            roll = clawPositions[currentClawPosition];
     }
 
     public static void clawRollIncrease(){
         if (currentClawPosition < clawPositions.length -1){
             currentClawPosition += 1;
         }
-        roll = clawPositions[currentClawPosition];
+//        roll = clawPositions[currentClawPosition];
     }
     @NonNull
     public static Lambda closeClaw(){
@@ -95,6 +95,7 @@ public class Claw implements Subsystem {
                 .setInit(() -> {
                     waiter.start(300);
                     clawRollDecrease();
+//                    diddylate();
                 })
                 .setFinish(() -> waiter.isDone());
     }
@@ -104,6 +105,7 @@ public class Claw implements Subsystem {
                 .setInit(() -> {
                     waiter.start(300);
                     clawRollIncrease();
+//                    diddylate();
                 })
                 .setFinish(() -> waiter.isDone());
     }
@@ -119,7 +121,8 @@ public class Claw implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                     waiter.start(400);
-                    pitch = (175);
+//                    pitch = (175);
+                    diddylate(175, 0);
                 })
                 .setFinish(() -> waiter.isDone());
     }
@@ -129,8 +132,9 @@ public class Claw implements Subsystem {
         return new Lambda("wrist straight")
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
-                    waiter.start(400);
-                    pitch = 90;
+                    waiter.start(1000);
+//                    pitch = 90;
+                    diddylate(90, 0);
                 })
                 .setFinish(() -> waiter.isDone());
     }
@@ -140,7 +144,8 @@ public class Claw implements Subsystem {
                 .addRequirements(INSTANCE)
                 .setInit(() -> {
                     waiter.start(400);
-                    pitch = 15;
+//                    pitch = 15;
+                    diddylate(15, 0);
                 })
                 .setFinish(() -> waiter.isDone());
     }
