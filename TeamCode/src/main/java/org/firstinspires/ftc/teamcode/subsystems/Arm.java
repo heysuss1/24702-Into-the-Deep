@@ -91,13 +91,13 @@ public class Arm implements Subsystem {
     }
     public static void moveArm(Gamepad gamepad){
         if (gamepad.right_stick_y < -0.1 && vertical.getCurrentPosition() < 3130){
-            vertical.setPower(-1);
+            vertical.setPower(1);
             moveArm = true;
             usePID = false;
         } else if (gamepad.right_stick_y > 0.1){
             usePID = false;
             moveArm = true;
-            vertical.setPower(1);
+            vertical.setPower(-1);
         } else{
             if (moveArm){
                 vertical.setPower(0);

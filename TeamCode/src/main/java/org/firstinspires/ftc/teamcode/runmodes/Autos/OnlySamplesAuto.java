@@ -395,7 +395,7 @@ public class OnlySamplesAuto extends OpMode {
                     armExtend(-2200);
                     rotateArmBackWards();
 
-                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (2690-ARM_CONSTANT) && !robot.armVertical.isBusy()){
+                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (2720-ARM_CONSTANT) && !robot.armVertical.isBusy()){
                         if (armTimer.seconds() > 1){
                             armTimer.reset();
                         }
