@@ -41,6 +41,8 @@ public class OutreachTeleOP extends LinearOpMode {
         robot.setSpeed(0.4);
         telemetry.addData("Status", "Hello, Drivers!");
         follower = new Follower(hardwareMap);
+        int[] clawPositions = {45, 20, 0, -15, -45};
+        int currentClawPosition = 0;
 //        follower.setStartingPose(new Pose(63, 95));
         telemetry.update();
         Pose bucket = new Pose(18, 127, Point.CARTESIAN);
@@ -106,6 +108,18 @@ public class OutreachTeleOP extends LinearOpMode {
 //                currentHeading = follower.getPose().getHeading();
                 follower.setStartingPose(new Pose(0, 0, 0));
 //                follower
+            }
+            if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
+                if (currentClawPosition > 0){
+                    currentClawPosition -= 1;
+                }
+                robot.roll = clawPositions[currentClawPosition];
+            }
+            if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper){
+                if (currentClawPosition < clawPositions.length -1){
+                    currentClawPosition += 1;
+                }
+                robot.roll = clawPositions[currentClawPosition];
             }
 
 //            if (gamepad1.dpad_up){
@@ -175,14 +189,17 @@ public class OutreachTeleOP extends LinearOpMode {
 
 
             if (currentGamepad2.y && !previousGamepad2.y) {
-                robot.rotateServo.setPosition(0.174);
+//                robot.rotateServo.setPosition(0.174);
+                robot.pitch = 20;
             }
             if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
-                robot.rotateServo.setPosition(0.38);
-                // wrist movement commands
+//                robot.rotateServo.setPosition(0.38);
+                robot.pitch = 90;
+                robot.roll = 0;
             }
             if (currentGamepad2.a && !previousGamepad2.a) {
-                robot.rotateServo.setPosition(0.726);
+//                robot.rotateServo.setPosition(0.726);
+                robot.pitch = 175;
             }
 
 
@@ -290,13 +307,15 @@ public class OutreachTeleOP extends LinearOpMode {
                     //Open claw
                     //robot.leftServo.setPosition(0.64);
                     //robot.rightServo.setPosition(0.55);//may be wrong position
-                    robot.openClaw(1);
+//                    robot.openClaw(1);
+                    robot.claw.setPosition(0.1);
                     clawIsOpen = true;
                 } else {
                     //Close claw
                     //robot.leftServo.setPosition(0.49);
                     //robot.rightServo.setPosition(0.71);
-                    robot.openClaw(0);
+//                    robot.openClaw(0);
+                    robot.claw.setPosition(0.4);
                     clawIsOpen = false;
                 }
                 pressingLT = true;
@@ -336,6 +355,7 @@ public class OutreachTeleOP extends LinearOpMode {
 //                    robot.armExtension.setPower(1)
 //                }
 //            }
+            robot.diddylate(robot.pitch, robot.roll);
             follower.update();
             telemetry.addData("Position", ticks);
             telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());

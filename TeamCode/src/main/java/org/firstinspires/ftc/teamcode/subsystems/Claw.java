@@ -73,7 +73,7 @@ public class Claw implements Subsystem {
         if (currentClawPosition > 0){
                 currentClawPosition -= 1;
         }
-            roll = clawPositions[currentClawPosition];
+        roll = clawPositions[currentClawPosition];
     }
 
     public static void clawRollIncrease(){
@@ -120,6 +120,7 @@ public class Claw implements Subsystem {
                 .setInit(() -> {
                     waiter.start(400);
                     pitch = (175);
+                    
                 })
                 .setFinish(() -> waiter.isDone());
     }

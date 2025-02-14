@@ -117,44 +117,22 @@ public class DiddySpecimenAuto extends OpMode {
         toSubmersible = newPath(28.3, 61, 0);
         toSubmersible.setPathEndTimeoutConstraint(500);
         strafeToSample1 = newPath(29, 40, 0);
-//        strafeToSample1.setPathEndTimeoutConstraint(100);
         behindSample1 = newPath(61, 27, 0);
-//        behindSample1.setPathEndTimeoutConstraint(100);
         pushSample1 = newPath(17,26, 0);
-//        pushSample1.setPathEndTValueConstraint(.94);
-//        pushSample1.setPathEndTimeoutConstraint(100);
         backwardsFromSample1 = newPath(58,24, lastH);
-//        backwardsFromSample1.setPathEndTValueConstraint(.94);
-
-//        backwardsFromSample1.setPathEndTimeoutConstraint(100);
         strafeBehindSample2 = newPath(58 , 15.5, lastH);
-//        strafeBehindSample2.setPathEndTValueConstraint(.94);
-
-//        strafeBehindSample2.setPathEndTimeoutConstraint(100);
         pushSample2 = newPath(17, 15.5, lastH);
         pushSample2.setPathEndTValueConstraint(.94);
-
         backwardsFromSample2 = newPath(58, 18, lastH);
-//        backwardsFromSample2.setPathEndTValueConstraint(.94);
-
         strafeBehindSample3 = newPath(58, 11.5, lastH);
         pushSample3 = newPath(17, 12, lastH );
         pickUpSpecimen1 = newPath(9.3, 49, 179);
-//        goBackWards = newPath(30, 35, -179);
-//        goForwards = newPath(8.2, 49, -179);
-//        strafeToSubmersible1 = newPath(6, 64, 0);
         forwardToSubmersible1 = newPath(30.4, 65, 0);
-//        backwardsFromSubmersible1 = newPath(20, 64, 0);
         pickUpSpecimen2 = newPath(10, 49, 179);
-//        strafeToSubmersible2 = newPath(7, 64, 0);
         forwardToSubmersible2 = newPath(30.3, 66, 5);
-//        backwardsFromSubmersible2 = newPath(20, 64, 0);
         pickUpSpecimen3 = newPath(10, 49, 179);
-//        strafeToSubmersible3 = newPath(6, 68, 0);
         forwardsToSubmersible3 = newPath(30.3, 68, 3);
-//        backwardsFromSubmersible3= newPath(20, 64, 0);
         pickUpSpecimen4 = newPath(10, 49, 179);
-//        strafeToSubmersible4 = newPath(6, 66, 0);
         forwardToSubmersible4 = newPath(30, 70, 0);
         park = newPath(7, 49, 0);
 
@@ -367,7 +345,7 @@ public class DiddySpecimenAuto extends OpMode {
     }
     public void rotateServoDown() {robot.pitch = 175;}
     public void openClaw(){
-        robot.claw.setPosition(0.1);
+        robot.claw.setPosition(0.15);
     }
 
     public void closeClaw(){

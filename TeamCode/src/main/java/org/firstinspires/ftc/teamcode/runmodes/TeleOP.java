@@ -104,6 +104,7 @@ public class TeleOP extends LinearOpMode {
         boolean tooFar = false;
         boolean isStalling = false;
         boolean usePID = false;
+        double clawAmount = 0;
         double ticks = 0;
         String colorPrediction = "", currentAlliance = "red";
         double red, green, blue, distance;
@@ -357,13 +358,14 @@ public class TeleOP extends LinearOpMode {
                     //robot.leftServo.setPosition(0.64);
                     //robot.rightServo.setPosition(0.55);//may be wrong position
 //                    robot.openClaw(1);
-                    robot.claw.setPosition(0.1);
+                    robot.claw.setPosition(0.15);
                     clawIsOpen = true;
                 } else {
                     //Close claw
                     //robot.leftServo.setPosition(0.49);
                     //robot.rightServo.setPosition(0.71);
 //                    robot.openClaw(0);
+                    clawAmount += 1;
                     robot.claw.setPosition(0.4);
                     clawIsOpen = false;
                 }
@@ -469,6 +471,7 @@ public class TeleOP extends LinearOpMode {
                 telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
                 telemetry.addData("Pitch", robot.pitch);
                 telemetry.addData("Roll", robot.roll);
+                telemetry.addData("Claw counter", clawAmount);
                 telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
                 telemetry.addData("Current position", follower.getPose());
                 telemetry.addData("Max Speed", robot.getSpeed());
