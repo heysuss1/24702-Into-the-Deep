@@ -29,10 +29,11 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
     Mat redMask2 = new Mat();
     Mat blueMask = new Mat();
     Mat hsvImage = new Mat();
-    static double distance;
+    double distance;
+    double angle = 0;
     Mat image;
     public Mat processFrame(Mat frame){
-        Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2HSV);
+        Imgproc.cvtColor(frame, hsvImage, Imgproc.COLOR_BGR2HSV);
 //        Imgproc.inRange(hsvImage, lowerRed1, upperRed1, mask1);
 //        Imgproc.(hsvImage, lowerRed2, upperRed2, mask2);
         inRange(hsvImage, lowerRed1, upperRed1, redMask1);
@@ -43,8 +44,8 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
 
         // Find contours for blue regions
         List<MatOfPoint> blueContours = new java.util.ArrayList<>();
+        //Amelia is a monkey!!!!!!!!! jiya is so hot
         Imgproc.findContours(blueMask, blueContours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        distance++;
         // Draw contours and bounding boxes
         for (MatOfPoint contour : blueContours) {
             RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
@@ -57,21 +58,29 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
             // Get width, height, and angle of the bounding box
             double width = rect.size.width;
             double height = rect.size.height;
-            double angle = rect.angle;
+            angle = rect.angle;
             distance = checkDistance(width);
+
+//             = angle;
 
         }
 
         // Display the frame// You can use OpenCV's imshow to display the frame on-screen in a GUI application.
         // Imgproc.imshow("Camera", frame);
+//        if (blueContours.isEmpty()){
+//            distance = 69420;
+//        }
+        Imgproc.rectangle(frame, new Point(50, 50), new Point(100, 100), new Scalar(0, 0, 255), 2);
 
         return frame;
     }
 
-    public static double getDistance(){
+    public double getDistance(){
         return distance;
     }
-
+    public double getAngle(){
+        return angle;
+    }
     public double checkDistance(double pixelWidth){
         return (SAMPLE_HEIGHT * FOCAL_LENGTH)/ pixelWidth;
     }

@@ -218,15 +218,18 @@ public class TeleOP extends LinearOpMode {
 
             if (currentGamepad2.y && !previousGamepad2.y) {
 //                robot.rotateServo.setPosition(0.174);
+                currentClawPosition = 2;
                 robot.pitch = 20;
             }
             if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
 //                robot.rotateServo.setPosition(0.38);
+                currentClawPosition = 2;
                 robot.pitch = 90;
                 robot.roll = 0;
             }
             if (currentGamepad2.a && !previousGamepad2.a) {
 //                robot.rotateServo.setPosition(0.726);
+                currentClawPosition = 2;
                 robot.pitch = 175;
             }
 

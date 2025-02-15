@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -16,19 +17,22 @@ import org.openftc.easyopencv.OpenCvInternalCamera;
 public class LogitechC270 extends OpMode {
     VisionPortal visionPortal;
     final static String CAMERA_NAME = "camera";
-    RedSampleDetectionPipeLine pipeline;
+    RedSampleDetectionPipeLine pipeline = new RedSampleDetectionPipeLine();
+//    OpenCvCamera camera;
+//    Vision VisionHandler = Vision.getInstance();
     OpenCvCamera camera;
-
-
     public void init() {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         camera = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+        camera.setPipeline(pipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+
         {
             @Override
             public void onOpened()
             {
+                camera.startStreaming(1280, 720);
                 telemetry.addLine("Erm, it worked!");
                 telemetry.update();
             }
@@ -42,21 +46,22 @@ public class LogitechC270 extends OpMode {
                  */
             }
         });
-        camera.startStreaming(1280, 720);
         FtcDashboard.getInstance().startCameraStream(camera, 60);
-        camera.setPipeline(pipeline);
-
     }
 
     public void loop() {
         camera.setPipeline(pipeline);
-        telemetry.addData("Distance", RedSampleDetectionPipeLine.getDistance());
+//        VisionHandler.changeAngle(pipeline.ge)
+        telemetry.addData("Distance", pipeline.getDistance());
+        telemetry.addData("Angle", pipeline.getAngle());
+        telemetry.update();
     }
 
-    @Override
-    public void stop() {
-        visionPortal.close();
+    public void stop(){
+        camera.stopStreaming();
     }
+    int[] clawPositions = {45, 20, 0, -15, -45};
+
 
 //    public void initalizeCamera() {
 //        camera.setCamera(hardwareMap.get(WebcamName.class, CAMERA_NAME));
