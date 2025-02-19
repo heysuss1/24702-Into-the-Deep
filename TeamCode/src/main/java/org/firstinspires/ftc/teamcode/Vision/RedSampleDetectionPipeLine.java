@@ -7,6 +7,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -29,8 +30,15 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
     Mat redMask2 = new Mat();
     Mat blueMask = new Mat();
     Mat hsvImage = new Mat();
+
+    Mat leftMap, rightMap, middleMap;
     double distance;
     double angle = 0;
+    double leftAvg, middleAvg, rightAvg;
+    String objectPos = "";
+    Rect leftRect= new Rect(1,1, 426, 719);
+    Rect middleRect= new Rect(427,1, 426, 719);
+    Rect rightRect= new Rect(854,1, 426, 719);
     Mat image;
     public Mat processFrame(Mat frame){
         Imgproc.cvtColor(frame, hsvImage, Imgproc.COLOR_BGR2HSV);
@@ -46,20 +54,36 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
         List<MatOfPoint> blueContours = new java.util.ArrayList<>();
         //Amelia is a monkey!!!!!!!!! jiya is so hot
         Imgproc.findContours(blueMask, blueContours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+
+        leftMap = hsvImage.submat(leftRect);
+        middleMap = hsvImage.submat(middleRect);
+        rightMap = hsvImage.submat(rightRect);
+
+        double leftAvg = Core.mean(leftMap).val[0];
+        double rightAvg = Core.mean(rightMap).val[0];
+        double middleAvg = Core.mean(middleMap).val[0];
+
+        if (leftAvg > rightAvg && leftAvg > middleAvg) objectPos = "left";
+        else if (rightAvg > leftAvg && rightAvg > middleAvg) objectPos = "right";
+        else objectPos = "middle";
         // Draw contours and bounding boxes
         for (MatOfPoint contour : blueContours) {
-            RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
-            Point[] points = new Point[4];
-            rect.points(points);
-            for (int i = 0; i < 4; i++) {
-                Imgproc.line(frame, points[i], points[(i+1)%4], new Scalar(0, 255, 0), 2);
-            }
+            double area = Imgproc.contourArea(contour);
+            if (area > 700){
+                RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(contour.toArray()));
+                Point[] points = new Point[4];
+                rect.points(points);
+                for (int i = 0; i < 4; i++) {
+                    Imgproc.line(frame, points[i], points[(i+1)%4], new Scalar(0, 255, 0), 2);
+                }
 
-            // Get width, height, and angle of the bounding box
-            double width = rect.size.width;
-            double height = rect.size.height;
-            angle = rect.angle;
-            distance = checkDistance(width);
+                // Get width, height, and angle of the bounding box
+                double width = rect.size.width;
+                double height = rect.size.height;
+                angle = rect.angle;
+                distance = checkDistance(width);
+            }
 
 //             = angle;
 
@@ -70,7 +94,7 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
 //        if (blueContours.isEmpty()){
 //            distance = 69420;
 //        }
-        Imgproc.rectangle(frame, new Point(50, 50), new Point(100, 100), new Scalar(0, 0, 255), 2);
+//        Imgproc.rectangle(frame, new Point(50, 50), new Point(100, 100), new Scalar(0, 0, 255), 2);
 
         return frame;
     }
@@ -81,6 +105,11 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
     public double getAngle(){
         return angle;
     }
+
+//    public double getAverages(){
+//        return leftAvgrightAvg, middleAvg;
+//    }
+    public String getObjectPos(){return objectPos;}
     public double checkDistance(double pixelWidth){
         return (SAMPLE_HEIGHT * FOCAL_LENGTH)/ pixelWidth;
     }
