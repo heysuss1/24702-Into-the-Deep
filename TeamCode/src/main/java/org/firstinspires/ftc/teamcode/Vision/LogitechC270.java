@@ -8,6 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.Hardware;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -20,17 +24,20 @@ public class LogitechC270 extends OpMode {
     final static String CAMERA_NAME = "camera";
     RedSampleDetectionPipeLine pipeline = new RedSampleDetectionPipeLine();
     Hardware robot = Hardware.getInstance();
+    boolean pressedLeft = false;
+    boolean pressedA = false;
 //    OpenCvCamera camera;
     Vision VisionHandler = Vision.getInstance();
+    Follower follower;
     OpenCvCamera camera;
     public void init() {
         robot.init(hardwareMap);
+        follower = new Follower(hardwareMap);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         camera = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
         camera.setPipeline(pipeline);
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-
         {
             @Override
             public void onOpened()
@@ -53,14 +60,27 @@ public class LogitechC270 extends OpMode {
     }
 
     public void loop() {
+        double x = follower.getPose().getX();
+        double y = follower.getPose().getY();
         camera.setPipeline(pipeline);
 //        VisionHandler.changeAngle(pipeline.ge)
         telemetry.addData("Distance", pipeline.getDistance());
         telemetry.addData("Angle", pipeline.getAngle());
-//        robot.roll = VisionHandler.changeAngle(robot, pipeline.getAngle());
+        if (gamepad2.a && !pressedA){
+            robot.roll = VisionHandler.changeAngle(robot, pipeline.getAngle());
+            pressedA = true;
+        } else {
+            pressedA = false;
+        }
+        if (gamepad2.dpad_left && !pressedLeft){
+            follower.followPath(new Path(new BezierLine(
+                    new Point(x, y, 0), new Point(x+pipeline.getTargetX(), y+pipeline.getTargetY())
+            )));
+        }
 //        telemetry.addData("quadrant: ", pipeline.getObjectPos());
 //        robot.diddylate(175, robot.roll);
         telemetry.update();
+        follower.update();
     }
 
     public void stop(){

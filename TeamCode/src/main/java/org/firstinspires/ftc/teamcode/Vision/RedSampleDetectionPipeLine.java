@@ -40,10 +40,14 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
     Rect middleRect= new Rect(427,1, 426, 719);
     Rect rightRect= new Rect(854,1, 426, 719);
     Mat image;
+    double targetX = 0; double targetY = 0;
+    double CONVERSION = 3/72.8;
+
+    public double pixelsToInches(double coord){
+        return coord/CONVERSION;
+    }
     public Mat processFrame(Mat frame){
         Imgproc.cvtColor(frame, hsvImage, Imgproc.COLOR_BGR2HSV);
-//        Imgproc.inRange(hsvImage, lowerRed1, upperRed1, mask1);
-//        Imgproc.(hsvImage, lowerRed2, upperRed2, mask2);
         inRange(hsvImage, lowerRed1, upperRed1, redMask1);
         inRange(hsvImage, lowerRed2, upperRed2, redMask2);
 
@@ -83,6 +87,8 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
                 double height = rect.size.height;
                 angle = rect.angle;
                 distance = checkDistance(width);
+                targetX = pixelsToInches(rect.center.x);
+                targetY = pixelsToInches(rect.center.y);
             }
 
 //             = angle;
@@ -112,5 +118,11 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
     public String getObjectPos(){return objectPos;}
     public double checkDistance(double pixelWidth){
         return (SAMPLE_HEIGHT * FOCAL_LENGTH)/ pixelWidth;
+    }
+    public double getTargetX(){
+        return targetX;
+    }
+    public double getTargetY(){
+        return targetY;
     }
 }

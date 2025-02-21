@@ -68,7 +68,8 @@ public class TeleOP extends LinearOpMode {
 
         extensionPID = new PIDFController(0.02, 0, 0.001, 0);
         verticalPID = new PIDFController(0.0219, 0, 0.001, 0);
-
+        Pose pickUpSpecimen = new Pose(12, 8, -90);
+        Pose hangSpecimen = new Pose(42, 30, 0);
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
 
@@ -111,6 +112,9 @@ public class TeleOP extends LinearOpMode {
         boolean hasSample;
 
         while (opModeIsActive()){
+            double currentXpose  = follower.getPose().getX();
+            double currentYpose = follower.getPose().getY();
+            int currentHeading = (int)Math.round(follower.getPose().getHeading());
             previousGamepad1.copy(currentGamepad1);
             previousGamepad2.copy(currentGamepad2);
 
@@ -144,10 +148,12 @@ public class TeleOP extends LinearOpMode {
 
             if (currentGamepad1.a && !previousGamepad1.a){
 //                currentHeading = follower.getPose().getHeading();
-                follower.setStartingPose(new Pose(0, 0, 0));
+//                follower.followPath(new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(pickUpSpecimen))));
 //                follower
             }
-
+            if (currentGamepad1.b && !previousGamepad2.a){
+//                follower.followPath(new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(hangSpecimen))));
+            }
 //            if (gamepad1.dpad_up){
 //                robot.setPower(1, 1, 1, 1);
 //            }
@@ -297,7 +303,8 @@ public class TeleOP extends LinearOpMode {
                 usePID = false;
             } else {
                 if (!usePID){
-                 robot.armExtension.setPower(0);
+//                    robot.armExtension.setPower(-0.0009*Math.sin(Math.PI*robot.armVertical.getCurrentPosition()/7600));
+                        robot.armExtension.setPower(0);
                 }
             }
 
