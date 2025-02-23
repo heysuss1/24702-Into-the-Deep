@@ -59,8 +59,8 @@ public class TeleOP extends LinearOpMode {
         double forward, sideways, turning, max;
         double scaleFactor = 0;
         boolean showTelemetry = false;
-        // outlining locations of game parts
-        robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//         outlining locations of game parts
+         robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -148,8 +148,8 @@ public class TeleOP extends LinearOpMode {
 
             if (currentGamepad1.a && !previousGamepad1.a){
 //                currentHeading = follower.getPose().getHeading();
-//                follower.followPath(new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(pickUpSpecimen))));
-//                follower
+//                follower.followPath(new Path(new BezierLine(new Point(0, 0, currentHeading), new Point(pickUpSpecimen.))));
+//                follower.update();
             }
             if (currentGamepad1.b && !previousGamepad2.a){
 //                follower.followPath(new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(hangSpecimen))));

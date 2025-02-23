@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 public class NewSampleAuto extends OpMode{
     Follower follower;
+
     Hardware robot = Hardware.getInstance();
     Pose starting = new Pose(5, 126, 0);
     Timer timer;
