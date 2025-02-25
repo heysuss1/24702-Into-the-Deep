@@ -42,6 +42,7 @@ public class TeleOP extends LinearOpMode {
     double currentHeading;
     ElapsedTime elapsedTime;
     double output;
+    boolean goToPosition = false;
     //PHUHS
     public void runOpMode(){
         int position = 0;
@@ -97,7 +98,6 @@ public class TeleOP extends LinearOpMode {
         boolean pressingLT = false;
         boolean pressingRT = false;
         boolean clawForwards = false;
-        boolean goToPosition = false;
 //        boolean parallelArm = false;
 //        boolean highBasket = false;
 //        boolean hangSpecimen = false;
@@ -110,7 +110,8 @@ public class TeleOP extends LinearOpMode {
         String colorPrediction = "", currentAlliance = "red";
         double red, green, blue, distance;
         boolean hasSample;
-
+        int verticalTarget = 0;
+        int extensionTarget = 0;
         while (opModeIsActive()){
             double currentXpose  = follower.getPose().getX();
             double currentYpose = follower.getPose().getY();
@@ -307,7 +308,6 @@ public class TeleOP extends LinearOpMode {
                         robot.armExtension.setPower(0);
                 }
             }
-
             if (currentGamepad1.y && !previousGamepad1.y){
                 alignHeading();
             }
@@ -365,16 +365,10 @@ public class TeleOP extends LinearOpMode {
             if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
                 if(!clawIsOpen){
                     //Open claw
-                    //robot.leftServo.setPosition(0.64);
-                    //robot.rightServo.setPosition(0.55);//may be wrong position
-//                    robot.openClaw(1);
                     robot.claw.setPosition(0.15);
                     clawIsOpen = true;
                 } else {
                     //Close claw
-                    //robot.leftServo.setPosition(0.49);
-                    //robot.rightServo.setPosition(0.71);
-//                    robot.openClaw(0);
                     clawAmount += 1;
                     robot.claw.setPosition(0.4);
                     clawIsOpen = false;
@@ -548,8 +542,15 @@ public class TeleOP extends LinearOpMode {
              */
 
         }
-        public void updateArm(){
-
+        public void updateArm(int armTarget, int verticalTarget){
+            if (goToPosition){
+                robot.armVertical.setPower(1);
+                if (robot.armVertical.getCurrentPosition() > armTarget-2 && robot.armVertical.getCurrentPosition() < verticalTarget+5){
+                    goToPosition = false;
+                }
+            } else{
+                robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
         }
 //    public void pickUpRobot(){
 //        robot.armVertical.setTargetPosition(0);

@@ -259,25 +259,18 @@ public class OnlySamplesAuto extends OpMode {
                 break;
             case GRAB_SAMPLE1:
                 openClaw();
-                if (/*state == State.G
-                O_TO_BASKET && follower.getCurrentPath().isAtParametricEnd()*/ follower.getPose().getY() < 118.5){
+                if (follower.getPose().getY() < 118.5){
                     normalClaw();
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(-750-ARM_CONSTANT);
-                    armExtend(-750);
+                    armExtend(-865);
                 }
-//                if (follower.getPose().getY() > 113){
-//                    armUp(-470-ARM_CONSTANT);
-//                }
-                if(!follower.isBusy() && state == State.GO_TO_BASKET && robot.armVertical.getCurrentPosition() < (-748-ARM_CONSTANT)){
+                if(!follower.isBusy() && state == State.GO_TO_BASKET && robot.armVertical.getCurrentPosition() < (-748-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -855){
                     if (armTimer.seconds() > 2.6){
                         closeClaw();
                         setAction(ActionState.CLOSE_CLAW);
                         armTimer.reset();
                     }
-//resetreset                    if (armTimer.seconds() > 0.3 && clawClosed){
-//                        setAction(ActionState.PUT_IN_BUCKET);
-//                    }
                 }
                 break;
             case CLOSE_CLAW:
@@ -314,13 +307,12 @@ public class OnlySamplesAuto extends OpMode {
                 if (/*state == State.GO_TO_BASKET && follower.getCurrentPath().isAtParametricEnd()*/ follower.getPose().getY() < 115){
                     // We need to figure out how to do this but for now Thread.sleep(300);
                     armUp(-700-ARM_CONSTANT);
-                    armExtend(-765);
-
+                    armExtend(-850);
                 }
 //                if (follower.getPose().getY() > 113){
 //                    armUp(-470-ARM_CONSTANT);
 //                }
-                if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_2 && robot.armVertical.getCurrentPosition() < (-680-ARM_CONSTANT)){
+                if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_2 && robot.armVertical.getCurrentPosition() < (-680-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -840){
                     if (armTimer.seconds() > 3){
                         closeClaw();
                         setAction(ActionState.CLOSE_CLAW_2);
@@ -366,7 +358,7 @@ public class OnlySamplesAuto extends OpMode {
                 }
                 if(follower.getCurrentPath().isAtParametricEnd() && state == State.GO_TO_BASKET_FROM_SAMPLE_3){
                     if (robot.armVertical.getCurrentPosition() < -295-ARM_CONSTANT){
-                        armExtend(-690);
+                        armExtend(-600);
                     }
 
                     if (robot.armExtension.getCurrentPosition() < -485){
