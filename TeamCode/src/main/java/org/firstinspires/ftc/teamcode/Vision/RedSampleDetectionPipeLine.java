@@ -60,13 +60,13 @@ public class RedSampleDetectionPipeLine extends OpenCvPipeline {
         Imgproc.findContours(blueMask, blueContours, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
 
 
-        leftMap = hsvImage.submat(leftRect);
-        middleMap = hsvImage.submat(middleRect);
-        rightMap = hsvImage.submat(rightRect);
+//        leftMap = hsvImage.submat(leftRect);
+//        middleMap = hsvImage.submat(middleRect);
+//        rightMap = hsvImage.submat(rightRect);
 
-        double leftAvg = Core.mean(leftMap).val[0];
-        double rightAvg = Core.mean(rightMap).val[0];
-        double middleAvg = Core.mean(middleMap).val[0];
+//        double leftAvg = Core.mean(leftMap).val[0];
+//        double rightAvg = Core.mean(rightMap).val[0];
+//        double middleAvg = Core.mean(middleMap).val[0];
 
         if (leftAvg > rightAvg && leftAvg > middleAvg) objectPos = "left";
         else if (rightAvg > leftAvg && rightAvg > middleAvg) objectPos = "right";
