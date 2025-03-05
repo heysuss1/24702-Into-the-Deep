@@ -373,11 +373,11 @@ public class RewrittenSpecimenAuto extends OpMode {
         closeClaw();
         armUp(1436-ARM_CONSTANT);
         if (robot.armVertical.getCurrentPosition() > (200-ARM_CONSTANT)){
-            armExtend(-1250);
+            armExtend(-876);
             setActionState(nextState);
 
         };
-        if (robot.armVertical.getCurrentPosition() > (1298-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -1225){
+        if (robot.armVertical.getCurrentPosition() > (1298-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -858){
             setActionState(nextState);
             rotateServoDown();
         }
@@ -387,11 +387,11 @@ public class RewrittenSpecimenAuto extends OpMode {
         closeClaw();
         rotateServoDown();
         if (!follower.isBusy()){
-            armExtend(-200);
+            armExtend(-140);
             armUp(1100-ARM_CONSTANT);
             hungSpecimen = true;
         }
-        if (robot.armVertical.getCurrentPosition() < 1120-ARM_CONSTANT && robot.armExtension.getCurrentPosition() > -300 && hungSpecimen) {
+        if (robot.armVertical.getCurrentPosition() < 1120-ARM_CONSTANT && robot.armExtension.getCurrentPosition() > -210 && hungSpecimen) {
             counter++;
             openClaw();
             setActionState(nextState);
@@ -403,19 +403,19 @@ public class RewrittenSpecimenAuto extends OpMode {
 //                setActionState(ActionState.RAISE_ARMS);
                 closeClaw();
                 rotateServoDown();
-                armExtend(-1200);
+                armExtend(-840);
                 armUp(1436-ARM_CONSTANT);//may be 2400
-                if (robot.armExtension.getCurrentPosition() < -1199 && robot.armVertical.getCurrentPosition() > (150-ARM_CONSTANT)) {
+                if (robot.armExtension.getCurrentPosition() < -835 && robot.armVertical.getCurrentPosition() > (150-ARM_CONSTANT)) {
                     robot.pitch = 175;
                     setActionState(ActionState.HANG_PRELOAD);
                 }
                 break;
             case HANG_PRELOAD:
                 if (!follower.isBusy() || armTimer.getElapsedTimeSeconds() > 3.2){
-                    armExtend(-200);
+                    armExtend(-140);
                     armUp(1100-ARM_CONSTANT);
                 }
-                if (robot.armExtension.getCurrentPosition() > -305 && robot.armVertical.getCurrentPosition() < (1120-ARM_CONSTANT)|| armTimer.getElapsedTimeSeconds() > 3) {
+                if (robot.armExtension.getCurrentPosition() > -205 && robot.armVertical.getCurrentPosition() < (1120-ARM_CONSTANT)|| armTimer.getElapsedTimeSeconds() > 3) {
                     setActionState(ActionState.PICK_UP_SPECIMEN_1);
                 }
 //                telemetry.update();
@@ -429,8 +429,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_1 && !follower.isBusy()){
-                    armExtend(-650);
-                    if (robot.armExtension.getCurrentPosition() < -590){
+                    armExtend(-455);
+                    if (robot.armExtension.getCurrentPosition() < -415){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -458,8 +458,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_2 && !follower.isBusy()){
-                    armExtend(-650);
-                    if (robot.armExtension.getCurrentPosition() < -590){
+                    armExtend(-455);
+                    if (robot.armExtension.getCurrentPosition() < -415){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -488,8 +488,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 rotateServoForward();
 
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_3 && !follower.isBusy()){
-                    armExtend(-650);
-                    if (robot.armExtension.getCurrentPosition() < -590){
+                    armExtend(-455);
+                    if (robot.armExtension.getCurrentPosition() < -415){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -517,8 +517,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARD_TO_SUBMERSIBLE_4 && !follower.isBusy()){
-                    armExtend(-600);
-                    if (robot.armExtension.getCurrentPosition() < -540){
+                    armExtend(-420);
+                    if (robot.armExtension.getCurrentPosition() < -380){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
