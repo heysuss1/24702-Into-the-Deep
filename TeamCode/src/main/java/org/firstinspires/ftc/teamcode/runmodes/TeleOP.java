@@ -30,7 +30,7 @@ public class TeleOP extends LinearOpMode {
     boolean isAligned;
     PIDFController extensionPID;
     PIDFController verticalPID;
-//    int pitch, roll;
+    //    int pitch, roll;
 //    int addRoll, addPitch;
     enum ArmState{
         PARALLEL_ARM,
@@ -42,7 +42,6 @@ public class TeleOP extends LinearOpMode {
     double currentHeading;
     ElapsedTime elapsedTime;
     double output;
-
     boolean goToPosition = false;
     //PHUHS
     public void runOpMode(){
@@ -61,9 +60,8 @@ public class TeleOP extends LinearOpMode {
         double forward, sideways, turning, max;
         double scaleFactor = 0;
         boolean showTelemetry = false;
-        int armVerticalLimit = 3130;
 //         outlining locations of game parts
-         robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -99,6 +97,7 @@ public class TeleOP extends LinearOpMode {
         currentClawPosition = Range.clip(currentClawPosition, 0, 3);
         boolean pressingLT = false;
         boolean pressingRT = false;
+        boolean useExtension = false;
         boolean clawForwards = false;
 //        boolean parallelArm = false;
 //        boolean highBasket = false;
@@ -210,20 +209,13 @@ public class TeleOP extends LinearOpMode {
             //only runs if the game button is he  ld down
             //gamepad 2 = driver 2
 
-            if (robot.armVertical.getCurrentPosition() < 1200){
-                armVerticalLimit = -2330;
-            } else if (robot.armVertical.getCurrentPosition() < 1800){
-                armVerticalLimit = -2500;
-            } else if (robot.armVertical.getCurrentPosition() > 1801){
-                armVerticalLimit = -2650;
-            }
 
             if (currentGamepad2.y && !previousGamepad2.y) {
 //                robot.rotateServo.setPosition(0.174);
                 currentClawPosition = 2;
                 robot.pitch = 20;
             }
-            if (currentGamepad2.b && !previousGamepad2.b && !currentGamepad2.start) {
+            if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
 //                robot.rotateServo.setPosition(0.38);
                 currentClawPosition = 2;
                 robot.pitch = 90;
@@ -236,9 +228,6 @@ public class TeleOP extends LinearOpMode {
             }
 
 
-//            if (robot.armVertical.getCurrentPosition() < 800){
-//                tooFar
-//            }
             if (robot.armVertical.getCurrentPosition() > 3130){
                 armVerticalTooFar = true;
             } else{
@@ -252,21 +241,34 @@ public class TeleOP extends LinearOpMode {
             }
 
             if (currentGamepad2.x && !previousGamepad2.x) {
-                robot.armVertical.setTargetPosition(0);
+//                robot.armVertical.setTargetPosition(0);
+                armVerticalTarget = 0;
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.pitch = 90;
-                robot.roll = 0;
                 goToPosition = true;
+                useExtension = false;
                 // back to parallel
             }
 
+            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
+                armVerticalTarget = 1100;
+                armExtensionTarget = -140;
+                useExtension = true;
+                goToPosition = true;
+            }
+
+            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
+                armExtensionTarget = -840;
+                armVerticalTarget = 1436;
+                goToPosition = true;
+                useExtension  = true;
+            }
             if (goToPosition){
-                robot.armVertical.setPower(1);
-                if (robot.armVertical.getCurrentPosition() > -5 && robot.armVertical.getCurrentPosition() < 5){
+                if (updateArm(armExtensionTarget, armVerticalTarget, useExtension)){
                     goToPosition = false;
                 }
             } else{
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
             if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
                 robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -284,7 +286,7 @@ public class TeleOP extends LinearOpMode {
 //            output = verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400);
 //            robot.armVertical.setPower(output);
             if (gamepad1.right_trigger > 0.1){
-                robot.setSpeed(0.3);
+                robot.setSpeed(0.35);
             } else {
                 robot.setSpeed(1);
                 // slow robot down based on right trigger preasure
@@ -304,9 +306,9 @@ public class TeleOP extends LinearOpMode {
                 robot.armExtension.setPower(1);
                 usePID = false;
             } else {
-                if (!usePID){
+                if (!goToPosition){
 //                    robot.armExtension.setPower(-0.0009*Math.sin(Math.PI*robot.armVertical.getCurrentPosition()/7600));
-                        robot.armExtension.setPower(0);
+                    robot.armExtension.setPower(0);
                 }
             }
             if (currentGamepad1.y && !previousGamepad1.y){
@@ -334,7 +336,7 @@ public class TeleOP extends LinearOpMode {
 //            }if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
 //                roll = 20;
 //            }
-                // press y, align so can pick up specimen from human player
+            // press y, align so can pick up specimen from human player
 //            if ((robot.colorSensor.getDistance(DistanceUnit.INCH) < 5) && !hasSensed){
 //                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -471,7 +473,7 @@ public class TeleOP extends LinearOpMode {
             robot.diddylate(robot.pitch, robot.roll);
             follower.update();
             if (showTelemetry){
-                telemetry.addData("Current Alliance", currentAlliance); 
+                telemetry.addData("Current Alliance", currentAlliance);
                 telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
                 telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
                 telemetry.addData("Pitch", robot.pitch);
@@ -488,48 +490,48 @@ public class TeleOP extends LinearOpMode {
         }
     }
 
-        public Path newPath(double targetX, double targetY, double targetH){
-            Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
-            Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
-            Path path = new Path(new BezierLine(startPoint, endPoint));
-            path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
-            return path;
-            // path outline
+    public Path newPath(double targetX, double targetY, double targetH){
+        Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
+        Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
+        Path path = new Path(new BezierLine(startPoint, endPoint));
+        path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
+        return path;
+        // path outline
 
-        }
-        public void alignHeading(){
+    }
+    public void alignHeading(){
         boolean isAligned = false;;
         double heading, targetHeading = 0;
-            while (!isAligned){
-                heading = Math.toDegrees(follower.getPose().getHeading());
+        while (!isAligned){
+            heading = Math.toDegrees(follower.getPose().getHeading());
 
-                if (heading <= 138  && heading > 45){
-                    isAligned = heading > 88 && heading < 90;
-                    targetHeading = 90;
-                } else if (heading > 135 && heading <= 215){
-                    isAligned = heading > 178 && heading < 180;
-                    targetHeading = 180;
-                } else if (heading > 215 && heading <= 315){
-                    isAligned = heading > 268 && heading < 270;
-                    targetHeading = 270;
-                } else if (heading > 315  || heading <=45){
-                    isAligned = heading < 2 && heading > 0;
-                    targetHeading = 360;
-                }
-                follower.update();
-//                isAligned = heading < 2 && heading > 0;
-                if (heading < targetHeading && targetHeading != 0){
-                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
-                } else if (heading > targetHeading && targetHeading != 0)  {
-                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
-                } else if (heading > 180 && targetHeading == 0){
-                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
-                } else if (heading < 180 && targetHeading == 0){
-                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
-                }
+            if (heading <= 138  && heading > 45){
+                isAligned = heading > 88 && heading < 90;
+                targetHeading = 90;
+            } else if (heading > 135 && heading <= 215){
+                isAligned = heading > 178 && heading < 180;
+                targetHeading = 180;
+            } else if (heading > 215 && heading <= 315){
+                isAligned = heading > 268 && heading < 270;
+                targetHeading = 270;
+            } else if (heading > 315  || heading <=45){
+                isAligned = heading < 2 && heading > 0;
+                targetHeading = 360;
             }
+            follower.update();
+//                isAligned = heading < 2 && heading > 0;
+            if (heading < targetHeading && targetHeading != 0){
+                robot.setPower(0.3 , 0.3, -0.3, -0.3);
+            } else if (heading > targetHeading && targetHeading != 0)  {
+                robot.setPower(-0.3, -0.3, 0.3, 0.3);
+            } else if (heading > 180 && targetHeading == 0){
+                robot.setPower(0.3 , 0.3, -0.3, -0.3);
+            } else if (heading < 180 && targetHeading == 0){
+                robot.setPower(-0.3, -0.3, 0.3, 0.3);
+            }
+        }
 
-            // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
+        // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
 
             /* welcome to carter pseudocode:
             if (45 < heading <= 135) {
@@ -542,25 +544,34 @@ public class TeleOP extends LinearOpMode {
                 set heading to 0
              */
 
+    }
+    public boolean updateArm(int extensionTarget, int verticalTarget, boolean extension){
+        robot.armVertical.setTargetPosition(verticalTarget);
+        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        robot.armVertical.setPower(1);
+        if (extension){
+            robot.armExtension.setTargetPosition(extensionTarget);
+            robot.armExtension.setPower(-1);
+            robot.armExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
         }
-        public boolean updateArm(int extensionTarget, int verticalTarget){
-                robot.armExtension.setTargetPosition(extensionTarget);
-                robot.armVertical.setTargetPosition(verticalTarget);
-
-                robot.armExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-                robot.armVertical.setPower(1);
-                robot.armExtension.setPower(-1);
-                if (verticalAtTarget(verticalTarget) && extensionAtTarget(extensionTarget)){
+        if (verticalAtTarget(verticalTarget)){
+            if (extension){
+                if (extensionAtTarget(extensionTarget)){
                     return true;
-                } else {
+                } else{
                     return false;
                 }
+            }
+            return true;
+        } else {
+            return false;
         }
+    }
 
-    public boolean verticalAtTarget(int verticalTarget){return Math.abs(verticalTarget - robot.armVertical.getCurrentPosition()) <= 2;}
-    public boolean extensionAtTarget(int extensionTarget){return Math.abs(extensionTarget - robot.armExtension.getCurrentPosition()) <=2;}
+    public boolean verticalAtTarget(int verticalTarget){return Math.abs(verticalTarget - robot.armVertical.getCurrentPosition()) <= 5;}
+    public boolean extensionAtTarget(int extensionTarget){return Math.abs(extensionTarget - robot.armExtension.getCurrentPosition()) <=5;}
 //    public void pickUpRobot(){
 //        robot.armVertical.setTargetPosition(0);
 //        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
