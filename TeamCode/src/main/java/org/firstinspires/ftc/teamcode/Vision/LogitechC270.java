@@ -73,12 +73,17 @@ public class LogitechC270 extends OpMode {
             pressedA = false;
         }
         if (gamepad2.dpad_left && !pressedLeft){
+            double targetX = pipeline.getTargetX();
+            double targetY = pipeline.getTargetY();
             follower.followPath(new Path(new BezierLine(
-                    new Point(x, y, 0), new Point(x+pipeline.getTargetX(), y+pipeline.getTargetY())
+                    new Point(x, y, 0), new Point(x+targetX, y+targetY)
             )));
+            pressedLeft = true;
+        } else {
+            pressedLeft = false;
         }
 //        telemetry.addData("quadrant: ", pipeline.getObjectPos());
-//        robot.diddylate(175, robot.roll);
+        robot.diddylate(175, robot.roll);
         telemetry.update();
         follower.update();
     }

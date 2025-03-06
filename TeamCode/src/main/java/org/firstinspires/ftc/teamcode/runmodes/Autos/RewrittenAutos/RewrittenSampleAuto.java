@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.runmodes.Autos.OnlySamplesAuto;
 import org.firstinspires.ftc.teamcode.runmodes.Autos.SamplesAuto;
 
 
-@Autonomous(name = "Rewritten Class")
+@Autonomous(name = "States sample Auto ")
 public class RewrittenSampleAuto extends OpMode {
     Follower follower;
     Hardware robot = Hardware.getInstance();
@@ -31,10 +31,10 @@ public class RewrittenSampleAuto extends OpMode {
     public static Pose startPose = new Pose(5, 126, Math.toRadians(0));
     public static Pose preloadPose = new Pose(18, 127, Math.toRadians(0));
     public static Pose backUpPose = new Pose(12, 127, Math.toRadians(0));
-    public static Pose sample1Pose = new Pose(4.65, 109.5, Math.toRadians(-90));
-    public static Pose bucketPose = new Pose (10.4, 122, Math.toRadians(-130));
-    public static Pose sample2Pose = new Pose (13, 109, Math.toRadians(-90));
-    public static Pose sample3Pose = new Pose (22.7, 88, Math.toRadians(0));
+    public static Pose sample1Pose = new Pose(4.6, 109.5, Math.toRadians(-90));
+    public static Pose bucketPose = new Pose (10, 123, Math.toRadians(-130));
+    public static Pose sample2Pose = new Pose (14, 109, Math.toRadians(-90));
+    public static Pose sample3Pose = new Pose (22.7, 89.4, Math.toRadians(0));
     public static Pose parkingPose= new Pose (-6, 80, Math.toRadians(-179));
     boolean clawClosed = false;
 
@@ -200,8 +200,8 @@ clawCloser = 0;
             case RAISE_ARMS:
                 rotateArmForwards();
                 armExtend(-2750);
-                armUp(2050-ARM_CONSTANT);
-                if (robot.armExtension.getCurrentPosition() < -2640 && robot.armVertical.getCurrentPosition() > (2040-ARM_CONSTANT)) {
+                armUp(2020-ARM_CONSTANT);
+                if (robot.armExtension.getCurrentPosition() < -2640 && robot.armVertical.getCurrentPosition() > (2010-ARM_CONSTANT)) {
                     setAction(ActionState.SCORE_SAMPLE);
                 }
                 break;
@@ -234,7 +234,7 @@ clawCloser = 0;
                     armExtend(-960);
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET && robot.armVertical.getCurrentPosition() < (-748-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -940){
-                    if (armTimer.seconds() > .5){
+                    if (armTimer.seconds() > 2){
                         closeClaw();
                         setAction(ActionState.CLOSE_CLAW);
                         armTimer.reset();
@@ -243,15 +243,15 @@ clawCloser = 0;
                 break;
             case CLOSE_CLAW:
                 closeClaw();
-                setAction(ActionState.PUT_IN_BUCKET);
+                if (armTimer.seconds() > 1.5) setAction(ActionState.PUT_IN_BUCKET);
                 break;
             case PUT_IN_BUCKET:
                 clawCloser = 0;
                 closeClaw();
                 armUp(2900-ARM_CONSTANT);
-                armExtend(-2300);
+                armExtend(-2250);
                 rotateArmBackWards();
-                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (2820-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -2280 && !robot.armVertical.isBusy()){
+                    if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (2820-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -2240 && !robot.armVertical.isBusy()){
                         if (armTimer.seconds() > 1){
                             armTimer.reset();
                         }
@@ -278,7 +278,7 @@ clawCloser = 0;
 //                    armUp(-470-ARM_CONSTANT);
 //                }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_2 && robot.armVertical.getCurrentPosition() < (-680-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -970){
-                    if (armTimer.seconds() > .5){
+                    if (armTimer.seconds() > 2){
                         closeClaw();
                         setAction(ActionState.CLOSE_CLAW_2);
                         armTimer.reset();
@@ -290,7 +290,7 @@ clawCloser = 0;
                 break;
             case CLOSE_CLAW_2:
                 closeClaw();
-                if (armTimer.seconds() > 0.3) setAction(ActionState.PUT_IN_BUCKET_2);
+                if (armTimer.seconds() > 0.5) setAction(ActionState.PUT_IN_BUCKET_2);
                 break;
             case PUT_IN_BUCKET_2:
                 clawCloser = 0;
@@ -320,13 +320,13 @@ clawCloser = 0;
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET_FROM_SAMPLE_3){
                     if (robot.armVertical.getCurrentPosition() < -295-ARM_CONSTANT){
-                        armExtend(-635);
+                        armExtend(-605);
                     }
 
                     if (robot.armExtension.getCurrentPosition() < -485){
-                        armUp(-770-ARM_CONSTANT);
+                        armUp(-950-ARM_CONSTANT);
                     }
-                    if (armTimer.seconds() > .5 && robot.armExtension.getCurrentPosition() < -625 && robot.armVertical.getCurrentPosition() < -730-ARM_CONSTANT){
+                    if (armTimer.seconds() > 2 && robot.armExtension.getCurrentPosition() < -590 && robot.armVertical.getCurrentPosition() < -850-ARM_CONSTANT){
                         closeClaw();
                         setAction(ActionState.CLOSE_CLAW_3);
                         armTimer.reset();
@@ -336,7 +336,7 @@ clawCloser = 0;
 
             case CLOSE_CLAW_3:
                 closeClaw();
-                if (armTimer.seconds() > 0.15){
+                if (armTimer.seconds() > 0.5){
                     setAction(ActionState.PUT_IN_BUCKET_3);
                 }
                 break;
@@ -345,7 +345,7 @@ clawCloser = 0;
                 clawCloser = 0;
                 closeClaw();
                 armUp(2950-ARM_CONSTANT);
-                armExtend(-2200);
+                armExtend(-2250);
                 rotateArmBackWards();
                     if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (2900-ARM_CONSTANT) && !robot.armVertical.isBusy()){
                         if (armTimer.seconds() > 1){
@@ -449,7 +449,8 @@ clawCloser = 0;
         robot.diddylate(robot.pitch, robot.roll);
         telemetry.addData("Path State", state);
         telemetry.addData("Action State", actionState);
-
+        telemetry.addData("Arm Extension", robot.armExtension.getCurrentPosition());
+        telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
         follower.update();
         telemetry.update();
         autonomousPathUpdate();
