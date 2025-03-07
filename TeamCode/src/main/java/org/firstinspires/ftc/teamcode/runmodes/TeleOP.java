@@ -243,6 +243,9 @@ public class TeleOP extends LinearOpMode {
             if (currentGamepad2.x && !previousGamepad2.x) {
 //                robot.armVertical.setTargetPosition(0);
                 armVerticalTarget = 0;
+                currentClawPosition = 2;
+                robot.pitch = 90;
+                robot.roll = 0;
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 goToPosition = true;
                 useExtension = false;
