@@ -43,6 +43,7 @@ public class TeleOP extends LinearOpMode {
     ElapsedTime elapsedTime;
     double output;
     boolean goToPosition = false;
+    boolean autoDrive = false;
     //PHUHS
     public void runOpMode(){
         int position = 0;
@@ -53,9 +54,6 @@ public class TeleOP extends LinearOpMode {
 //        follower.setStartingPose(new Pose(63, 95));
         follower.setStartingPose(new Pose(0, 0, 0));
         telemetry.update();
-        Pose bucket = new Pose(18, 127, Point.CARTESIAN);
-        Pose frontOfSubmersible = new Pose(31.6, 78, Point.CARTESIAN);
-        Pose frontOfObservationZone = new Pose(30, 17, Point.CARTESIAN);
         Path toSubmersible, toObservationZone, toBuckets;
         double forward, sideways, turning, max;
         double scaleFactor = 0;
@@ -117,6 +115,8 @@ public class TeleOP extends LinearOpMode {
             double currentXpose  = follower.getPose().getX();
             double currentYpose = follower.getPose().getY();
             int currentHeading = (int)Math.round(follower.getPose().getHeading());
+
+            toSubmersible = new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(currentXpose+20.65, currentYpose+11, 0)));
             previousGamepad1.copy(currentGamepad1);
             previousGamepad2.copy(currentGamepad2);
 
@@ -205,7 +205,9 @@ public class TeleOP extends LinearOpMode {
                 scaleFactor = robot.maxSpeed;
             }
             scaleFactor *= Math.max(Math.abs(1), 0.2);
-            robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
+            if (!autoDrive){
+                robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
+            }
             //only runs if the game button is he  ld down
             //gamepad 2 = driver 2
 
@@ -226,8 +228,6 @@ public class TeleOP extends LinearOpMode {
                 currentClawPosition = 2;
                 robot.pitch = 175;
             }
-
-
             if (robot.armVertical.getCurrentPosition() > 3130){
                 armVerticalTooFar = true;
             } else{
@@ -235,9 +235,13 @@ public class TeleOP extends LinearOpMode {
                 // stops from going too far and tipping
             }
             if (currentGamepad1.x && !previousGamepad1.x){
-                toSubmersible = newPath(bucket.getX(), bucket.getY(), 45);
+                follower.followPath(toSubmersible);
+                autoDrive = true;
 //                follower.followPath(toSubmersible);
                 // hit x1, follow path to submersible
+            }
+            if (follower.getCurrentPath().isAtParametricEnd()){
+                autoDrive = false;
             }
 
             if (currentGamepad2.x && !previousGamepad2.x) {
@@ -260,7 +264,7 @@ public class TeleOP extends LinearOpMode {
             }
 
             if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
-                armExtensionTarget = -840;
+                armExtensionTarget = -900;//originally was -840, decreased by 60
                 armVerticalTarget = 1436;
                 goToPosition = true;
                 useExtension  = true;
