@@ -333,7 +333,6 @@ clawCloser = 0;
                     }
                 }
                     break;
-
             case CLOSE_CLAW_3:
                 closeClaw();
                 if (armTimer.seconds() > 0.5){
@@ -451,6 +450,8 @@ clawCloser = 0;
         telemetry.addData("Action State", actionState);
         telemetry.addData("Arm Extension", robot.armExtension.getCurrentPosition());
         telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
+        robot.startX = follower.getPose().getX();
+        robot.startY = follower.getPose().getY();
         follower.update();
         telemetry.update();
         autonomousPathUpdate();

@@ -41,6 +41,8 @@ public class Hardware {
     //public RevColorSensorV3 colorSensor;
     public static double maxSpeed = 1;
     public int pitch, roll;
+    public double startX;
+    public double startY;
     private static Hardware instance = null;
     public static Hardware getInstance() {
         if(instance == null){

@@ -32,12 +32,16 @@ public class TeleOP extends LinearOpMode {
     PIDFController verticalPID;
     //    int pitch, roll;
 //    int addRoll, addPitch;
+    public static Pose forwardToSubmersible2Pose = new Pose(30.65, 65, 0);
+    public static Pose toHumanPlayerZonePose = new Pose(13, 49, 0);
+
     enum ArmState{
         PARALLEL_ARM,
         HANG_SPECIMEN,
         HIGH_BASKET,
         DONE
     }
+
     ArmState armState = ArmState.DONE;
     double currentHeading;
     ElapsedTime elapsedTime;
@@ -48,13 +52,15 @@ public class TeleOP extends LinearOpMode {
     public void runOpMode(){
         int position = 0;
         robot.init(hardwareMap);
+        telemetry.addData("" + "Status", "Hello, Drivers!");
         robot.setSpeed(1);
-        telemetry.addData("Status", "Hello, Drivers!");
         follower = new Follower(hardwareMap);
 //        follower.setStartingPose(new Pose(63, 95));
-        follower.setStartingPose(new Pose(0, 0, 0));
+        follower.setStartingPose(new Pose(10, 49, 0));
         telemetry.update();
-        Path toSubmersible, toObservationZone, toBuckets;
+//        Path toSubmersible, toObservationZone, toBuckets, pickUpSpecimen;
+        Path toSubmersible, toHumanPlayerZone;
+
         double forward, sideways, turning, max;
         double scaleFactor = 0;
         boolean showTelemetry = false;
@@ -67,7 +73,7 @@ public class TeleOP extends LinearOpMode {
 
         extensionPID = new PIDFController(0.02, 0, 0.001, 0);
         verticalPID = new PIDFController(0.0219, 0, 0.001, 0);
-        Pose pickUpSpecimen = new Pose(12, 8, -90);
+//        Pose pickUpSpecimen = new Pose(12, 8, -90);
         Pose hangSpecimen = new Pose(42, 30, 0);
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
@@ -84,7 +90,7 @@ public class TeleOP extends LinearOpMode {
                 .addStep(.4,0,1,1000)
                 .addStep(0,0,1,200)
                 .build();
-
+        Pose starting = new Pose(robot.startX, robot.startY);
         waitForStart();
 
         elapsedTime = new ElapsedTime();
@@ -112,11 +118,12 @@ public class TeleOP extends LinearOpMode {
         int armVerticalTarget = 0;
         int armExtensionTarget = 0;
         while (opModeIsActive()){
+             toSubmersible = new Path(new BezierLine(new Point(follower.getPose()), new Point(forwardToSubmersible2Pose)));
+             toHumanPlayerZone = new Path(new BezierLine(new Point(follower.getPose()), new Point(toHumanPlayerZonePose)));
             double currentXpose  = follower.getPose().getX();
             double currentYpose = follower.getPose().getY();
             int currentHeading = (int)Math.round(follower.getPose().getHeading());
 
-            toSubmersible = new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(currentXpose+20.65, currentYpose+11, 0)));
             previousGamepad1.copy(currentGamepad1);
             previousGamepad2.copy(currentGamepad2);
 
@@ -136,14 +143,17 @@ public class TeleOP extends LinearOpMode {
                 gamepad2.rumble(1000, 1000, 7000);
             }
 
-            if (currentGamepad1.a && !previousGamepad1.a){
-//                currentHeading = follower.getPose().getHeading();
-//                follower.followPath(new Path(new BezierLine(new Point(0, 0, currentHeading), new Point(pickUpSpecimen.))));
-//                follower.update();
+            if (currentGamepad1.x && !previousGamepad1.x){
+                toSubmersible.setLinearHeadingInterpolation(follower.getPose().getHeading(), 0);
+                autoDrive = true;
+                follower.followPath(toSubmersible);
             }
-            if (currentGamepad1.b && !previousGamepad2.a){
-//                follower.followPath(new Path(new BezierLine(new Point(currentXpose, currentYpose, currentHeading), new Point(hangSpecimen))));
+            if (currentGamepad1.b && !previousGamepad1.b){
+                toHumanPlayerZone.setLinearHeadingInterpolation(follower.getPose().getHeading(), -179);
+                autoDrive = true;;
+                follower.followPath(toHumanPlayerZone);
             }
+
 //            if (gamepad1.dpad_up){
 //                robot.setPower(1, 1, 1, 1);
 //            }
@@ -234,13 +244,7 @@ public class TeleOP extends LinearOpMode {
                 armVerticalTooFar = false;
                 // stops from going too far and tipping
             }
-            if (currentGamepad1.x && !previousGamepad1.x){
-                follower.followPath(toSubmersible);
-                autoDrive = true;
-//                follower.followPath(toSubmersible);
-                // hit x1, follow path to submersible
-            }
-            if (follower.getCurrentPath().isAtParametricEnd()){
+            if (!follower.isBusy()){
                 autoDrive = false;
             }
 
@@ -390,6 +394,7 @@ public class TeleOP extends LinearOpMode {
             }
             // press left trigger once to open and again to close
 
+
             //right trigger = half-closed
             if ((gamepad2.right_trigger > 0.1) && !pressingRT) {
 //                robot.openClaw(0.5);
@@ -488,6 +493,8 @@ public class TeleOP extends LinearOpMode {
                 telemetry.addData("Claw counter", clawAmount);
                 telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
                 telemetry.addData("Current position", follower.getPose());
+                telemetry.addData("Currenet x: ", currentXpose);
+                telemetry.addData("Next x", currentXpose+20);
                 telemetry.addData("Max Speed", robot.getSpeed());
                 telemetry.addData("Has Sample?", hasSample);
                 telemetry.addData("Color", colorPrediction);
