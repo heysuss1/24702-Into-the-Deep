@@ -199,43 +199,21 @@ public class OutreachTeleOP extends LinearOpMode {
                     robot.armVertical.setPower(0);
                 }
             }
-            /*if(gamepad2.b && !pressingB){
-                telemetry.addData("Extention Position", robot.armExtension.getCurrentPosition());
-                telemetry.addData("Horizontal Position", robot.armVertical.getCurrentPosition());
-                telemetry.update();
-                pressingB = true;
-            } else if (!gamepad2.b){
-                pressingB = false;
-            }*/
-            //only for using trigger as a button
-            if ((gamepad2.left_trigger > 0.1) && !pressingLT) {
-                if (!clawIsOpen) {
+            if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
+                if(!clawIsOpen){
                     //Open claw
-                    //robot.leftServo.setPosition(0.64);
-                    //robot.rightServo.setPosition(0.55);//may be wrong position
-                    robot.openClaw(1);
+                    robot.claw.setPosition(0.15);
                     clawIsOpen = true;
                 } else {
                     //Close claw
-                    //robot.leftServo.setPosition(0.49);
-                    //robot.rightServo.setPosition(0.71);
-                    robot.openClaw(0);
+                    robot.claw.setPosition(0.4);
                     clawIsOpen = false;
                 }
                 pressingLT = true;
-            } else if (!(gamepad2.left_trigger > 0.1)) {
+            }
+            else if(!(gamepad2.left_trigger >0.1)){
                 pressingLT = false;
             }
-
-            //right trigger = half-closed
-            if ((gamepad2.right_trigger > 0.1) && !pressingRT) {
-                robot.openClaw(0.5);
-                clawIsOpen = false;
-                pressingRT = true;
-            } else if (!(gamepad2.right_trigger > 0.1)) {
-                pressingRT = false;
-            }
-
             if (gamepad2.left_bumper && !pressingLBumper) {
                 if (!clawForwards) {
                     robot.rotateServo.setPosition(.726);

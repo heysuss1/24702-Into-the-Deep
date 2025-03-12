@@ -383,7 +383,6 @@ public class TeleOP extends LinearOpMode {
                     clawIsOpen = true;
                 } else {
                     //Close claw
-                    clawAmount += 1;
                     robot.claw.setPosition(0.4);
                     clawIsOpen = false;
                 }
