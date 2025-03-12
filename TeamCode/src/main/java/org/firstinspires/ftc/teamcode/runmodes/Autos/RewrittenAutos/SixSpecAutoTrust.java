@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.runmodes.Autos.RewrittenAutos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Hardware;
@@ -10,13 +9,12 @@ import org.firstinspires.ftc.teamcode.Waiter;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @Autonomous(name = "States Specimen Auto - that works")
-public class RewrittenSpecimenAuto extends OpMode {
+public class SixSpecAutoTrust extends OpMode {
     Follower follower;
     //727 741 4771
     int ARM_CONSTANT = 570;

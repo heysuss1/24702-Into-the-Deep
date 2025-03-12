@@ -1,6 +1,4 @@
-package org.firstinspires.ftc.teamcode.Vision;
-
-import android.util.Size;
+package org.firstinspires.ftc.teamcode.UnusedPackages;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -16,10 +14,9 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 @TeleOp (name = "Camera Test")
-public class LogitechC270 extends OpMode {
+public class UnusedLogitechC270 extends OpMode {
     VisionPortal visionPortal;
     final static String CAMERA_NAME = "camera";
     RedSampleDetectionPipeLine pipeline = new RedSampleDetectionPipeLine();
