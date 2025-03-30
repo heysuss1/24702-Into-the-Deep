@@ -6,8 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
@@ -18,41 +19,48 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 
 
 //close value right = .154, open = .298, close left = .684, open  = .538
-@TeleOp(name = "Outreach TeleOP (maxSpeed=0.2)")
-public class OutreachTeleOP extends LinearOpMode {
+@TeleOp(name = "EvilSolo TeleOP 😝")
+public class SophieEvilTeleOP extends LinearOpMode {
     Hardware robot = Hardware.getInstance();
     Follower follower;
     boolean isAligned;
     PIDFController extensionPID;
     PIDFController verticalPID;
+    //    int pitch, roll;
+//    int addRoll, addPitch;
+    public static Pose forwardToSubmersible2Pose = new Pose(30.65, 65, 0);
+    public static Pose toHumanPlayerZonePose = new Pose(13, 49, 0);
+
     enum ArmState{
         PARALLEL_ARM,
         HANG_SPECIMEN,
         HIGH_BASKET,
         DONE
     }
+
     ArmState armState = ArmState.DONE;
     double currentHeading;
-
+    ElapsedTime elapsedTime;
     double output;
+    boolean goToPosition = false;
+    boolean autoDrive = false;
     //PHUHS
     public void runOpMode(){
         int position = 0;
         robot.init(hardwareMap);
-        robot.setSpeed(0.35);
-        telemetry.addData("Status", "Hello, Drivers!");
+        telemetry.addData("" + "Status", "Hello, Drivers!");
+        robot.setSpeed(1);
         follower = new Follower(hardwareMap);
-        int[] clawPositions = {45, 20, 0, -15, -45};
-        int currentClawPosition = 0;
 //        follower.setStartingPose(new Pose(63, 95));
+        follower.setStartingPose(new Pose(10, 49, 0));
         telemetry.update();
-        Pose bucket = new Pose(18, 127, Point.CARTESIAN);
-        Pose frontOfSubmersible = new Pose(31.6, 78, Point.CARTESIAN);
-        Pose frontOfObservationZone = new Pose(30, 17, Point.CARTESIAN);
-        Path toSubmersible, toObservationZone, toBuckets;
+//        Path toSubmersible, toObservationZone, toBuckets, pickUpSpecimen;
+        Path toSubmersible, toHumanPlayerZone;
+
         double forward, sideways, turning, max;
         double scaleFactor = 0;
-        // outlining locations of game parts
+        boolean showTelemetry = false;
+//         outlining locations of game parts
         robot.rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,20 +69,36 @@ public class OutreachTeleOP extends LinearOpMode {
 
         extensionPID = new PIDFController(0.02, 0, 0.001, 0);
         verticalPID = new PIDFController(0.0219, 0, 0.001, 0);
-
+//        Pose pickUpSpecimen = new Pose(12, 8, -90);
+        Pose hangSpecimen = new Pose(42, 30, 0);
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
 
         Gamepad previousGamepad1 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
+
+        Gamepad.LedEffect redAlliance = new Gamepad.LedEffect.Builder()
+                .addStep(.4, 0, 1, 1000)
+                .addStep(1, 0 , 0, 200)
+                .build();
+
+        Gamepad.LedEffect blueAlliance = new Gamepad.LedEffect.Builder()
+                .addStep(.4,0,1,1000)
+                .addStep(0,0,1,200)
+                .build();
+        Pose starting = new Pose(robot.startX, robot.startY);
         waitForStart();
 
-
+        elapsedTime = new ElapsedTime();
+        elapsedTime.startTime();
         boolean clawIsOpen = false;
+        int[] clawPositions = {45, 20, 0, -15, -45};
+        int currentClawPosition = 0;
+        currentClawPosition = Range.clip(currentClawPosition, 0, 3);
         boolean pressingLT = false;
         boolean pressingRT = false;
+        boolean useExtension = false;
         boolean clawForwards = false;
-        boolean goToPosition = false;
 //        boolean parallelArm = false;
 //        boolean highBasket = false;
 //        boolean hangSpecimen = false;
@@ -82,8 +106,16 @@ public class OutreachTeleOP extends LinearOpMode {
         boolean tooFar = false;
         boolean isStalling = false;
         boolean usePID = false;
+        double clawAmount = 0;
         double ticks = 0;
+        String colorPrediction = "", currentAlliance = "red";
+        double red, green, blue, distance;
+        boolean hasSample;
+        int armVerticalTarget = 0;
+        int armExtensionTarget = 0;
         while (opModeIsActive()){
+             toSubmersible = new Path(new BezierLine(new Point(follower.getPose()), new Point(forwardToSubmersible2Pose)));
+             toHumanPlayerZone = new Path(new BezierLine(new Point(follower.getPose()), new Point(toHumanPlayerZonePose)));
             double currentXpose  = follower.getPose().getX();
             double currentYpose = follower.getPose().getY();
             int currentHeading = (int)Math.round(follower.getPose().getHeading());
@@ -99,24 +131,24 @@ public class OutreachTeleOP extends LinearOpMode {
 
             //gamepad1 = Driver 1
 
-//            if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91){
-//                gamepad1.rumble(0.5, 0.5, 1000);
-//                gamepad2.rumble(0.5, 0.5, 1000);
-//            } else if (elapsedTime.seconds() > 113 && elapsedTime.seconds() < 120){
-//                gamepad1.rumble(1000, 1000, 7000);
-//                gamepad2.rumble(1000, 1000, 7000);
-//            }
-//
-//            if (currentGamepad1.x && !previousGamepad1.x){
-//                toSubmersible.setLinearHeadingInterpolation(follower.getPose().getHeading(), 0);
-//                autoDrive = true;
-//                follower.followPath(toSubmersible);
-//            }
-//            if (currentGamepad1.b && !previousGamepad1.b){
-//                toHumanPlayerZone.setLinearHeadingInterpolation(follower.getPose().getHeading(), -179);
-//                autoDrive = true;;
-//                follower.followPath(toHumanPlayerZone);
-//            }
+            if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91){
+                gamepad1.rumble(0.5, 0.5, 1000);
+                gamepad2.rumble(0.5, 0.5, 1000);
+            } else if (elapsedTime.seconds() > 113 && elapsedTime.seconds() < 120){
+                gamepad1.rumble(1000, 1000, 7000);
+                gamepad2.rumble(1000, 1000, 7000);
+            }
+
+            if (currentGamepad1.x && !previousGamepad1.x){
+                toSubmersible.setLinearHeadingInterpolation(follower.getPose().getHeading(), 0);
+                autoDrive = true;
+                follower.followPath(toSubmersible);
+            }
+            if (currentGamepad1.b && !previousGamepad1.b){
+                toHumanPlayerZone.setLinearHeadingInterpolation(follower.getPose().getHeading(), -179);
+                autoDrive = true;;
+                follower.followPath(toHumanPlayerZone);
+            }
 
 //            if (gamepad1.dpad_up){
 //                robot.setPower(1, 1, 1, 1);
@@ -179,7 +211,10 @@ public class OutreachTeleOP extends LinearOpMode {
                 scaleFactor = robot.maxSpeed;
             }
             scaleFactor *= Math.max(Math.abs(1), 0.2);
-                robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);//only runs if the game button is he  ld down
+            if (!autoDrive){
+                robot.setPower((forward - sideways - turning)*scaleFactor, (forward + sideways - turning) * scaleFactor, (forward + sideways + turning) * scaleFactor, (forward + turning - sideways) * scaleFactor);
+            }
+            //only runs if the game button is he  ld down
             //gamepad 2 = driver 2
 
 
@@ -204,6 +239,48 @@ public class OutreachTeleOP extends LinearOpMode {
             } else{
                 armVerticalTooFar = false;
                 // stops from going too far and tipping
+            }
+            if (!follower.isBusy()){
+                autoDrive = false;
+            }
+
+            if (currentGamepad2.x && !previousGamepad2.x) {
+//                robot.armVertical.setTargetPosition(0);
+                armVerticalTarget = 0;
+                currentClawPosition = 2;
+                robot.pitch = 90;
+                robot.roll = 0;
+                robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                goToPosition = true;
+                useExtension = false;
+                // back to parallel
+            }
+
+            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
+                armVerticalTarget = 1100;
+                armExtensionTarget = -140;
+                useExtension = true;
+                goToPosition = true;
+            }
+
+            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
+                armExtensionTarget = -900;//originally was -840, decreased by 60
+                armVerticalTarget = 1436;
+                goToPosition = true;
+                useExtension  = true;
+            }
+            if (goToPosition){
+                if (updateArm(armExtensionTarget, armVerticalTarget, useExtension)){
+                    goToPosition = false;
+                }
+            } else{
+                robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
+            if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
+                robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                // manual reset
             }
 //            if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
 //                toObservationZone = newPath(frontOfSubmersible.getX(), frontOfObservationZone.getY(), 0);
@@ -333,6 +410,53 @@ public class OutreachTeleOP extends LinearOpMode {
                 robot.setSpeed(robot.getSpeed()+0.1);
             }
 
+            if (currentGamepad1.back && !previousGamepad1 .back){
+                if (currentAlliance == "red") {
+                    currentAlliance = "blue";
+                    gamepad1.runLedEffect(blueAlliance);
+                    gamepad2.runLedEffect(blueAlliance);
+                } else {
+                    currentAlliance = "red";
+                    gamepad1.runLedEffect(redAlliance);
+                    gamepad2.runLedEffect(redAlliance);
+                }
+            }
+
+            //color sensor
+            red = robot.colorSensor.red();
+            green = robot.colorSensor.green();
+            blue = robot.colorSensor.blue();
+            distance = robot.colorSensor.getDistance(DistanceUnit.INCH);
+            telemetry.addData("RGB", red + ", " + green + ", " + blue);
+            telemetry.addData("Distance", distance);
+//        if (robot.colorSensor.getDistance(DistanceUnit.INCH) < distanceThreshold){
+//            TelemetryA.addLine("Has something!");
+//            TelemetryA.addData("Current Color is (aka Raw Light)", robot.colorSensor.getRawLightDetected());
+//        }
+            hasSample = (distance < 0.5);
+
+            //Note this is carter's programming
+            if (hasSample) {
+                if (green > red && red > blue) {
+                    colorPrediction = "yellow";
+                    if (clawIsOpen) gamepad2.rumble(100,100,100);
+                } else if (red > green && red > blue) {
+                    colorPrediction = "red";
+                    if (clawIsOpen && currentAlliance == "red") gamepad2.rumble(100,100,100);
+                } else if (blue > red && blue > green) {
+                    colorPrediction = "blue";
+                    if (clawIsOpen && currentAlliance == "blue") gamepad2.rumble(100,100,100);
+                } else {
+                    colorPrediction = "idfk";
+                }
+            } else {
+                colorPrediction = "no sample";
+            }
+
+            if (currentGamepad2.back && !previousGamepad2.back){
+                showTelemetry = !showTelemetry;
+            }
+
 //            robot.armExtension.setPower(1);
 //            robot.armExtension.setTargetPosition();
 //            robot.armExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -355,60 +479,68 @@ public class OutreachTeleOP extends LinearOpMode {
 //            }
             robot.diddylate(robot.pitch, robot.roll);
             follower.update();
+            if (showTelemetry){
+                telemetry.addData("Current Alliance", currentAlliance);
                 telemetry.addData("Arm Vertical", robot.armVertical.getCurrentPosition());
                 telemetry.addData("Arm Extension Position", robot.armExtension.getCurrentPosition());
                 telemetry.addData("Pitch", robot.pitch);
                 telemetry.addData("Roll", robot.roll);
+                telemetry.addData("Claw counter", clawAmount);
                 telemetry.addData("Current heading is", Math.toDegrees(follower.getPose().getHeading()));
                 telemetry.addData("Current position", follower.getPose());
                 telemetry.addData("Currenet x: ", currentXpose);
                 telemetry.addData("Next x", currentXpose+20);
                 telemetry.addData("Max Speed", robot.getSpeed());
+                telemetry.addData("Has Sample?", hasSample);
+                telemetry.addData("Color", colorPrediction);
+                telemetry.addLine("Time Elapsed:" + elapsedTime + " Time Remaining " + (120-elapsedTime.seconds()));
+            }
             telemetry.update();
         }
     }
 
-        public Path newPath(double targetX, double targetY, double targetH){
-            Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
-            Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
-            Path path = new Path(new BezierLine(startPoint, endPoint));
-            path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
-            return path;
-            // path outline
+    public Path newPath(double targetX, double targetY, double targetH){
+        Point startPoint = new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN);
+        Point endPoint = new Point(targetX, targetY, Point.CARTESIAN);
+        Path path = new Path(new BezierLine(startPoint, endPoint));
+        path.setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), Math.toRadians(targetH));
+        return path;
+        // path outline
 
-        }
-        public void alignHeading(){
+    }
+    public void alignHeading(){
         boolean isAligned = false;;
         double heading, targetHeading = 0;
-            while (!isAligned){
-                heading = Math.toDegrees(follower.getPose().getHeading());
+        while (!isAligned){
+            heading = Math.toDegrees(follower.getPose().getHeading());
 
-                if (heading <= 138  && heading > 45){
-                    isAligned = heading > 88 && heading < 90;
-                    targetHeading = 90;
-                } else if (heading > 135 && heading <= 215){
-                    isAligned = heading > 178 && heading < 180;
-                    targetHeading = 180;
-                } else if (heading > 215 && heading <= 315){
-                    isAligned = heading > 268 && heading < 270;
-                    targetHeading = 270;
-                } else if (heading > 315  || heading <=45){
-                    isAligned = heading < 2 && heading > 0;
-                    targetHeading = 360;
-                }
-                follower.update();
-//                isAligned = heading < 2 && heading > 0;
-                if (heading < targetHeading && targetHeading != 0){
-                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
-                } else if (heading > targetHeading && targetHeading != 0)  {
-                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
-                } else if (heading > 180 && targetHeading == 0){
-                    robot.setPower(0.3 , 0.3, -0.3, -0.3);
-                } else if (heading < 180 && targetHeading == 0){
-                    robot.setPower(-0.3, -0.3, 0.3, 0.3);
-                }
+            if (heading <= 138  && heading > 45){
+                isAligned = heading > 88 && heading < 90;
+                targetHeading = 90;
+            } else if (heading > 135 && heading <= 215){
+                isAligned = heading > 178 && heading < 180;
+                targetHeading = 180;
+            } else if (heading > 215 && heading <= 315){
+                isAligned = heading > 268 && heading < 270;
+                targetHeading = 270;
+            } else if (heading > 315  || heading <=45){
+                isAligned = heading < 2 && heading > 0;
+                targetHeading = 360;
             }
-            // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
+            follower.update();
+//                isAligned = heading < 2 && heading > 0;
+            if (heading < targetHeading && targetHeading != 0){
+                robot.setPower(0.3 , 0.3, -0.3, -0.3);
+            } else if (heading > targetHeading && targetHeading != 0)  {
+                robot.setPower(-0.3, -0.3, 0.3, 0.3);
+            } else if (heading > 180 && targetHeading == 0){
+                robot.setPower(0.3 , 0.3, -0.3, -0.3);
+            } else if (heading < 180 && targetHeading == 0){
+                robot.setPower(-0.3, -0.3, 0.3, 0.3);
+            }
+        }
+
+        // if robot is at angle greater than 180, quickest way to zero is turning counterclockwise, otherwise going clockwise is quickest way
 
             /* welcome to carter pseudocode:
             if (45 < heading <= 135) {
@@ -421,10 +553,34 @@ public class OutreachTeleOP extends LinearOpMode {
                 set heading to 0
              */
 
-        }
-        public void updateArm(){
+    }
+    public boolean updateArm(int extensionTarget, int verticalTarget, boolean extension){
+        robot.armVertical.setTargetPosition(verticalTarget);
+        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        robot.armVertical.setPower(1);
+        if (extension){
+            robot.armExtension.setTargetPosition(extensionTarget);
+            robot.armExtension.setPower(-1);
+            robot.armExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         }
+        if (verticalAtTarget(verticalTarget)){
+            if (extension){
+                if (extensionAtTarget(extensionTarget)){
+                    return true;
+                } else{
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean verticalAtTarget(int verticalTarget){return Math.abs(verticalTarget - robot.armVertical.getCurrentPosition()) <= 5;}
+    public boolean extensionAtTarget(int extensionTarget){return Math.abs(extensionTarget - robot.armExtension.getCurrentPosition()) <=5;}
 //    public void pickUpRobot(){
 //        robot.armVertical.setTargetPosition(0);
 //        robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
