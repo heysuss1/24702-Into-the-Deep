@@ -139,10 +139,7 @@ public class SophieEvilTeleOP extends LinearOpMode {
                 gamepad2.rumble(1000, 1000, 7000);
             }
 
-            if (currentGamepad1.x && !previousGamepad1.x){
-                toSubmersible.setLinearHeadingInterpolation(follower.getPose().getHeading(), 0);
-                autoDrive = true;
-                follower.followPath(toSubmersible);
+
             }
             if (currentGamepad1.b && !previousGamepad1.b){
                 toHumanPlayerZone.setLinearHeadingInterpolation(follower.getPose().getHeading(), -179);
@@ -218,21 +215,33 @@ public class SophieEvilTeleOP extends LinearOpMode {
             //gamepad 2 = driver 2
 
 
-            if (currentGamepad2.y && !previousGamepad2.y) {
-//                robot.rotateServo.setPosition(0.174);
+            if (currentGamepad1.y && !previousGamepad1.y) {
                 currentClawPosition = 2;
-                robot.pitch = 20;
+                armVerticalTarget = 0 // need to get position
+                goToPosition = true; // hang position
+
             }
-            if (currentGamepad2.b && !previousGamepad2.y && !currentGamepad2.start) {
+            double slidePower = gamepad1.right_trigger; // get trigger value (0 to 1)
+
+        if (slidePower > 0.05) { // prevent accidental slow movement
+            robot.armExtension.setPower(armExtensionTarget); //gradually extend slides
+        } else {
+            robot.armExtension.setPower(0); // stop motor when not pressing
+
+        }
+            if (currentGamepad1.b && !previousGamepad1.y && !currentGamepad1.start) {
 //                robot.rotateServo.setPosition(0.38);
                 currentClawPosition = 2;
                 robot.pitch = 90;
                 robot.roll = 0;
             }
-            if (currentGamepad2.a && !previousGamepad2.a) {
-//                robot.rotateServo.setPosition(0.726);
+            if (currentGamepad1.a && !previousGamepad1.a) { // button a pressed
+                // move arm to sub to collection position
                 currentClawPosition = 2;
-                robot.pitch = 175;
+               armVerticalTarget = 0;
+                       armExtensionTarget = 0; // need to get positions
+                goToPosition = true;
+                useExtension = true;
             }
             if (robot.armVertical.getCurrentPosition() > 3130){
                 armVerticalTooFar = true;
@@ -244,26 +253,42 @@ public class SophieEvilTeleOP extends LinearOpMode {
                 autoDrive = false;
             }
 
-            if (currentGamepad2.x && !previousGamepad2.x) {
+            boolean armToggle = false; // trach state (grabbing/scoring)
+            boolean previousButtonState = false; //prevents multiple triggers per press
+             if (currentGamepad1.x && !previousGamepad1.x) {
+                 armToggle = !armToggle; // toggle state
+                 {
 //                robot.armVertical.setTargetPosition(0);
-                armVerticalTarget = 0;
-                currentClawPosition = 2;
-                robot.pitch = 90;
-                robot.roll = 0;
-                robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                goToPosition = true;
-                useExtension = false;
-                // back to parallel
-            }
+                     if (armToggle) {
+                         // move to grabbing position
+                     }
+                     armVerticalTarget = 0;
+                     currentClawPosition = 2;
+                     robot.pitch = 90;
+                     robot.roll = 0;
+                     robot.armVertical.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                     goToPosition = true;
+                     useExtension = false;
+                 } else{
+                     // move to scoring position
+                     robot.pitch = 175;
+                     armExtensionTarget = -900;
+                     armVerticalTarget = 1436;
+                     goToPosition = true;
+                     useExtension = true;
+                 }
+             }
+             // update button state to prevent multiple activations on a single press
+            previousButtonState = gamepad1.dpad_left;
 
-            if (currentGamepad2.dpad_right && !previousGamepad2.dpad_right){
+            if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right){
                 armVerticalTarget = 1100;
                 armExtensionTarget = -140;
                 useExtension = true;
                 goToPosition = true;
             }
 
-            if (currentGamepad2.dpad_left && !previousGamepad2.dpad_left){
+            if (currentGamepad1.dpad_left && !previousGamepad1.dpad_left){
                 armExtensionTarget = -900;//originally was -840, decreased by 60
                 armVerticalTarget = 1436;
                 goToPosition = true;
@@ -277,7 +302,7 @@ public class SophieEvilTeleOP extends LinearOpMode {
                 robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             }
-            if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper){
+            if (currentGamepad1.right_bumper && !previousGamepad1.right_bumper){
                 robot.armExtension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.armExtension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 // manual reset
@@ -292,11 +317,11 @@ public class SophieEvilTeleOP extends LinearOpMode {
 //            robot.armExtension.setPower(output);
 //            output = verticalPID.calculate(robot.armVertical.getCurrentPosition(), 2400);
 //            robot.armVertical.setPower(output);
-            if (gamepad1.right_trigger > 0.1){
+            if (gamepad1.left_stick_button > 0.1){
                 robot.setSpeed(0.35);
             } else {
                 robot.setSpeed(1);
-                // slow robot down based on right trigger preasure
+                // slow robot down based on left joystick pressure
             }
             if(robot.armExtension.getCurrentPosition() > -2600){
                 tooFar = false;
@@ -318,16 +343,15 @@ public class SophieEvilTeleOP extends LinearOpMode {
                     robot.armExtension.setPower(0);
                 }
             }
-            if (currentGamepad1.y && !previousGamepad1.y){
-                alignHeading();
+
             }
-            if (currentGamepad2.right_bumper && !previousGamepad2.right_bumper) {
+            if (currentGamepad1.right_bumper) {
                 if (currentClawPosition > 0){
                     currentClawPosition -= 1;
                 }
                 robot.roll = clawPositions[currentClawPosition];
             }
-            if (currentGamepad2.left_bumper && !previousGamepad2.left_bumper){
+            if (currentGamepad1.left_bumper && !previousGamepad1.left_bumper){
                 if (currentClawPosition < clawPositions.length -1){
                     currentClawPosition += 1;
                 }
@@ -372,7 +396,7 @@ public class SophieEvilTeleOP extends LinearOpMode {
                 }
                 // if your not goin to a set position don't move the arm
             }
-            if ((gamepad2.left_trigger > 0.1)&& !pressingLT){
+            if ((gamepad1.left_trigger > 0.1)&& !pressingLT){
                 if(!clawIsOpen){
                     //Open claw
                     robot.claw.setPosition(0.15);
@@ -384,22 +408,12 @@ public class SophieEvilTeleOP extends LinearOpMode {
                 }
                 pressingLT = true;
             }
-            else if(!(gamepad2.left_trigger >0.1)){
+            else if(!(gamepad1.left_trigger >0.1)){
                 pressingLT = false;
             }
             // press left trigger once to open and again to close
 
 
-            //right trigger = half-closed
-            if ((gamepad2.right_trigger > 0.1) && !pressingRT) {
-//                robot.openClaw(0.5);
-                robot.armVertical.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                robot.armVertical.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//                clawIsOpen = false;
-                pressingRT = true;
-            } else if (!(gamepad2.right_trigger > 0.1)) {
-                pressingRT = false;
-            }
 
             //maxSpeed stuff by Carter:
 
@@ -435,23 +449,7 @@ public class SophieEvilTeleOP extends LinearOpMode {
 //        }
             hasSample = (distance < 0.5);
 
-            //Note this is carter's programming
-            if (hasSample) {
-                if (green > red && red > blue) {
-                    colorPrediction = "yellow";
-                    if (clawIsOpen) gamepad2.rumble(100,100,100);
-                } else if (red > green && red > blue) {
-                    colorPrediction = "red";
-                    if (clawIsOpen && currentAlliance == "red") gamepad2.rumble(100,100,100);
-                } else if (blue > red && blue > green) {
-                    colorPrediction = "blue";
-                    if (clawIsOpen && currentAlliance == "blue") gamepad2.rumble(100,100,100);
-                } else {
-                    colorPrediction = "idfk";
-                }
-            } else {
-                colorPrediction = "no sample";
-            }
+
 
             if (currentGamepad2.back && !previousGamepad2.back){
                 showTelemetry = !showTelemetry;
