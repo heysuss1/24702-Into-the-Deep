@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
-@Autonomous(name = "States Specimen Auto - that works")
+@Autonomous(name = "six")
 public class SixSpecAutoTrust extends OpMode {
     Follower follower;
     //727 741 4771
