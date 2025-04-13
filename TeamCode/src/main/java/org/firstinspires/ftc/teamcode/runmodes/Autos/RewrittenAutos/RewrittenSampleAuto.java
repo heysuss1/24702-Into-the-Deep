@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Hardware;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
@@ -17,6 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.runmodes.Autos.OnlySamplesAuto;
 import org.firstinspires.ftc.teamcode.runmodes.Autos.OnlySamplesAuto;
 import org.firstinspires.ftc.teamcode.runmodes.Autos.SamplesAuto;
+import org.firstinspires.ftc.teamcode.subsystems.LimeLightPipeline;
 
 
 @Autonomous(name = "States sample Auto ")
@@ -25,9 +28,12 @@ public class RewrittenSampleAuto extends OpMode {
     Hardware robot = Hardware.getInstance();
     Pose starting = new Pose(5, 126, 0);
     Timer timer;
+    Pose2D cleanedSample;
+    LimeLightPipeline.DetectedObject sampleInfo = null;
     int pitch, roll;
     int clawCloser = 0;
     int ARM_CONSTANT = 570;
+    Double visionExpirationTime = null;
     public static Pose startPose = new Pose(5, 126, Math.toRadians(0));
     public static Pose preloadPose = new Pose(18, 127, Math.toRadians(0));
     public static Pose backUpPose = new Pose(12, 127, Math.toRadians(0));
@@ -53,6 +59,9 @@ public class RewrittenSampleAuto extends OpMode {
         GO_TO_SAMPLE3,
         GO_TO_BASKET_FROM_SAMPLE_3,
         GO_TO_PARKING,
+        GO_TO_TARGET_SAMPLE,
+        GO_TO_BASKET_FROM_SAMPLE_4,
+        FINAL_PARKING,
         DONE
 
     }
@@ -71,6 +80,10 @@ public class RewrittenSampleAuto extends OpMode {
         GRAB_SAMPLE3,
         CLOSE_CLAW_3,
         PUT_IN_BUCKET_3,
+        SCAN_SUB,
+        PICK_UP_SUB_SAMPLE,
+        VISION_FAILURE_PARK,
+        PUT_IN_BUCKET_4,
         PARK
     }
     enum ClawUpdate{
@@ -82,7 +95,7 @@ public class RewrittenSampleAuto extends OpMode {
 
     //Assumes robot starts at (5, 65);
 
-    public PathChain hangPreload, backUp, toSample1, toBucket1, toSample2, toBucket2, toSample3, toBucket3, toParking;
+    public PathChain hangPreload, backUp, toSample1, toBucket1, toSample2, toBucket2, toSample3, toBucket3, toParking, toBucket, toFinalParking;
     public void buildPaths(){
         hangPreload = follower.pathBuilder().addPath(new BezierLine(new Point (startPose), new Point(preloadPose)))
                 .setLinearHeadingInterpolation(startPose.getHeading(), preloadPose.getHeading())
@@ -199,7 +212,7 @@ clawCloser = 0;
         switch (actionState){
             case RAISE_ARMS:
                 rotateArmForwards();
-                armExtend(-1927);
+                armExtend(-1950);
                 armUp(2020-ARM_CONSTANT);
                 if (robot.armExtension.getCurrentPosition() < -1875 && robot.armVertical.getCurrentPosition() > (2010-ARM_CONSTANT)) {
                     setAction(ActionState.SCORE_SAMPLE);
@@ -363,6 +376,46 @@ clawCloser = 0;
                     armExtend(-700);
                 }
                 break;
+
+            case SCAN_SUB:
+                robot.limelight.setLimelightDetectorEnabled(true);
+                sampleInfo = robot.limelight.getBestDetectedTarget(LimeLightPipeline.SampleType.YellowSample, false);
+                if (sampleInfo != null){
+                    cleanedSample = robot.cleanSampleInfo(sampleInfo);
+                    setAction(ActionState.PICK_UP_SUB_SAMPLE);
+                } else if (visionExpirationTime == null){
+                    visionExpirationTime = armTimer.seconds() + .75;
+                } else if (armTimer.seconds() >= visionExpirationTime){
+                    setAction(ActionState.VISION_FAILURE_PARK);
+                }
+            case PICK_UP_SUB_SAMPLE:
+                armExtend((robot.visionExtensionPosition(cleanedSample)));
+                armUp(-400-ARM_CONSTANT);
+                robot.diffyAngle(sampleInfo);
+                if (robot.armVertical.getCurrentPosition() < -350 && (Math.abs(robot.armExtension.getCurrentPosition() - robot.visionExtensionPosition(cleanedSample)) <= 20)){
+                    closeClaw();
+                    setAction(ActionState.PUT_IN_BUCKET_4);
+                }
+                break;
+            case PUT_IN_BUCKET_4:
+                normalClaw();
+                clawCloser = 0;
+                closeClaw();
+                armUp(2950-ARM_CONSTANT);
+                armExtend(-1580);
+                rotateArmBackWards();
+                if (!follower.isBusy() && robot.armVertical.getCurrentPosition() > (2900-ARM_CONSTANT) && !robot.armVertical.isBusy()){
+                    if (armTimer.seconds() > 1){
+                        armTimer.reset();
+                    }
+//                        if (robot.armVertical.getCurrentPosition() > (2650-ARM_CONSTANT)){
+                    openClaw();
+//                        if (armTimer.seconds() > 0.15){
+                    setAction(ActionState.PARK);
+//                        }
+                }
+                break;
+
         }
     }
     public void autonomousPathUpdate(){
@@ -425,6 +478,31 @@ clawCloser = 0;
                 }
 
                 break;
+            case GO_TO_TARGET_SAMPLE:
+                if (actionState == ActionState.PICK_UP_SUB_SAMPLE) {
+                    follower.followPath(
+                            follower.pathBuilder().addPath(
+                                    new BezierLine(
+                                            new Point(follower.getPose().getX(), follower.getPose().getY(), (int) Math.toRadians(follower.getPose().getHeading())), new Point(follower.getPose().getX(), follower.getPose().getY(), (int) Math.toRadians(cleanedSample.getHeading(AngleUnit.DEGREES)))
+                                    )
+                            ).setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getY()), Math.toRadians(cleanedSample.getHeading(AngleUnit.DEGREES))).build()
+                    );
+                }
+                break;
+            case GO_TO_BASKET_FROM_SAMPLE_4:
+                if (actionState == ActionState.PUT_IN_BUCKET_4){
+                    follower.followPath(follower.pathBuilder()
+                            .addPath(new BezierLine(new Point (follower.getPose().getX(), follower.getPose().getY()), new Point(bucketPose)))
+                            .setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getHeading()), bucketPose.getHeading())
+                            .build());
+                    setPathState(State.FINAL_PARKING);
+                }
+                break;
+            case FINAL_PARKING:
+                if (actionState == ActionState.PARK){
+                    follower.followPath(toParking);
+                    setPathState(State.DONE);
+                }
 //            default:
 //                stop();
         }

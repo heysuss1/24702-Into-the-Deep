@@ -1,48 +1,61 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.util.Log;
-
-import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
-import org.firstinspires.ftc.teamcode.subsystems.VisionHardware;
-
-import java.util.List;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Hardware;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
+import org.firstinspires.ftc.teamcode.subsystems.LimeLightPipeline;
 
 @TeleOp(name = "Limelight3A Test")
-public class LimeLightTestOpmode extends LinearOpMode {
+public class FTCLimelightTry extends LinearOpMode {
 
-    private VisionHardware limelight;
+    private LimeLightPipeline limelight;
+    Follower follower;
+    Hardware robot = Hardware.getInstance();
 
     @Override
     public void runOpMode() throws InterruptedException
     {
-        limelight = new VisionHardware();
-
+        limelight = new LimeLightPipeline(hardwareMap);
+        robot.init(hardwareMap);
         limelight.setLimelightDetectorEnabled(true);
         telemetry.addData(">", "Robot Ready.  Press Play.");
         telemetry.update();
-        waitForStart();
+        follower = new Follower(hardwareMap);
+        double distanceX = 0;
+        double distanceY = 0;
 
+        waitForStart();
         while (opModeIsActive()) {
-            LLStatus status = limelight.getLimeLightStatus();
-            telemetry.addData("Name", "%s",
-                    status.getName());
-            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                    status.getTemp(), status.getCpu(),(int)status.getFps());
-            telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                    status.getPipelineIndex(), status.getPipelineType());
-            telemetry.addData("isStreamEnabled", limelight.isLimelightDetectorEnabled());
+            LimeLightPipeline.DetectedObject detectedObject = limelight.getBestDetectedTarget(LimeLightPipeline.SampleType.RedAllianceSamples, false);
+            if (detectedObject != null ){
+                distanceX = ((12.1*2)*(Math.sin(Math.toRadians(detectedObject.llResult.getTx()))))/Math.sin(145-detectedObject.llResult.getTy());
+                distanceY = Math.tan((Math.toRadians(detectedObject.llResult.getTx()))*distanceX);
+            }
+
+            telemetry.addData("Distance x", distanceX);
+            telemetry.addData("Distance y", distanceY);
+            follower.update();
+            robot.diddylate(175, robot.roll);
             telemetry.update();
 
-
-            VisionHardware.DetectedObject detectedObjects = limelight.getBestDetectedTarget(VisionHardware.SampleType.RedAllianceSamples, false);
-            detectedObjects.targetPose.
         }
         limelight.setLimelightDetectorEnabled(false);
     }
+    public void armExtend(int ticks){
+        robot.armExtension.setPower(1);
+        robot.armExtension.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.armExtension.setTargetPosition(ticks);
+    }
 }
+

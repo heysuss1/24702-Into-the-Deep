@@ -9,7 +9,6 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -22,7 +21,7 @@ import java.util.List;
 /**
  * This class implements a specifed neural detector using Limelight 3A.
  */
-public class VisionHardware {
+public class LimeLightPipeline {
 
     public static class DetectedObject {
         public final LLResult llResult;
@@ -117,13 +116,13 @@ public class VisionHardware {
     public final Limelight3A limelight;
     private Double lastResultTimestamp = null;
     //Camera Pose (These could also be stored in a global constants class)
-    private double cameraPitch = 0.0;  //Calculate pitch using atan2(cameraHeight / distances). Distances is form the lens to the crosshair center
-    private double cameraHeight = 0.0; //From the center of the lens to the ground.
+    private double cameraPitch = 73;  //Calculate pitch using atan2(cameraHeight / distances). Distances is form the lens to the crosshair center
+    private double cameraHeight = 12.1; //From the center of the lens to the ground.
 
 
-    public LimelightNeuralDetector(HardwareMap hardwareMap) {
+    public LimeLightPipeline(HardwareMap hardwareMap) {
         {
-            limelight = hardwareMap.get(Limelight3A.class, "Limelight3a");
+            limelight = hardwareMap.get(Limelight3A.class, "Ethernet Device");
             limelight.pipelineSwitch(0); //Assuming your neural detector is on pipeline 0
         }
     }
@@ -217,19 +216,19 @@ public class VisionHardware {
         switch (sampleType)
         {
             case RedSample:
-                targetColors = new String[]{"red"}; //make sure these are the same as your detector class labels
+                targetColors = new String[]{"red-sample"}; //make sure these are the same as your detector class labels
                 break;
             case BlueSample:
-                targetColors = new String[]{"blue"};
+                targetColors = new String[]{"blue-sample"};
                 break;
             case YellowSample:
-                targetColors = new String[]{"yellow"};
+                targetColors = new String[]{"yellow-sample"};
                 break;
             case RedAllianceSamples:
-                targetColors = new String[]{"red", "yellow"};
+                targetColors = new String[]{"red-sample", "yellow-sample"};
                 break;
             case BlueAllianceSamples:
-                targetColors = new String[]{"blue", "yellow"};
+                targetColors = new String[]{"blue-sample", "yellow-sample"};
                 break;
         }
         Log.i("Limelight", "targetColors= " + Arrays.toString(targetColors) + ", validateObjectsLocation= " + validateObjectsLocation);
