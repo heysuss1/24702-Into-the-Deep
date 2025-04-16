@@ -43,12 +43,14 @@ public class ExtensionPID extends OpMode {
         verticalError = targetVert - robot.armVertical.getCurrentPosition();
         pidfVert.setPIDF(kpVert, kIVert, kDVert, kFVert);
         pidf.setPIDF(kP, kI, kD, kF);
-        pidfVert.calculate(0, verticalError);
-        pidf.calculate(0, extensionError);
+
+
         robot.armVertical.setPower(pidfVert.calculate(0, verticalError));
         robot.armExtension.setPower(pidf.calculate(0, extensionError));
-        telemetryA.addData("Expected Position: ", targetVert);
-        telemetryA.addData("Current Position", robot.armVertical.getCurrentPosition());
+        telemetryA.addData("Expected Vertical Position: ", targetVert);
+        telemetryA.addData("Current Arm Position", robot.armVertical.getCurrentPosition());
+        telemetryA.addData("Expected Extension Position: ", setpoint);
+        telemetryA.addData("Current Slide Position", robot.armExtension.getCurrentPosition());
         telemetryA.update();
 
     }

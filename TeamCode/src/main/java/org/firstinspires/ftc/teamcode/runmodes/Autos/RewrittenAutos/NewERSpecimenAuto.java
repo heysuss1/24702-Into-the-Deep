@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 
 @Autonomous (name = "Cache told me to")
-public class NewERSpecimenAuto extends OpMode {
+public class NewERSpecimenAuto extends OpMode     {
     Follower follower;
     //727 741 4771
     int ARM_CONSTANT = 570;
