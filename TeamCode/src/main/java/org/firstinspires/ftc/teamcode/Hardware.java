@@ -61,8 +61,8 @@ public class Hardware {
     }
 
     public Pose2D cleanSampleInfo(LimeLightPipeline.DetectedObject detectedObject){
-        double clawYPose = detectedObject.getObjectPoseFromCrosshair().getY(DistanceUnit.INCH) - yOffset;
-        double clawXPose = detectedObject.getObjectPoseFromCrosshair().getY(DistanceUnit.INCH) + xOffset;
+        double clawYPose = detectedObject.getObjectPose().getY(DistanceUnit.INCH) - yOffset;
+        double clawXPose = detectedObject.getObjectPose().getY(DistanceUnit.INCH) + xOffset;
 
         double angle =  Math.toDegrees(Math.atan(clawXPose/clawYPose));
         return new Pose2D(DistanceUnit.INCH, clawXPose, clawYPose, AngleUnit.DEGREES, angle);

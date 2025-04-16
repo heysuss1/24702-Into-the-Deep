@@ -302,7 +302,7 @@ public class TeleOP extends LinearOpMode {
                 robot.setSpeed(1);
                 // slow robot down based on right trigger preasure
             }
-            if(robot.armExtension.getCurrentPosition() > -2600){
+            if(robot.armExtension.getCurrentPosition() > -1600){
                 tooFar = false;
             } else{
                 tooFar = true;
