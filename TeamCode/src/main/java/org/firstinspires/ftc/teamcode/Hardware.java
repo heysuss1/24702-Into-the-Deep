@@ -1,17 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.subsystems.LimeLightPipeline;
 
 /*
 This is what position to connect the motors to on the control hub
@@ -28,6 +32,10 @@ public class Hardware {
     public DcMotorEx rf;
     public DcMotorEx rb;
     public DcMotorEx lf;
+    public double xOffset = 5; //TODO fill this in
+    public double yOffset = 2; //TODO fill this in
+    public double extensionToInches = .0132; //TODO convert encoder positions to inches
+    public double inchesToExtension = 75.7575;
     public DcMotorEx lb;
     public DcMotorEx armVertical;
     public DcMotorEx armExtension;
@@ -38,6 +46,7 @@ public class Hardware {
     public Servo leftServo;
     public Servo rightServo;
     public Servo rotateServo;
+    public LimeLightPipeline limelight;
     //public RevColorSensorV3 colorSensor;
     public static double maxSpeed = 1;
     public int pitch, roll;
@@ -49,6 +58,37 @@ public class Hardware {
             instance = new Hardware();
         }
         return instance;
+    }
+
+    public Pose2D cleanSampleInfo(LimeLightPipeline.DetectedObject detectedObject){
+        double clawYPose = detectedObject.getObjectPoseFromCrosshair().getY(DistanceUnit.INCH) - yOffset;
+        double clawXPose = detectedObject.getObjectPoseFromCrosshair().getY(DistanceUnit.INCH) + xOffset;
+
+        double angle =  Math.toDegrees(Math.atan(clawXPose/clawYPose));
+        return new Pose2D(DistanceUnit.INCH, clawXPose, clawYPose, AngleUnit.DEGREES, angle);
+    }
+
+    public int visionExtensionPosition(Pose2D objectPose){
+        //maybe make scale for elbow vs extension
+        double turnExtension = Math.sqrt((Math.pow(objectPose.getY(DistanceUnit.INCH), 2) + Math.pow(objectPose.getX(DistanceUnit.INCH), 2)));
+        return (int)((turnExtension/extensionToInches)+95);
+
+    }
+
+    public void diffyAngle(LimeLightPipeline.DetectedObject detectedObject)
+    {
+        double sampleAngle = detectedObject.rotatedRectAngle;
+        if(sampleAngle == 90)
+        {
+            roll = 0;
+        }
+        else
+        {
+           roll = 45;
+            //Assume angle 0
+        }
+
+
     }
     public double getSpeed( ){
         return maxSpeed;
@@ -104,6 +144,8 @@ public class Hardware {
         diffy2 = hwMap.get(Servo.class, "diffy2");
 
         colorSensor = hwMap.get(RevColorSensorV3.class, "colorSensor");
+
+        limelight = new LimeLightPipeline(hwMap);
 
     }
 

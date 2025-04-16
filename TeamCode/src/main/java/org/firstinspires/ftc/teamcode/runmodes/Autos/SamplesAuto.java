@@ -193,7 +193,6 @@ public class SamplesAuto extends OpMode {
         armTimer.reset();
         autonomousActionUpdate();
     }
-
     public void closeClaw(){
         robot.leftServo.setPosition(.508);
         robot.rightServo.setPosition(.69);

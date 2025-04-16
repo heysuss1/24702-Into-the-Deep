@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.Hardware;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 
-public class Vision {
+public class Vision{
     public OpenCvCamera camera;
     private static Vision instance = null;
     public static Vision getInstance(){

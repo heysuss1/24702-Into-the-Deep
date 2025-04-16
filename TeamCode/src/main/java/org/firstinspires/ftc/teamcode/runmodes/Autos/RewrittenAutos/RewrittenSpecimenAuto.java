@@ -135,7 +135,7 @@ public class RewrittenSpecimenAuto extends OpMode {
         toSubmersible = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(starting), new Point(preloadPose)))
                         .setLinearHeadingInterpolation(starting.getHeading(), preloadPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.7)
+                .setZeroPowerAccelerationMultiplier(2.695)
                                 .build();
 //        toSubmersible.setZeroPowerAccelerationMultiplier(2.8);
         strafeToSample1 = follower.pathBuilder()
