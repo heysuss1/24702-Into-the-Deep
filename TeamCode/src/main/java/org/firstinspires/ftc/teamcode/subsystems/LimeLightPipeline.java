@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
+
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,10 @@ import java.util.List;
 
 /**
  * This class implements a specifed neural detector using Limelight 3A.
+ *
+ * Coordinate system used is: (looking form behind the robot forward)
+ * Y-axis is forward positive
+ * X-asis is right positive
  */
 public class LimeLightPipeline {
 
@@ -49,7 +54,6 @@ public class LimeLightPipeline {
                 rotatedRectAngle = 0;
             }
         }   //DetectedObject
-
         public String getObjectName() {
             return objectName;
         }   //getObjectName
@@ -89,7 +93,7 @@ public class LimeLightPipeline {
             double targetYawRadians = Math.toRadians(targetYawDegrees);
 
             //Assuming your object is at a height of 0.
-            double targetDepth = cameraHeight / Math.tan(camPitchRadians + targetPitchRadians);
+            double targetDepth = -cameraHeight / Math.tan(camPitchRadians + targetPitchRadians);
             targetPose = new Pose2D(DistanceUnit.INCH, targetDepth * Math.sin(targetYawRadians), targetDepth * Math.cos(targetYawRadians), AngleUnit.DEGREES, targetYawDegrees);
 
             return targetPose;
@@ -105,6 +109,15 @@ public class LimeLightPipeline {
         }
     }
 
+    //Camera Pose (These could also be stored in a global constants class)
+    private static final class CameraConstants
+    {
+        private static final double CAMERA_HEIGHT = 11; //From the center of the lens to the ground.
+        private static final double CAMERA_PITCH = -33.33;  //Calculate pitch using atan2(cameraHeight / distances). Distances is form the lens to the crosshair center
+        private static final double CAMERA_X_OFFSET = 5; //Offset form the cameras position to the central point.
+        private static final double CAMERA_Y_OFFSET = 9.5; //Offset form the cameras position to the central point.
+    }
+
     public enum SampleType {
         RedSample,
         BlueSample,
@@ -115,15 +128,12 @@ public class LimeLightPipeline {
 
     public final Limelight3A limelight;
     private Double lastResultTimestamp = null;
-    //Camera Pose (These could also be stored in a global constants class)
-    private double cameraPitch = 73;  //Calculate pitch using atan2(cameraHeight / distances). Distances is form the lens to the crosshair center
-    private double cameraHeight = 12.1; //From the center of the lens to the ground.
-
 
     public LimeLightPipeline(HardwareMap hardwareMap) {
         {
             limelight = hardwareMap.get(Limelight3A.class, "Ethernet Device");
             limelight.pipelineSwitch(0); //Assuming your neural detector is on pipeline 0
+            limelight.setPollRateHz(100);
         }
     }
 
@@ -167,7 +177,7 @@ public class LimeLightPipeline {
                     detectedObjs = new ArrayList<>();
                     for (Object result: resultList)
                     {
-                        DetectedObject object = new DetectedObject(llResult, result, cameraPitch, cameraHeight);
+                        DetectedObject object = new DetectedObject(llResult, result, CameraConstants.CAMERA_PITCH, CameraConstants.CAMERA_HEIGHT);
                         Log.i("Limelight", "DetectedObject: " + object);
                         detectedObjs.add(object);
                     }
@@ -216,19 +226,19 @@ public class LimeLightPipeline {
         switch (sampleType)
         {
             case RedSample:
-                targetColors = new String[]{"red-sample"}; //make sure these are the same as your detector class labels
+                targetColors = new String[]{"red"}; //make sure these are the same as your detector class labels
                 break;
             case BlueSample:
-                targetColors = new String[]{"blue-sample"};
+                targetColors = new String[]{"blue"};
                 break;
             case YellowSample:
-                targetColors = new String[]{"yellow-sample"};
+                targetColors = new String[]{"yellow"};
                 break;
             case RedAllianceSamples:
-                targetColors = new String[]{"red-sample", "yellow-sample"};
+                targetColors = new String[]{"red", "yellow"};
                 break;
             case BlueAllianceSamples:
-                targetColors = new String[]{"blue-sample", "yellow-sample"};
+                targetColors = new String[]{"blue", "yellow"};
                 break;
         }
         Log.i("Limelight", "targetColors= " + Arrays.toString(targetColors) + ", validateObjectsLocation= " + validateObjectsLocation);
@@ -276,6 +286,20 @@ public class LimeLightPipeline {
     public static String pose2DString(Pose2D pose2D)
     {
 
-        return " (" + pose2D.getX(DistanceUnit.INCH) + "," + pose2D.getY(DistanceUnit.INCH) + "," + pose2D.getHeading(AngleUnit.DEGREES) + ")";
+        return " (x= " + pose2D.getX(DistanceUnit.INCH) + ",y= " + pose2D.getY(DistanceUnit.INCH) + ",angle= " + pose2D.getHeading(AngleUnit.DEGREES) + ")";
+    }
+
+    public Pose2D getObjectPose(Pose2D pose2D)
+    {
+
+        double robotX = pose2D.getX(DistanceUnit.INCH) + CameraConstants.CAMERA_X_OFFSET;
+        double robotY = pose2D.getY(DistanceUnit.INCH) + CameraConstants.CAMERA_Y_OFFSET;
+        double angle = Math.toDegrees(Math.atan(robotX/robotY));
+
+        Pose2D objectPose = new Pose2D(DistanceUnit.INCH, robotX, robotY, AngleUnit.DEGREES, angle);
+
+        Log.i("Limelight", "inputPose=" + pose2DString(pose2D) + ", robotOffset = (x= "
+                + robotX + ",y= " + robotY + ",angle= " + angle + "), convertedPose= " + pose2DString(objectPose));
+        return objectPose;
     }
 }

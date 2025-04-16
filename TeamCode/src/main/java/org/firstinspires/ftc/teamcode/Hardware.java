@@ -35,6 +35,7 @@ public class Hardware {
     public double xOffset = 5; //TODO fill this in
     public double yOffset = 2; //TODO fill this in
     public double extensionToInches = .0132; //TODO convert encoder positions to inches
+    public double inchesToExtension = 75.7575;
     public DcMotorEx lb;
     public DcMotorEx armVertical;
     public DcMotorEx armExtension;
@@ -60,8 +61,8 @@ public class Hardware {
     }
 
     public Pose2D cleanSampleInfo(LimeLightPipeline.DetectedObject detectedObject){
-        double clawYPose = detectedObject.getObjectPose().getY(DistanceUnit.INCH) - yOffset;
-        double clawXPose = detectedObject.getObjectPose().getY(DistanceUnit.INCH) + xOffset;
+        double clawYPose = detectedObject.getObjectPoseFromCrosshair().getY(DistanceUnit.INCH) - yOffset;
+        double clawXPose = detectedObject.getObjectPoseFromCrosshair().getY(DistanceUnit.INCH) + xOffset;
 
         double angle =  Math.toDegrees(Math.atan(clawXPose/clawYPose));
         return new Pose2D(DistanceUnit.INCH, clawXPose, clawYPose, AngleUnit.DEGREES, angle);
