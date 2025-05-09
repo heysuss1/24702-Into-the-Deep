@@ -230,8 +230,8 @@ clawCloser = 0;
                 if (follower.getPose().getY() < 118.5){
                     normalClaw();
                     // We need to figure out how to do this but for now Thread.sleep(300);
-                    armUp(-750-ARM_CONSTANT);
-                    armExtend(-750);
+                    armUp(-775-ARM_CONSTANT);
+                    armExtend(-825);
                 }
                 if(!follower.isBusy() && state == State.GO_TO_BASKET && robot.armVertical.getCurrentPosition() < (-748-ARM_CONSTANT) && robot.armExtension.getCurrentPosition() < -725){
                     if (armTimer.seconds() > .7){

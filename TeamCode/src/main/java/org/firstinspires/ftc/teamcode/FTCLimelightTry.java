@@ -22,6 +22,14 @@ public class FTCLimelightTry extends LinearOpMode {
     private LimeLightPipeline limelight;
     Follower follower;
     Hardware robot = Hardware.getInstance();
+    public Path convertToPedro(double lateralDistance){
+//        double pedroLateralDistance = -(lateralDistance);
+//        double updatedForward = forwardDistance - (distanceToWheels);
+        Pose currentPosition = new Pose(follower.getPose().getX(), follower.getPose().getY());
+        Pose targetSamplePosition = new Pose(currentPosition.getX(), currentPosition.getY()-lateralDistance);
+        Path newPath = new Path(new BezierLine(new Point(currentPosition), new Point(targetSamplePosition)));
+        return newPath;
+    }
 
     @Override
     public void runOpMode() throws InterruptedException
@@ -39,12 +47,16 @@ public class FTCLimelightTry extends LinearOpMode {
         while (opModeIsActive()) {
             LimeLightPipeline.DetectedObject detectedObject = limelight.getBestDetectedTarget(LimeLightPipeline.SampleType.RedAllianceSamples, false);
             if (detectedObject != null ){
-                distanceX = ((12.1*2)*(Math.sin(Math.toRadians(detectedObject.llResult.getTx()))))/Math.sin(145-detectedObject.llResult.getTy());
-                distanceY = Math.tan((Math.toRadians(detectedObject.llResult.getTx()))*distanceX);
+                distanceX = detectedObject.targetPose.getX(DistanceUnit.INCH);
+                distanceY =  detectedObject.targetPose.getY(DistanceUnit.INCH);
+                if (gamepad1.y){
+                    follower.followPath(convertToPedro(limelight.getObjectPose(detectedObject.targetPose).getX(DistanceUnit.INCH)));
+                }
             }
 
             telemetry.addData("Distance x", distanceX);
             telemetry.addData("Distance y", distanceY);
+
             follower.update();
             robot.diddylate(175, robot.roll);
             telemetry.update();

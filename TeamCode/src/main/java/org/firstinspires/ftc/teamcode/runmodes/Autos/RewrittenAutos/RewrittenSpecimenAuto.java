@@ -85,7 +85,7 @@ public class RewrittenSpecimenAuto extends OpMode {
 
 
     Pose starting = new Pose(5, 64, 0);
-    public static Pose preloadPose = new Pose(30.2, 61, 0);
+    public static Pose preloadPose = new Pose(30.02, 61, 0);
 //        toSubmersible.setPathEndTimeoutConstraint(500);
 //        toSubmersible.setZeroPowerAccelerationMultiplier(2.8);
     public static Pose strafeToSample1Pose = new Pose( 29, 40, 0);
@@ -135,7 +135,7 @@ public class RewrittenSpecimenAuto extends OpMode {
         toSubmersible = follower.pathBuilder()
                 .addPath(new BezierLine(new Point(starting), new Point(preloadPose)))
                         .setLinearHeadingInterpolation(starting.getHeading(), preloadPose.getHeading())
-                .setZeroPowerAccelerationMultiplier(2.65)
+                .setZeroPowerAccelerationMultiplier(2.671)
                                 .build();
 //        toSubmersible.setZeroPowerAccelerationMultiplier(2.8);
         strafeToSample1 = follower.pathBuilder()
@@ -154,7 +154,7 @@ public class RewrittenSpecimenAuto extends OpMode {
          strafeBehindSample2 = follower.pathBuilder().addPath(new BezierLine(new Point(backwardsFromSample1Pose), new Point(strafeBehindSample2Pose)))
                 .setLinearHeadingInterpolation(backwardsFromSample1Pose.getHeading(), strafeBehindSample2Pose.getHeading())
                  .build();
-         pushSample2 = follower.pathBuilder()       .addPath(new BezierLine(new Point(strafeBehindSample2Pose), new Point(pushSample2Pose)))
+         pushSample2 = follower.pathBuilder().addPath(new BezierLine(new Point(strafeBehindSample2Pose), new Point(pushSample2Pose)))
                 .setLinearHeadingInterpolation(strafeBehindSample2Pose.getHeading(), (pushSample2Pose.getHeading()))
                  .build();
          backwardsFromSample2 = follower.pathBuilder()       .addPath(new BezierLine(new Point(pushSample2Pose), new Point(backwardsFromSample2Pose)))
@@ -428,8 +428,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_1 && !follower.isBusy()){
-                    armExtend(-455);
-                    if (robot.armExtension.getCurrentPosition() < -415){
+                    armExtend(-540);
+                    if (robot.armExtension.getCurrentPosition() < -510 ){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -457,8 +457,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_2 && !follower.isBusy()){
-                    armExtend(-455);
-                    if (robot.armExtension.getCurrentPosition() < -415){
+                    armExtend(-560);
+                    if (robot.armExtension.getCurrentPosition() < -525){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -487,8 +487,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 rotateServoForward();
 
                 if (pathState == PathState.FORWARDS_TO_SUBMERSIBLE_3 && !follower.isBusy()){
-                    armExtend(-455);
-                    if (robot.armExtension.getCurrentPosition() < -415){
+                    armExtend(-500);
+                    if (robot.armExtension.getCurrentPosition() < -475){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }
@@ -516,8 +516,8 @@ public class RewrittenSpecimenAuto extends OpMode {
                 }
                 rotateServoForward();
                 if (pathState == PathState.FORWARD_TO_SUBMERSIBLE_4 && !follower.isBusy()){
-                    armExtend(-420);
-                    if (robot.armExtension.getCurrentPosition() < -380){
+                    armExtend(-520);
+                    if (robot.armExtension.getCurrentPosition() < -490){
                         if (armTimer.getElapsedTimeSeconds() > 1){
                             armTimer.resetTimer();
                         }

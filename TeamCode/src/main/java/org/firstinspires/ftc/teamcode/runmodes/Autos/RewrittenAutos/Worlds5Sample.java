@@ -24,7 +24,7 @@ import org.firstinspires.ftc.teamcode.runmodes.Autos.SamplesAuto;
 import org.firstinspires.ftc.teamcode.subsystems.LimeLightPipeline;
 
 
-@Autonomous(name = "States sample Auto ")
+@Autonomous(name = "limelight States sample Auto ")
 public class Worlds5Sample extends OpMode {
     Follower follower;
     Hardware robot = Hardware.getInstance();
@@ -168,10 +168,8 @@ public class Worlds5Sample extends OpMode {
         return Math.abs(motorTarget - currentPosition) <= 2;
     }
     public Path convertToPedro(double lateralDistance){
-//        double pedroLateralDistance = -(lateralDistance);
-//        double updatedForward = forwardDistance - (distanceToWheels);
         Pose currentPosition = new Pose(follower.getPose().getX(), follower.getPose().getY());
-        Pose targetSamplePosition = new Pose(currentPosition.getX(), currentPosition.getY()-lateralDistance);
+        Pose targetSamplePosition = new Pose(currentPosition.getX(),currentPosition.getY()-lateralDistance);
         Path newPath = new Path(new BezierLine(new Point(currentPosition), new Point(targetSamplePosition)));
         return newPath;
     }
@@ -218,9 +216,13 @@ public class Worlds5Sample extends OpMode {
         timer.resetTimer();
         autonomousPathUpdate();
     }
+    public Path moveToPointFromCurrentPosse(Point targetPoint){
+        Pose currentPosition = new Pose(follower.getPose().getX(), follower.getPose().getY());
+        return new Path(new BezierLine(new Point(currentPosition),targetPoint));
+    }
 
     public int extensionToSample(){
-        return (int)(Math.round(cleanedSample.getY(DistanceUnit.INCH))*robot.inchesToExtension);
+        return ((int)(Math.round(cleanedSample.getY(DistanceUnit.INCH))*robot.inchesToExtension)) * -1;
     }
     public void autonomousActionUpdate(){
         clawCloser = 0;
@@ -393,21 +395,33 @@ public class Worlds5Sample extends OpMode {
                 break;
 
             case SCAN_SUB:
-                robot.limelight.setLimelightDetectorEnabled(true);
-                sampleInfo = robot.limelight.getBestDetectedTarget(LimeLightPipeline.SampleType.YellowSample, false);
+                armUp(0);
+                armExtend(-450);
+                if (state == State.GO_TO_TARGET_SAMPLE) {
+                    robot.limelight.setLimelightDetectorEnabled(true);
+                    sampleInfo = robot.limelight.getBestDetectedTarget(LimeLightPipeline.SampleType.YellowSample, false);
+//                if (sampleInfo != null) {
+//                    cleanedSample = robot.limelight.getObjectPose(sampleInfo.targetPose);
+//                    setAction(ActionState.PICK_UP_SUB_SAMPLE);
+//                } else if (visionExpirationTime == null) {
+//                    visionExpirationTime = armTimer.seconds() + 8; // it should be .75
+//                } else if (armTimer.seconds() >= visionExpirationTime) {
+//                    setAction(ActionState.VISION_FAILURE_PARK);
+//                }
+//            }
+                }
                 if (sampleInfo != null){
-                    cleanedSample = robot.limelight.getObjectPose(sampleInfo.targetPose);
-                    setAction(ActionState.PICK_UP_SUB_SAMPLE);
-                } else if (visionExpirationTime == null){
-                    visionExpirationTime = armTimer.seconds() + .75;
-                } else if (armTimer.seconds() >= visionExpirationTime){
-                    setAction(ActionState.VISION_FAILURE_PARK);
+
+                    if (timer.getElapsedTimeSeconds() > 6){
+                        cleanedSample = robot.limelight.getObjectPose(sampleInfo.targetPose);
+                        setAction(ActionState.PICK_UP_SUB_SAMPLE);
+                    }
                 }
                 break;
             case PICK_UP_SUB_SAMPLE:
                 armExtend(extensionToSample());
                 armUp(-400-ARM_CONSTANT);
-                robot.diffyAngle(sampleInfo);
+//                robot.diffyAngle(sampleInfo);
                 if (robot.armVertical.getCurrentPosition() < (-350-ARM_CONSTANT) && (Math.abs(robot.armExtension.getCurrentPosition() - (extensionToSample())) <= 20)){
                     closeClaw();
                     setAction(ActionState.PUT_IN_BUCKET_4);
@@ -488,27 +502,21 @@ public class Worlds5Sample extends OpMode {
                 }
                 break;
             case GO_TO_PARKING:
-                if (actionState == ActionState.PARK && !follower.isBusy()){
+                if (actionState == ActionState.SCAN_SUB && !follower.isBusy()){
                     follower.followPath(toParking, true);
-                    setPathState(State.DONE);
+                    setPathState(State.GO_TO_TARGET_SAMPLE);
                 }
 
                 break;
             case GO_TO_TARGET_SAMPLE:
                 if (actionState == ActionState.PICK_UP_SUB_SAMPLE) {
-                    follower.followPath(
-                            follower.pathBuilder().addPath(
-                                    new BezierLine(
-                                            new Point(follower.getPose().getX(), follower.getPose().getY(), (int) Math.toRadians(follower.getPose().getHeading())), new Point(follower.getPose().getX(), follower.getPose().getY(), (int) Math.toRadians(cleanedSample.getHeading(AngleUnit.DEGREES)))
-                                    )
-                            ).setLinearHeadingInterpolation(Math.toRadians(follower.getPose().getY()), Math.toRadians(cleanedSample.getHeading(AngleUnit.DEGREES))).build()
-                    );
+                    follower.followPath(convertToPedro(cleanedSample.getX(DistanceUnit.INCH)));
                 }
                 break;
             case GO_TO_BASKET_FROM_SAMPLE_4:
                 //call the ilmelight and then pass in the sample pose because getObjectPose cleans the data
                 if (actionState == ActionState.PUT_IN_BUCKET_4){
-                    follower.followPath(convertToPedro(cleanedSample.getX(DistanceUnit.INCH)));
+                    follower.followPath(moveToPointFromCurrentPosse(new Point(bucketPose)));
                     setPathState(State.FINAL_PARKING);
                 }
                 break;
@@ -517,6 +525,7 @@ public class Worlds5Sample extends OpMode {
                     follower.followPath(toParking);
                     setPathState(State.DONE);
                 }
+                break;
 //            default:
 //                stop();
         }

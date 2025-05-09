@@ -112,10 +112,10 @@ public class LimeLightPipeline {
     //Camera Pose (These could also be stored in a global constants class)
     private static final class CameraConstants
     {
-        private static final double CAMERA_HEIGHT = 11; //From the center of the lens to the ground.
+        private static final double CAMERA_HEIGHT = 12.0625; //From the center of the lens to the ground.
         private static final double CAMERA_PITCH = -33.33;  //Calculate pitch using atan2(cameraHeight / distances). Distances is form the lens to the crosshair center
-        private static final double CAMERA_X_OFFSET = 5; //Offset form the cameras position to the central point.
-        private static final double CAMERA_Y_OFFSET = 9.5; //Offset form the cameras position to the central point.
+        private static final double CAMERA_X_OFFSET = 5.0625; //Offset form the cameras position to the central point.
+        private static final double CAMERA_Y_OFFSET = 1.75; //Offset form the cameras position to the central point.
     }
 
     public enum SampleType {
@@ -161,7 +161,7 @@ public class LimeLightPipeline {
     {
         ArrayList<DetectedObject> detectedObjs = null;
         LLResult llResult = limelight.getLatestResult();
-        Log.i("Limelight", "getDetectedObjects: llResult= " + llResult + ", isValid= " + llResult.isValid());
+//        Log.i("Limelight", "getDetectedObjectts: llResult= " + llResult + ", isValid= " + llResult.isValid());
         if(llResult != null && llResult.isValid())
         {
             double resultTimestamp = llResult.getTimestamp();

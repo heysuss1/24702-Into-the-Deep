@@ -69,8 +69,6 @@ public class TeleOP extends LinearOpMode {
         robot.lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
         extensionPID = new PIDFController(0.02, 0, 0.001, 0);
         verticalPID = new PIDFController(0.0219, 0, 0.001, 0);
 //        Pose pickUpSpecimen = new Pose(12, 8, -90);
